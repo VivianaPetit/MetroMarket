@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const publicacionSchema = new mongoose.Schema({
   titulo: String,
   descripcion: String,
-  tipo: String, // Producto o Servicio
+  tipo: String, // Producto, Servicio o Divisas
   categoria: String,
   precio: Number,
   cantidad: Number,
@@ -15,7 +15,12 @@ const publicacionSchema = new mongoose.Schema({
   lugarEntrega: String,
   vendedor: Object,
   metodoPago: String,
-  preguntas: [String]
+  preguntas: [String],
+  reseñas: [{
+    usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario'},
+    comentario: String,
+    fecha: { type: Date, default: Date.now }
+  }],
 });
 
 module.exports = mongoose.model('Publicacion', publicacionSchema);

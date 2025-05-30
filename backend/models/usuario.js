@@ -1,0 +1,26 @@
+const mongoose = require('mongoose');
+
+const usuarioSchema = new mongoose.Schema({
+    nombre: String,
+    correo: String,
+    contrasena: String, 
+    telefono: String,
+    calificacionPromedio: { type: Number, default: 0 }, 
+    publicaciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Publicacion' }],
+    nivelReputacion: String, // Oro, Plata, Bronce (???)
+    transacciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaccion' }],
+    fechaRegistro: { type: Date, default: Date.now },
+});
+
+usuarioSchema.pre('save', function(next) {
+    if (!this.transacciones || this.transacciones.length === 0) {
+        this.calificacion = null; 
+    } else {
+        // Calcula el promedio de las calificaciones
+        const total = this.transacciones.reduce((sum, t) => sum + (t.calificacion || 0), 0);
+        this.calificacion = total / this.transacciones.length; 
+    }
+    next(); // Continuar con el guardado
+});
+
+module.exports = mongoose.model('Usuario', usuarioSchema);
