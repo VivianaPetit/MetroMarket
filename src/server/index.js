@@ -1,4 +1,3 @@
-// index.js
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -13,6 +12,7 @@ app.use(express.json());
 // Rutas
 const publicacionesRoutes = require('./routes/publicaciones');
 app.use('/api/publicaciones', publicacionesRoutes);
+
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI, {
