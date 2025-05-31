@@ -5,13 +5,23 @@ const cors = require('cors');
 
 const app = express();
 
-// Middleware
+// Configuración de CORS
 app.use(cors());
 app.use(express.json());
 
 // Rutas
 const publicacionesRoutes = require('./routes/publicaciones');
 app.use('/api/publicaciones', publicacionesRoutes);
+
+const usuariosRoutes = require('./routes/usuarios');
+app.use('/api/usuarios', usuariosRoutes);
+
+const transaccionesRoutes = require('./routes/transacciones');
+app.use('/api/transacciones', transaccionesRoutes);
+
+const resenasRoutes = require('./routes/resenas');
+app.use('/api/resenas', resenasRoutes);
+
 
 
 // Conexión a MongoDB

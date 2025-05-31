@@ -20,7 +20,7 @@ usuarioSchema.pre('save', function(next) {
         const total = this.transacciones.reduce((sum, t) => sum + (t.calificacion || 0), 0);
         this.calificacion = total / this.transacciones.length; 
     }
-    next(); // Continuar con el guardado
+    next(); 
 });
 
 module.exports = mongoose.model('Usuario', usuarioSchema);
