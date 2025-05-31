@@ -1,10 +1,13 @@
-import { StyleSheet, Text, View } from 'react-native';
+// app/index.tsx
+import { Text, View, StyleSheet } from 'react-native';
 
-export default function Divisas() {
+export default function Home() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cambio de Divisas</Text>
-      <Text>En esta sección podrás comprar/vender divisas.</Text>
+      <Text style={styles.title}>Bienvenido a MetroMarket!</Text>
+      <Text>
+        Aquí podrás comprar y vender productos de la mejor calidad.
+      </Text>
     </View>
   );
 }

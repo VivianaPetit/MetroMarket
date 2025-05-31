@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
+const resenaSchema = require('./resena'); 
 
 const transaccionSchema = new mongoose.Schema({
-  nroTransaccion: { type: String, unique: true },
   comprador: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' },
   vendedor: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' },
   publicacion: { type: mongoose.Schema.Types.ObjectId, ref: 'Publicacion' },
@@ -9,13 +9,8 @@ const transaccionSchema = new mongoose.Schema({
   fechaTransaccion: { type: Date, default: Date.now },
   estado: { type: String, enum: ['Pendiente', 'Completada', 'Cancelada'], default: 'Pendiente' },
   metodoPago: String,
-  calificacionComprador: {
-    usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario'},
-    calificacion: Number,
-    comentario: String,
-    fecha: { type: Date, default: Date.now }
-    },
-
+  resenaComprador: resenaSchema, 
+  resenaVendedor: resenaSchema,
 });
 
 module.exports = mongoose.model('Transaccion', transaccionSchema);
