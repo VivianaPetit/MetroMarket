@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-export default function Home() {
+export default function Menu() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>MetroMarket</Text>
-      <Text>Bienvenido a la pantalla de inicio</Text>
+      <Text style={styles.title}>Menu</Text>
+      <Text>Aca puede ir el perfil, ver las publicaciones, etc.</Text>
     </View>
   );
 }
