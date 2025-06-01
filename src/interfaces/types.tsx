@@ -5,6 +5,7 @@ export interface Categoria {
 
 export interface Publicacion {
   _id: string;
+  categoria: string;
   titulo: string;
   precio: number;
   fotos: string[];  

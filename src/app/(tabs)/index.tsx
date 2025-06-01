@@ -14,6 +14,18 @@ export default function Home() {
   //codigo que usa axio como intermediario entre el front y la base de datos solamente falta colocar la api de nuestra base de datos
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
+  const [filtroTipo, setFiltroTipo] = useState('');
+  const [search, setSearch] = useState("");
+
+  //funcion para la barra de busqueda
+  const filteredPublications = publicaciones.filter((pub) => {
+  if (!search) return true; // Si no hay búsqueda, mostrar todos
+  
+  const searchTerm = search.toLowerCase();
+  const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
+  
+  return titleMatch;
+});
 
   useEffect(() => {
     fetchCategorias()
@@ -45,6 +57,9 @@ export default function Home() {
           style={styles.searchInput}
           placeholder="Buscar producto..."
           placeholderTextColor="#bbb"
+          value={search}
+          onChangeText={(text) => setSearch(text)}
+          returnKeyType="search"
         />
       </View>
 
@@ -67,7 +82,7 @@ export default function Home() {
 
       {/* Products */}
       <ScrollView contentContainerStyle={styles.productsGrid}>
-        {publicaciones.map((pub) => (
+        {filteredPublications.map((pub) => (
           <ProductCard
             key={pub._id}
             name={pub.titulo}
