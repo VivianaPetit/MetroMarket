@@ -23,8 +23,9 @@ export default function Home() {
   
   const searchTerm = search.toLowerCase();
   const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
+  const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
   
-  return titleMatch;
+  return titleMatch || categoryMatch;
 });
 
   useEffect(() => {
