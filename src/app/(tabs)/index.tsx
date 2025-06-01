@@ -1,5 +1,6 @@
 // app/index.tsx
-import { Text, View, StyleSheet } from 'react-native';
+import React from 'react';
+import { Button, StyleSheet, Text, View } from 'react-native';
 
 export default function Home() {
   return (
@@ -8,9 +9,15 @@ export default function Home() {
       <Text>
         Aquí podrás comprar y vender productos de la mejor calidad.
       </Text>
+      <Button
+  onPress={() => {
+  }}
+  title="Press Me"
+/>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
