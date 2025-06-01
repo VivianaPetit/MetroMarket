@@ -22,7 +22,8 @@ app.use('/api/transacciones', transaccionesRoutes);
 const resenasRoutes = require('./routes/resenas');
 app.use('/api/resenas', resenasRoutes);
 
-
+const categoriasRoutes = require('./routes/categoria');
+app.use('/api/categorias', categoriasRoutes);
 
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI, {
