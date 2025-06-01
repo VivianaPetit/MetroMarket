@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   GestureResponderEvent,
   StyleSheet,
@@ -6,8 +6,15 @@ import {
   TextStyle,
   TouchableOpacity,
   ViewStyle,
+  ScrollView
 } from 'react-native';
+import ProductCard from '../components/ProductCard';
+import axios from "axios";
+import { Publicacion } from '../interfaces/types';
+const publicacionesURL = "http://192.168.68.109:3000/api/publicaciones";
 
+
+const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
 type CategoryBadgeProps = {
   label: string;
   onPress?: (event: GestureResponderEvent) => void;
@@ -16,10 +23,44 @@ type CategoryBadgeProps = {
 };
 
 const CategoryBadge: React.FC<CategoryBadgeProps> = ({ label, onPress, style, textStyle }) => {
+const buscado = async (): Promise<Publicacion[]> => {
+  try {
+    const response = await axios.get<Publicacion[]>(publicacionesURL, {
+  params: {
+    categoria: label,
+  }
+});
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching publicaciones:', error);
+    throw error;
+  }
+};
+  useEffect(() => {
+        buscado()
+        .then(data => setPublicaciones(data.slice(0, 10)))
+        .catch(console.error);
+    }, []);
+
   return (
     <TouchableOpacity style={[styles.categoryButton, style]} onPress={onPress}>
       <Text style={[styles.categoryButtonText, textStyle]}>{label}</Text>
+      <ScrollView contentContainerStyle={styles.productsGrid}>
+        {publicaciones.map((pub) => (
+          <ProductCard
+            key={pub._id}
+            name={pub.titulo}
+            price={pub.precio}
+            image={
+                pub.fotos && pub.fotos.length > 0
+                ? pub.fotos[0]
+                : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
+            }
+          />
+        ))}
+      </ScrollView>
     </TouchableOpacity>
+    
   );
 };
 
@@ -49,5 +90,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#333',
     fontWeight: '500',
+  },
+
+    productsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 80,
   },
 });
