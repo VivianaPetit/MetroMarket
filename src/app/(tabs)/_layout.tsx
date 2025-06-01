@@ -14,11 +14,11 @@ export default function Layout() {
           borderTopWidth: 0,
           elevation: 0,
           shadowColor: 'transparent',
-          height: 70,
-          paddingTop: 8,
+          height: 50,
+          paddingTop: 2,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 10,
           fontWeight: 'bold',
         },
       }}
@@ -40,18 +40,20 @@ export default function Layout() {
             <View
               style={{
                 backgroundColor: 'white',
-                width: size + 24,    
-                height: size + 24,
-                borderRadius: (size + 24) / 2,
+                width: size + 30,    
+                height: size + 30,
+                borderRadius: (size + 30) / 2,
                 justifyContent: 'center',
-                marginTop: 20, 
+                marginTop: 0, 
                 alignItems: 'center',
-                marginBottom: 5,    
-                shadowColor: '#000', 
-                shadowOffset: { width: 0, height: 2 },
+                marginBottom: 7,    
+                elevation: 5, 
+                borderWidth: 3,
+                borderColor: '#F68628',   
+                shadowColor: '#F68628',
+                shadowOffset: { width: 0, height: 2 },  
                 shadowOpacity: 0.3,
-                shadowRadius: 3,
-                elevation: 5,        
+                shadowRadius: 3,  
               }}
             >
               <Ionicons name="add" size={size} color="#00318D" />
@@ -60,11 +62,11 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
-        name="menu"
+        name="perfil"
         options={{
-          title: 'Menú',
+          title: 'Perfil',
           tabBarIcon: ({ size, color }) => (
-            <Ionicons name="menu" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />
