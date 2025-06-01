@@ -7,38 +7,20 @@ import {
   TouchableOpacity,
   ViewStyle,
 } from 'react-native';
-import axios from "axios";
-import { Publicacion } from '../interfaces/types';
-import { Label } from '@react-navigation/elements';
-const publicacionesURL = "http://192.168.68.109:3000/api/publicaciones";
 
 type CategoryBadgeProps = {
   label: string;
+  onPress?: (event: GestureResponderEvent) => void;
   style?: ViewStyle;
   textStyle?: TextStyle;
-  onPress?: () => undefined;
 };
 
 const CategoryBadge: React.FC<CategoryBadgeProps> = ({ label, onPress, style, textStyle }) => {
   return (
-    <TouchableOpacity style={[styles.categoryButton, style]} onPress={Buscar}>
+    <TouchableOpacity style={[styles.categoryButton, style]} onPress={onPress}>
       <Text style={[styles.categoryButtonText, textStyle]}>{label}</Text>
     </TouchableOpacity>
   );
-};
-
- const Buscar = async (): Promise<Publicacion[]> => {
-  try {
-    const response = await axios.get<Publicacion[]>(publicacionesURL,{
-  params: {
-    categoria: "Calzado"
-  }
-});
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching publicaciones:', error);
-    throw error;
-  }
 };
 
 export default CategoryBadge;
