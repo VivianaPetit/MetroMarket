@@ -8,7 +8,7 @@ export default function Publicar() {
   return (
     <View style={styles.container}>
 
-      <Text style={styles.title}> Inserta fotos de tu producto</Text> #ver como rayos se insertaran esas fotos
+      <Text style={styles.title}> Inserta fotos de tu producto</Text> 
       <View style={styles.photoContainer}>
         <Image source={notphoto}></Image>
       </View>
@@ -25,7 +25,7 @@ export default function Publicar() {
       </View>
       
       <View style={{flexDirection:'column',margin:5}}>
-      <Text style={styles.title}>Seleccione categoria </Text> #categorias predeterminadas
+      <Text style={styles.title}>Seleccione categoria </Text> 
       <Category label='Belleza'></Category>
       </View>
 
