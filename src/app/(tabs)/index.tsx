@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
   Text,
@@ -12,8 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Feather from 'react-native-vector-icons/Feather';
+
 
 const { width } = Dimensions.get('window');
 
@@ -42,7 +42,7 @@ export default function Home() {
     <View style={styles.container}>
       <SafeAreaView style={styles.header}>
         <TouchableOpacity style={styles.headerIcon}>
-          <MaterialCommunityIcons name="menu" size={24} color="#333" />
+          <Ionicons name="menu" size={24} color="#00318D" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
@@ -102,17 +102,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 10,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   headerIcon: {
-    padding: 5,
+    paddingLeft: 10,
+    paddingBottom: 20,
+    
+
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 20,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -146,7 +149,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 18,
     paddingVertical: 6,
-    marginRight: 10,
+    margin: 10,
     height: 36,
     justifyContent: 'center',
     alignItems: 'center',
@@ -157,6 +160,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.6,
     shadowRadius: 3,
     elevation: 6,
+
   },
   categoryButtonText: {
     fontSize: 12,
