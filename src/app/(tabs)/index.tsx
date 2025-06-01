@@ -1,63 +1,35 @@
 import { Ionicons } from '@expo/vector-icons';
-import axios from "axios";
-import React from "react";
-import {
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from 'react-native';
-import CategoryBadge from '../components/Category';
-import ProductCard from '../components/ProductCard';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import CategoryBadge from '../../components/Category';
+import ProductCard from '../../components/ProductCard';
+import { Categoria, Publicacion } from '../../interfaces/types'; // ruta según tu estructura
+import { fetchCategorias } from '../../services/categoriaService';
+import { fetchPublicaciones } from '../../services/publicacionService';
 
-const { width } = Dimensions.get('window');
 //constante que guarde el link o api de lo que se va a mostrar
-const baseURL = 'https://jsonplaceholder.typicode.com/posts';
+const categoriasURL = 'http://192.168.68.109:3000/api/categorias';
 
-
-const categories = [
-  'Electrónica',
-  'Moda',
-  'Belleza',
-  'Servicios',
-  'Hogar',
-  'Deportes',
-];
-
-const products = [
-  { id: '1', name: 'Women Printed Kurta', price: 1500, image: 'https://picsum.photos/id/100/300/300' },
-  { id: '2', name: 'Men Classic Shirt', price: 1200, image: 'https://picsum.photos/id/101/300/300' },
-  { id: '3', name: 'Kids Denim Jeans', price: 800, image: 'https://picsum.photos/id/102/300/300' },
-  { id: '4', name: 'Smartwatch XYZ', price: 3500, image: 'https://picsum.photos/id/103/300/300' },
-  { id: '5', name: 'Wireless Headphones', price: 2200, image: 'https://picsum.photos/id/104/300/300' },
-  { id: '6', name: 'Travel Backpack', price: 950, image: 'https://picsum.photos/id/105/300/300' },
-  { id: '7', name: 'Coffee Maker', price: 1800, image: 'https://picsum.photos/id/106/300/300' },
-  { id: '8', name: 'Yoga Mat', price: 600, image: 'https://picsum.photos/id/107/300/300' },
-];
-
-const prueba = [
-   {userId: 1, id: 1, title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit", body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto" }
-];
+const productsURL = "http://192.168.68.109:3000/api/publicaciones"
 
 export default function Home() {
   //codigo que usa axio como intermediario entre el front y la base de datos solamente falta colocar la api de nuestra base de datos
-  const [post, setPost] = React.useState(prueba)
-  React.useEffect(() => {
-    axios.get(baseURL).then((response) => {
-      setPost(response.data);
-    })
-    .catch((error) => {
-        console.log(error);
-    });
-    
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
+
+  useEffect(() => {
+    fetchCategorias()
+      .then(data => setCategorias(data.slice(0, 10)))
+      .catch(console.error);
+
+    fetchPublicaciones()
+      .then(data => setPublicaciones(data.slice(0, 10)))
+      .catch(console.error);
   }, []);
-      console.log(post)
+
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.header}>
@@ -83,6 +55,7 @@ export default function Home() {
         />
       </View>
 
+
       {/* Categorias */}
 
       <View style={styles.categoriesWrapper}>
@@ -91,20 +64,26 @@ export default function Home() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesContainer}
            >
-          {categories.map((category, index) => (
-             <CategoryBadge key={category} label={category} />
+          {categorias.map((cat) => (
+            <CategoryBadge key={cat._id} label={cat.nombre} />
           ))}
+
+
         </ScrollView>
       </View>
 
       {/* Products */}
       <ScrollView contentContainerStyle={styles.productsGrid}>
-        {products.map((product) => (
+        {publicaciones.map((pub) => (
           <ProductCard
-            key={product.id}
-            name={product.name}
-            price={product.price}
-            image={product.image}
+            key={pub._id}
+            name={pub.titulo}
+            price={pub.precio}
+            image={
+                pub.fotos && pub.fotos.length > 0
+                ? pub.fotos[0]
+                : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
+            }
           />
         ))}
       </ScrollView>

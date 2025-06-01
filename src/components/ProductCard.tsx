@@ -4,13 +4,12 @@ import { View, Text, Image, StyleSheet, Dimensions, ImageSourcePropType } from '
 const { width } = Dimensions.get('window');
 
 type ProductCardProps = {
-  key: string;
   name: string;
   price: number;
   image: string; 
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({ key, name, price, image }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ name, price, image }) => {
   return (
     <View style={styles.productCard}>
       <Image source={{ uri: image }} style={styles.productImage} />
