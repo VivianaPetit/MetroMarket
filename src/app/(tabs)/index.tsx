@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import CategoryBadge from '../../components/Category';
@@ -32,17 +32,14 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.header}>
-        <TouchableOpacity style={styles.headerIcon}>
-          <Ionicons name="menu" size={24} color="#00318D" />
-        </TouchableOpacity>
+      <SafeAreaView style={styles.header}>     
         <Text style={styles.headerTitle}>
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
-        {/* <TouchableOpacity style={styles.headerIcon}>
-          <Ionicons name="person-outline" size={24} color="#333" />
-        </TouchableOpacity> */}
+        { <TouchableOpacity style={styles.headerIcon}>
+          <Ionicons name="person" size={24} color="#00318D" />
+        </TouchableOpacity> }
       </SafeAreaView>
 
       {/* Barra de búsqueda */}
@@ -100,21 +97,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   headerIcon: {
-    paddingLeft: 10,
-    paddingBottom: 20,
-    
-
+    paddingBottom: 15,
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
+    textAling: 'center',
   },
   searchContainer: {
     flexDirection: 'row',
