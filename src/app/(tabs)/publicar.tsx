@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Category from '../../components/Category'
+
 const notphoto = require('../../../assets/images/image_not.png')
 
 export default function Publicar() {
