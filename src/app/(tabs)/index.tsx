@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import axios from "axios";
+import React from "react";
 import {
   Dimensions,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,13 +11,15 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import CategoryBadge from '../components/Category';
 import ProductCard from '../components/ProductCard';
-
+import { SafeAreaView } from 'react-native-safe-area-context';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const { width } = Dimensions.get('window');
+//constante que guarde el link o api de lo que se va a mostrar
+const baseURL = 'https://jsonplaceholder.typicode.com/posts';
+
 
 const categories = [
   'Electrónica',
@@ -37,7 +41,23 @@ const products = [
   { id: '8', name: 'Yoga Mat', price: 600, image: 'https://picsum.photos/id/107/300/300' },
 ];
 
+const prueba = [
+   {userId: 1, id: 1, title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit", body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto" }
+];
+
 export default function Home() {
+  //codigo que usa axio como intermediario entre el front y la base de datos solamente falta colocar la api de nuestra base de datos
+  const [post, setPost] = React.useState(prueba)
+  React.useEffect(() => {
+    axios.get(baseURL).then((response) => {
+      setPost(response.data);
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+    
+  }, []);
+      console.log(post)
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.header}>
