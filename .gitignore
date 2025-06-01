@@ -3,8 +3,16 @@
 # dependencies
 node_modules/
 /backend/node_modules/
-.anima/
 .env
+
+# Anima files
+.anima/
+.anima/*
+
+# Configuraciones de VS Code
+.vscode/
+.vscode/*
+
 
 # Expo
 .expo/
