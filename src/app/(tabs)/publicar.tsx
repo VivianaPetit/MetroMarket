@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-const notphoto = require('../../../assets/images/image_not.png');
+import Category from '../components/Category';
+const notphoto = require('../../../assets/images/image_not.png')
 
 export default function Publicar() {
   return (
@@ -21,9 +22,11 @@ export default function Publicar() {
         <View style={[styles.imputBox,{ width: 70, height:43,marginHorizontal:4}]}></View>
         <Text style={styles.title}>BS</Text>
       </View>
-
-      <Text style={styles.title}>Seleccione categoria</Text> #categorias predeterminadas
       
+      <View style={{flexDirection:'column',margin:5}}>
+      <Text style={styles.title}>Seleccione categoria </Text> #categorias predeterminadas
+      <Category label='Belleza'></Category>
+      </View>
 
 
       <TouchableOpacity style={styles.button}>

@@ -36,6 +36,7 @@ export default function Layout() {
         name="publicar"
         options={{
           tabBarLabel: () => null,
+          tabBarStyle: {display:'none'},
           tabBarIcon: ({ size }) => (
             <View
               style={{
