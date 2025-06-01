@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import CategoryBadge from '../../components/Category';
@@ -9,10 +9,6 @@ import { Categoria, Publicacion } from '../../interfaces/types'; // ruta según 
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
 
-//constante que guarde el link o api de lo que se va a mostrar
-const categoriasURL = 'http://192.168.68.109:3000/api/categorias';
-
-const productsURL = "http://192.168.68.109:3000/api/publicaciones"
 
 export default function Home() {
   //codigo que usa axio como intermediario entre el front y la base de datos solamente falta colocar la api de nuestra base de datos
@@ -32,14 +28,14 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.header}>     
+      <SafeAreaView style={styles.header}>
         <Text style={styles.headerTitle}>
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
-        { <TouchableOpacity style={styles.headerIcon}>
+        {<TouchableOpacity style={styles.headerIcon}>
           <Ionicons name="person" size={24} color="#00318D" />
-        </TouchableOpacity> }
+        </TouchableOpacity>}
       </SafeAreaView>
 
       {/* Barra de búsqueda */}
@@ -97,19 +93,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   headerIcon: {
-    paddingBottom: 15,
+    paddingLeft: 10,
+    paddingBottom: 20,
+    
+
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
-    textAling: 'center',
   },
   searchContainer: {
     flexDirection: 'row',

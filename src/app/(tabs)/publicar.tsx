@@ -1,20 +1,11 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Switch,
-  Alert,
-} from 'react-native';
+  View, Text, TextInput, StyleSheet, TouchableOpacity,ScrollView,Switch,Alert, } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
-const metodosPago = ['Efectivo', 'Transferencia', 'Pago móvil', 'Otro'];
 
 const CreatePublication = () => {
   const navigation = useNavigation();
@@ -26,7 +17,6 @@ const CreatePublication = () => {
   const [estado, setEstado] = useState('');
   const [disponible, setDisponible] = useState(true);
   const [lugarEntrega, setLugarEntrega] = useState('');
-  const [metodoPago, setMetodoPago] = useState('');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
 
   const handlePublicar = () => {
@@ -125,21 +115,7 @@ const CreatePublication = () => {
       />
 
       <Text style={styles.label}>Categoría</Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={categoriaSeleccionada}
-          onValueChange={(itemValue) => setCategoriaSeleccionada(itemValue)}
-          style={styles.picker}
-          dropdownIconColor="#333"
-        >
-          <Picker.Item label="Electrónica" value="Electrónica" />
-          <Picker.Item label="Moda" value="Moda" />
-          <Picker.Item label="Hogar" value="Hogar" />
-          <Picker.Item label="Libros" value="Libros" />
-          <Picker.Item label="Deportes" value="Deportes" />
-          <Picker.Item label="Otros" value="Otros" />
-        </Picker>
-      </View>
+      
 
 
       <TouchableOpacity style={styles.botonPublicar} onPress={handlePublicar}>
@@ -216,7 +192,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   pickerContainer: {
-    fontColor: '#000',
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 10,

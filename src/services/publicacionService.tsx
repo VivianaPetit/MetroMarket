@@ -1,7 +1,8 @@
 import axios from "axios";
 import { Publicacion } from '../interfaces/types';
+import { API_BASE_URL } from '../../config';
 
-const publicacionesURL = "http://192.168.68.109:3000/api/publicaciones";
+const publicacionesURL = `${API_BASE_URL}/publicaciones`;
 
 export const fetchPublicaciones = async (): Promise<Publicacion[]> => {
   try {
