@@ -1,18 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
-  Text,
-  View,
-  StyleSheet,
-  TextInput,
-  ScrollView,
-  Image,
-  TouchableOpacity,
   Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import CategoryBadge from '../components/Category';
+import ProductCard from '../components/ProductCard';
 
 
 const { width } = Dimensions.get('window');
@@ -63,29 +63,29 @@ export default function Home() {
         />
       </View>
 
-      {/* Categorías */}
+      {/* Categorias */}
+
       <View style={styles.categoriesWrapper}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesContainer}
-        >
+           >
           {categories.map((category, index) => (
-            <TouchableOpacity key={index} style={styles.categoryButton}>
-              <Text style={styles.categoryButtonText}>{category}</Text>
-            </TouchableOpacity>
+             <CategoryBadge key={category} label={category} />
           ))}
         </ScrollView>
       </View>
 
-      {/* Contenido principal (productos) */}
+      {/* Products */}
       <ScrollView contentContainerStyle={styles.productsGrid}>
         {products.map((product) => (
-          <View key={product.id} style={styles.productCard}>
-            <Image source={{ uri: product.image }} style={styles.productImage} />
-            <Text style={styles.productName}>{product.name}</Text>
-            <Text style={styles.productPrice}>${product.price}</Text>
-          </View>
+          <ProductCard
+            key={product.id}
+            name={product.name}
+            price={product.price}
+            image={product.image}
+          />
         ))}
       </ScrollView>
     </View>
@@ -144,66 +144,12 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     paddingHorizontal: 16,
   },
-  categoryButton: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 18,
-    paddingVertical: 6,
-    margin: 10,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    shadowColor: '#FF8C00',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.6,
-    shadowRadius: 3,
-    elevation: 6,
 
-  },
-  categoryButtonText: {
-    fontSize: 12,
-    color: '#333',
-    fontWeight: '500',
-  },
   productsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 80,
-  },
-  productCard: {
-    width: (width / 2) - 24,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 16,
-    overflow: 'hidden',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.01,
-    shadowRadius: 1,
-    elevation: 2,
-    shadowColor: '#FF8C00',
-    alignItems: 'center',
-  },
-  productImage: {
-    width: '100%',
-    height: 130,
-    resizeMode: 'cover',
-  },
-  productName: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#333',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  productPrice: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#000',
-    marginBottom: 8,
-    textAlign: 'center',
   },
 });
