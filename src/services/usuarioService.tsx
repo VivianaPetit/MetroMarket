@@ -14,6 +14,21 @@ export const fetchPublicaciones = async (): Promise<Usuario[]> => {
   }
 };
 
+export const agregarPublicacionAUsuario = async (
+  userId: string,
+  publicacionId: string
+): Promise<Usuario> => {
+  try {
+    const response = await axios.patch(`${usuariosURL}/${userId}/publicaciones`, {
+      publicacionId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error agregando publicación al usuario:', error);
+    throw error;
+  }
+};
+
 export const createUsuario = async (
   nuevoUsuario: Omit<Usuario, '_id'>
 ): Promise<Usuario> => {

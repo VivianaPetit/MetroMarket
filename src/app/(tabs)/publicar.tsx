@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -16,16 +16,11 @@ import { Picker } from '@react-native-picker/picker';
 import { Categoria } from '../../interfaces/types';
 import { fetchCategorias } from '../../services/categoriaService';
 import { crearPublicacion } from '../../services/publicacionService';
+import { agregarPublicacionAUsuario } from '../../services/usuarioService'; // <-- IMPORTA ESTO
 import { useAuth } from '../../context/userContext';
 import { useRouter } from 'expo-router';
 
-
 const estados = ['Nuevo', 'Usado', 'Reparado'];
-const categorias = ['Electrónica', 'Ropa', 'Libros', 'Hogar', 'Otros'];
-
-
-
-
 
 const CreatePublication = () => {
   const navigation = useNavigation();
@@ -42,61 +37,65 @@ const CreatePublication = () => {
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
 
-    useEffect(() => {
-      fetchCategorias()
-        .then(data => setCategorias(data))
-        .catch(console.error);
-    }, []);
+  useEffect(() => {
+    fetchCategorias()
+      .then(data => setCategorias(data))
+      .catch(console.error);
+  }, []);
 
   const handlePublicar = async () => {
-   
-     if (!user) {
-    Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
-    router.push("/") // o el nombre correcto de tu pantalla inicial
-    return;
-  }
+    if (!user) {
+      Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
+      router.push("/");
+      return;
+    }
 
-   console.log(user._id)
-    
-  if (!titulo || !precio || !cantidad) {
-    Alert.alert('Error', 'Título, precio y cantidad son obligatorios.');
-    return;
-  }
+    if (!titulo || !precio || !cantidad) {
+      Alert.alert('Error', 'Título, precio y cantidad son obligatorios.');
+      return;
+    }
 
-  const resetForm = () => {
-  setTitulo('');
-  setDescripcion('');
-  setPrecio('');
-  setCantidad('');
-  setEstado('');
-  setDisponible(true);
-  setLugarEntrega('');
-  setMetodoPago('');
-  setCategoria('');
-};
+    const resetForm = () => {
+      setTitulo('');
+      setDescripcion('');
+      setPrecio('');
+      setCantidad('');
+      setEstado('');
+      setDisponible(true);
+      setLugarEntrega('');
+      setMetodoPago('');
+      setCategoria('');
+    };
 
-  const nuevaPublicacion = {
-    titulo,
-    descripcion,
-    precio : parseInt(precio),
-    cantidad,
-    estado,
-    disponible,
-    lugarEntrega,
-    metodoPago,
-    categoria,
-    usuario: user._id,
+    const nuevaPublicacion = {
+      titulo,
+      descripcion,
+      precio: parseInt(precio),
+      cantidad,
+      estado,
+      disponible,
+      lugarEntrega,
+      metodoPago,
+      categoria,
+      usuario: user._id,
+    };
+
+    try {
+      // Crear la publicación y obtener el objeto creado con _id
+      const publicacionCreada = await crearPublicacion(nuevaPublicacion);
+
+      console.log('aca esta la pub id', publicacionCreada._id)
+      // Agregar el ID de la publicación creada al usuario
+      await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
+
+      Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
+      resetForm();
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo crear la publicación.');
+      console.error(error);
+    }
   };
-
-  try {
-    await crearPublicacion(nuevaPublicacion);
-    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
-    resetForm();
-    navigation.goBack();
-  } catch (error) {
-    Alert.alert('Error', 'No se pudo crear la publicación.');
-  }
-};
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -182,16 +181,16 @@ const CreatePublication = () => {
 
       <Text style={styles.label}>Categoría</Text>
       <View style={styles.pickerWrapper}>
-        <Picker 
+        <Picker
           selectedValue={categoria}
           onValueChange={(itemValue) => setCategoria(itemValue)}
           style={[
-            Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
+            Platform.OS === 'ios' ? styles.pickerIOS : styles.picker,
           ]}
         >
-            {categorias.map((cat) => (
-            <Picker.Item key={cat._id} label={cat.nombre} value={cat}  />
-            ))}
+          {categorias.map((cat) => (
+            <Picker.Item key={cat._id} label={cat.nombre} value={cat} />
+          ))}
         </Picker>
       </View>
 
@@ -204,6 +203,8 @@ const CreatePublication = () => {
 };
 
 export default CreatePublication;
+
+
 
 const styles = StyleSheet.create({
   container: {
