@@ -14,4 +14,25 @@ router.post('/', async (req, res) => {
   res.json(nuevaPublicacion);
 });
 
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const dataActualizada = req.body;
+
+  try {
+    const publicacion = await Publicacion.findByIdAndUpdate(id, dataActualizada, {
+      new: true,
+    });
+
+    if (!publicacion) {
+      return res.status(404).json({ mensaje: 'Publicación no encontrada' });
+    }
+
+    res.json(publicacion);
+  } catch (error) {
+    console.error(`Error actualizando publicación con id ${id}:`, error);
+    res.status(500).json({ mensaje: 'Error del servidor al actualizar la publicación' });
+  }
+});
+
 module.exports = router;
+
