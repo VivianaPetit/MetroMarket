@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -13,14 +13,17 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
-
+import { Categoria } from '../../interfaces/types';
+import { fetchCategorias } from '../../services/categoriaService';
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 const categorias = ['Electrónica', 'Ropa', 'Libros', 'Hogar', 'Otros'];
 
+
+
 const CreatePublication = () => {
   const navigation = useNavigation();
-
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [precio, setPrecio] = useState('');
@@ -30,6 +33,12 @@ const CreatePublication = () => {
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
+
+    useEffect(() => {
+      fetchCategorias()
+        .then(data => setCategorias(data))
+        .catch(console.error);
+    }, []);
 
   const handlePublicar = () => {
     if (!titulo || !precio || !cantidad) {
@@ -132,7 +141,7 @@ const CreatePublication = () => {
           ]}
         >
             {categorias.map((cat) => (
-            <Picker.Item key={cat} label={cat} value={cat}  />
+            <Picker.Item key={cat._id} label={cat.nombre} value={cat}  />
             ))}
         </Picker>
       </View>

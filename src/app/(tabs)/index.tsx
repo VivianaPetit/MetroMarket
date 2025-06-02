@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {CategoryBadge} from '../../components/Category';
 import ProductCard from '../../components/ProductCard';
-import { Categoria, Publicacion } from '../../interfaces/types'; // ruta según tu estructura
+import { Categoria, Publicacion } from '../../interfaces/types'; 
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
 
@@ -17,8 +17,6 @@ export default function Home() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-
-  const [filtroTipo, setFiltroTipo] = useState('');
   const [search, setSearch] = useState("");
 
   //funcion para la barra de busqueda
@@ -47,8 +45,6 @@ export default function Home() {
       current === categoryId ? null : categoryId
     );
   };
-
-
 
   return (
     <View style={styles.container}>
