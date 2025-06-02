@@ -12,8 +12,8 @@ const publicacionSchema = new mongoose.Schema({
   fechaPublicacion: { type: Date, default: Date.now },
   disponible: Boolean,
   lugarEntrega: String,
+  vendedor: Object,
   metodoPago: String,
-  usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' },
   preguntas: [String],
 });
 

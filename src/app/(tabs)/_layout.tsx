@@ -14,8 +14,8 @@ export default function Layout() {
           borderTopWidth: 0,
           elevation: 0,
           shadowColor: 'transparent',
-          height: 70,
-          paddingTop: 18,
+          height: 50,
+          paddingTop: 2,
         },
         tabBarLabelStyle: {
           fontSize: 10,
@@ -26,10 +26,9 @@ export default function Layout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarShowLabel: false,
           title: 'Inicio',
           tabBarIcon: ({ size, color }) => (
-            <Octicons name="home" size={30} color={color} />
+            <Octicons name="home" size={size} color={color} />
           ),
         }}
       />
@@ -37,14 +36,13 @@ export default function Layout() {
         name="publicar"
         options={{
           tabBarLabel: () => null,
-          tabBarStyle: {display:'none'},
           tabBarIcon: ({ size }) => (
             <View
               style={{
                 backgroundColor: 'white',
-                width: size + 40,    
-                height: size + 40,
-                borderRadius: (size + 40) / 2,
+                width: size + 30,    
+                height: size + 30,
+                borderRadius: (size + 30) / 2,
                 justifyContent: 'center',
                 marginTop: 0, 
                 alignItems: 'center',
@@ -58,18 +56,17 @@ export default function Layout() {
                 shadowRadius: 3,  
               }}
             >
-              <Ionicons name="add" size={30} color="#00318D" />
+              <Ionicons name="add" size={size} color="#00318D" />
             </View>
           ),
         }}
       />
       <Tabs.Screen
-        name="menu"
+        name="perfil"
         options={{
-          tabBarShowLabel: false,
-          title: 'Menu',
+          title: 'Perfil',
           tabBarIcon: ({ size, color }) => (
-            <Ionicons name="menu" size={30} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />

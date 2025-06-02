@@ -1,129 +1,19 @@
 // app/index.tsx
-import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert,} from 'react-native'; // <-- NEW: Import Alert for example
-import { SafeAreaView } from 'react-native-safe-area-context';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { CategoryBadge } from '../../components/Category';
-import ProductCard from '../../components/ProductCard'; 
-import { Categoria, Publicacion } from '../../interfaces/types'; 
-import { fetchCategorias } from '../../services/categoriaService';
-import { fetchPublicaciones } from '../../services/publicacionService';
-import { AuthProvider, useAuth } from '../../context/userContext';
-import {ServiceCategory } from '../../services/ServiceCategory';
+import React from 'react';
+import { Button, StyleSheet, Text, View } from 'react-native';
 
 export default function Home() {
-  const router = useRouter();
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [search, setSearch] = useState("");
-  const { user } = useAuth();
-
-  const filteredPublications = publicaciones.filter((pub) => {
-    if (!search) return true;
-    const searchTerm = search.toLowerCase();
-    const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
-    const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
-    return titleMatch || categoryMatch;
-  });
-
-  useEffect(() => {
-    fetchCategorias()
-      .then(data => setCategorias(data.slice(0, 10)))
-      .catch(console.error);
-
-    fetchPublicaciones()
-      .then(data => setPublicaciones(data))
-      .catch(console.error);
-  }, []);
-
-  const handleCategoryPress = (categoryId: string,category: string) => {
-    setSelectedCategoryId(current => 
-      current === categoryId ? null : categoryId
-    );
-     ServiceCategory(category)
-      .then(data => setPublicaciones(data))
-      .catch(console.error);
-  };
-
-  // <-- NEW: Handler for the edit icon press
-  const handleEditProduct = (productId: string, productName: string) => {
-    Alert.alert('Editar Producto', `Has presionado editar para: ${productName} (ID: ${productId})`);
-    // Here, you would typically navigate to an edit screen:
-    // router.push(`/edit-product/${productId}`);
-  };
-
   return (
     <View style={styles.container}>
-      <SafeAreaView style={styles.header}>
-        <Text style={styles.headerTitle}>
-          <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
-          <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
-        </Text>
-        { user ? (<TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
-          <Ionicons name="person" size={24} color="#00318D" />
-        </TouchableOpacity>) : (
-          <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/login')}>  
-            <Ionicons name="log-in-outline" size={24} color="#00318D" />
-          </TouchableOpacity>)
-        }
-      </SafeAreaView> 
-
-      {/* Barra de búsqueda */}
-      <View style={styles.searchContainer}>
-        <FontAwesome name="search" size={18} color="#bbb" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar producto..."
-          placeholderTextColor="#bbb"
-          value={search}
-          onChangeText={(text) => setSearch(text)}
-          returnKeyType="search"
-        />
-      </View>
-
-      {/* Categorias */}
-      <View style={styles.categoriesWrapper}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesContainer}
-        >
-          {categorias.map((cat) => (
-            <CategoryBadge 
-              key={cat._id}
-              label={cat.nombre}
-              isSelected={selectedCategoryId === cat._id}
-              onPress={() => handleCategoryPress(cat._id,cat.nombre)}
-            />
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Products */}
-      <ScrollView contentContainerStyle={styles.productsGrid}>
-        {filteredPublications.length > 0 ? (
-          filteredPublications.map((pub) => (
-            <ProductCard
-              key={pub._id}
-              name={pub.titulo}
-              price={pub.precio}
-              category={pub.categoria}
-              image={
-                pub.fotos && pub.fotos.length > 0
-                  ? pub.fotos[0]
-                  : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
-              }
-              
-              //onEdit={() => handleEditProduct(pub._id, pub.titulo)} // Example: Pass ID and title
-            />
-          ))
-        ) : (
-          <Text style={styles.errorMensaje}>No se encontraron productos</Text>
-        )}
-      </ScrollView>
+      <Text style={styles.title}>Bienvenido a MetroMarket!</Text>
+      <Text>
+        Aquí podrás comprar y vender productos de la mejor calidad.
+      </Text>
+      <Button
+  onPress={() => {
+  }}
+  title="Press Me"
+/>
     </View>
   );
 }
@@ -146,6 +36,8 @@ const styles = StyleSheet.create({
   headerIcon: {
     paddingLeft: 10,
     paddingBottom: 20,
+    
+
   },
   headerTitle: {
     fontSize: 20,
@@ -179,6 +71,29 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     paddingHorizontal: 16,
   },
+  categoryButton: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    margin: 10,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    shadowColor: '#FF8C00',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 3,
+    elevation: 6,
+
+  },
+  categoryButtonText: {
+    fontSize: 12,
+    color: '#333',
+    fontWeight: '500',
+  },
   productsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -186,12 +101,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 80,
   },
-  errorMensaje: {
-    fontSize: 20,
-    flexDirection: 'row', // This won't do much for a single Text component
-    flexWrap: 'wrap',
-    textAlign: 'center', // Added for better centering of the message
-    width: '100%', // Ensure it takes full width to center
-    marginTop: 20,
+  productCard: {
+    width: (width / 2) - 24,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginBottom: 16,
+    overflow: 'hidden',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.01,
+    shadowRadius: 1,
+    elevation: 2,
+    shadowColor: '#FF8C00',
+    alignItems: 'center',
+  },
+  productImage: {
+    width: '100%',
+    height: 130,
+    resizeMode: 'cover',
+  },
+  productName: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#333',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  productPrice: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 8,
+    textAlign: 'center',
   },
 });
