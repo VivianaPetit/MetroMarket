@@ -11,22 +11,42 @@ export default function Perfil() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.profileCard}>
-        <Ionicons name="person-circle-outline" size={50} color="#fff" />
-        <View style={styles.profileText}>
-          <Text style={styles.username}>{user?.nombre ?? 'Invitado'}</Text>
+      {/* Invitado/User Card */}
+      <TouchableOpacity
+        style={styles.menuButton}
+        activeOpacity={1} // Make it not dim on touch for consistent look
+      >
+        <View style={styles.guestCardContent}>
+          <Ionicons name="person-outline" size={30} color="#fff" />
+          <Text style={styles.guestText}>{user?.nombre ?? 'Invitado'}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
 
+      {/* Iniciar Sesión Button */}
       {!user && (
         <TouchableOpacity
-          style={styles.loginButton}
+          style={styles.menuButton}
           onPress={() => router.push('/login')}
           activeOpacity={0.8}
         >
-          <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+          <View style={styles.loginButtonContent}>
+            <Ionicons name="document-text-outline" size={24} color="#fff" />
+            <Text style={styles.loginButtonText}>Iniciar sesion</Text>
+          </View>
         </TouchableOpacity>
       )}
+
+      {/* Mis publicaciones Button */}
+      <TouchableOpacity
+        style={styles.menuButton}
+         onPress={() => router.push('../Publicaciones')}
+        activeOpacity={0.8}
+      >
+        <View style={styles.publicationsButtonContent}>
+          <Ionicons name="grid-outline" size={24} color="#FF8C00" />
+          <Text style={styles.publicationsButtonText}>Mis publicaciones</Text>
+        </View>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -36,37 +56,64 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f8f8',
     paddingHorizontal: 16,
+    paddingTop: 30, // Adjust top padding to match the image
+
   },
-  profileCard: {
+  menuButton: {
+    backgroundColor: '#fff', // Default background for buttons, will be overridden
+    borderRadius: 12,
+    marginBottom: 20, // Space between buttons
+    // Shadow properties
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+    height : 70,
+
+  },
+  guestCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#00318D',
+    backgroundColor: '#00318D', // Blue background for guest card
     padding: 16,
     borderRadius: 12,
-    marginBottom: 5,
+    height : 70,
   },
-  profileText: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: 'center',
-  },
-  username: {
+  guestText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 18,
+    marginLeft: 12,
   },
-  loginButton: {
-    backgroundColor: '#FF8C00', 
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignSelf: 'stretch',
+  loginButtonContent: {
+    flexDirection: 'row',
     alignItems: 'center',
-
+    backgroundColor: '#FF8C00', // Orange background for login button
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    height : 70,
   },
   loginButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+    marginLeft: 12,
+  },
+  publicationsButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff', // White background for publications button
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    height : 70,
+  },
+  publicationsButtonText: {
+    color: '#000', // Black text for publications button
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 12,
   },
 });
