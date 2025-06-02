@@ -1,34 +1,31 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert,} from 'react-native'; // <-- NEW: Import Alert for example
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {CategoryBadge} from '../../components/Category';
-import ProductCard from '../../components/ProductCard';
+import { CategoryBadge } from '../../components/Category';
+import ProductCard from '../../components/ProductCard'; // <-- KEEP THIS import
 import { Categoria, Publicacion } from '../../interfaces/types'; 
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
+// import EditableProductCard from '../../components/ProductCard'; // <-- REMOVE THIS LINE, we're modifying ProductCard directly
 
 
 export default function Home() {
   const router = useRouter();
-  //codigo que usa axio como intermediario entre el front y la base de datos solamente falta colocar la api de nuestra base de datos
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  //funcion para la barra de busqueda
   const filteredPublications = publicaciones.filter((pub) => {
-  if (!search) return true; // Si no hay búsqueda, mostrar todos
-  const searchTerm = search.toLowerCase();
-  const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
-  const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
-  
-  return titleMatch || categoryMatch;
-  
-});
+    if (!search) return true;
+    const searchTerm = search.toLowerCase();
+    const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
+    const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
+    return titleMatch || categoryMatch;
+  });
 
   useEffect(() => {
     fetchCategorias()
@@ -46,6 +43,13 @@ export default function Home() {
     );
   };
 
+  // <-- NEW: Handler for the edit icon press
+  const handleEditProduct = (productId: string, productName: string) => {
+    Alert.alert('Editar Producto', `Has presionado editar para: ${productName} (ID: ${productId})`);
+    // Here, you would typically navigate to an edit screen:
+    // router.push(`/edit-product/${productId}`);
+  };
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.header}>
@@ -53,9 +57,9 @@ export default function Home() {
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
-        {<TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
           <Ionicons name="person" size={24} color="#00318D" />
-        </TouchableOpacity>}
+        </TouchableOpacity>
       </SafeAreaView>
 
       {/* Barra de búsqueda */}
@@ -71,9 +75,7 @@ export default function Home() {
         />
       </View>
 
-
       {/* Categorias */}
-
       <View style={styles.categoriesWrapper}>
         <ScrollView
           horizontal
@@ -105,10 +107,12 @@ export default function Home() {
                   ? pub.fotos[0]
                   : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
               }
+              
+              //onEdit={() => handleEditProduct(pub._id, pub.titulo)} // Example: Pass ID and title
             />
           ))
         ) : (
-            <Text style={styles.errorMensaje}>No se encontraron productos</Text>
+          <Text style={styles.errorMensaje}>No se encontraron productos</Text>
         )}
       </ScrollView>
     </View>
@@ -132,8 +136,6 @@ const styles = StyleSheet.create({
   headerIcon: {
     paddingLeft: 10,
     paddingBottom: 20,
-    
-
   },
   headerTitle: {
     fontSize: 20,
@@ -167,7 +169,6 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     paddingHorizontal: 16,
   },
-
   productsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -175,10 +176,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 80,
   },
-
   errorMensaje: {
     fontSize: 20,
-    flexDirection: 'row',
+    flexDirection: 'row', // This won't do much for a single Text component
     flexWrap: 'wrap',
+    textAlign: 'center', // Added for better centering of the message
+    width: '100%', // Ensure it takes full width to center
+    marginTop: 20,
   },
 });
