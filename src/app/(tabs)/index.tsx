@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import CategoryBadge from '../../components/Category';
+import {CategoryBadge} from '../../components/Category';
 import ProductCard from '../../components/ProductCard';
 import { Categoria, Publicacion } from '../../interfaces/types'; // ruta según tu estructura
 import { fetchCategorias } from '../../services/categoriaService';
@@ -14,6 +14,8 @@ export default function Home() {
   //codigo que usa axio como intermediario entre el front y la base de datos solamente falta colocar la api de nuestra base de datos
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+
 
   useEffect(() => {
     fetchCategorias()
@@ -24,6 +26,13 @@ export default function Home() {
       .then(data => setPublicaciones(data.slice(0, 10)))
       .catch(console.error);
   }, []);
+
+  const handleCategoryPress = (categoryId: string) => {
+    setSelectedCategoryId(current => 
+      current === categoryId ? null : categoryId
+    );
+  };
+
 
 
   return (
@@ -56,12 +65,15 @@ export default function Home() {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesContainer}
-           >
+        >
           {categorias.map((cat) => (
-            <CategoryBadge key={cat._id} label={cat.nombre} />
+            <CategoryBadge 
+              key={cat._id}
+              label={cat.nombre}
+              isSelected={selectedCategoryId === cat._id}
+              onPress={() => handleCategoryPress(cat._id)}
+            />
           ))}
-
-
         </ScrollView>
       </View>
 
