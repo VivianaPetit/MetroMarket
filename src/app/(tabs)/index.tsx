@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { CategoryBadge } from '../../components/Category';
-import ProductCard from '../../components/ProductCard'; // <-- KEEP THIS import
+import ProductCard from '../../components/ProductCard'; 
 import { Categoria, Publicacion } from '../../interfaces/types'; 
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
