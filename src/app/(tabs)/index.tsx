@@ -22,12 +22,12 @@ export default function Home() {
   //funcion para la barra de busqueda
   const filteredPublications = publicaciones.filter((pub) => {
   if (!search) return true; // Si no hay búsqueda, mostrar todos
-  
   const searchTerm = search.toLowerCase();
   const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
   const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
   
   return titleMatch || categoryMatch;
+  
 });
 
   useEffect(() => {
@@ -95,18 +95,23 @@ export default function Home() {
 
       {/* Products */}
       <ScrollView contentContainerStyle={styles.productsGrid}>
-        {filteredPublications.map((pub) => (
-          <ProductCard
-            key={pub._id}
-            name={pub.titulo}
-            price={pub.precio}
-            image={
+        {filteredPublications.length > 0 ? (
+          filteredPublications.map((pub) => (
+            <ProductCard
+              key={pub._id}
+              name={pub.titulo}
+              price={pub.precio}
+              category={pub.categoria}
+              image={
                 pub.fotos && pub.fotos.length > 0
-                ? pub.fotos[0]
-                : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
-            }
-          />
-        ))}
+                  ? pub.fotos[0]
+                  : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
+              }
+            />
+          ))
+        ) : (
+            <Text style={styles.errorMensaje}>No se encontraron productos</Text>
+        )}
       </ScrollView>
     </View>
   );
@@ -171,5 +176,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 80,
+  },
+
+  errorMensaje: {
+    fontSize: 25,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    fontFamily: 'Bold'
   },
 });

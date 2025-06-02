@@ -6,15 +6,17 @@ const { width } = Dimensions.get('window');
 type ProductCardProps = {
   name: string;
   price: number;
+  category: string;
   image: string; 
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, price, image }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ name, price, category, image }) => {
   return (
     <View style={styles.productCard}>
       <Image source={{ uri: image }} style={styles.productImage} />
       <Text style={styles.productName}>{name}</Text>
       <Text style={styles.productPrice}>${price}</Text>
+      <Text style={styles.productCategory}>{category}</Text>
     </View>
   );
 };
@@ -54,5 +56,21 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 8,
     textAlign: 'center',
+  },
+
+  productCategory: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    margin: 10,
+    height: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    fontSize: 12,
+    color: '#333',
+    fontWeight: '500',
   },
 });
