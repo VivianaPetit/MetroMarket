@@ -16,6 +16,19 @@ export default function Home() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
+  const [filtroTipo, setFiltroTipo] = useState('');
+  const [search, setSearch] = useState("");
+
+  //funcion para la barra de busqueda
+  const filteredPublications = publicaciones.filter((pub) => {
+  if (!search) return true; // Si no hay búsqueda, mostrar todos
+  
+  const searchTerm = search.toLowerCase();
+  const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
+  const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
+  
+  return titleMatch || categoryMatch;
+});
 
   useEffect(() => {
     fetchCategorias()
@@ -23,7 +36,7 @@ export default function Home() {
       .catch(console.error);
 
     fetchPublicaciones()
-      .then(data => setPublicaciones(data.slice(0, 10)))
+      .then(data => setPublicaciones(data))
       .catch(console.error);
   }, []);
 
@@ -54,6 +67,9 @@ export default function Home() {
           style={styles.searchInput}
           placeholder="Buscar producto..."
           placeholderTextColor="#bbb"
+          value={search}
+          onChangeText={(text) => setSearch(text)}
+          returnKeyType="search"
         />
       </View>
 
@@ -79,7 +95,7 @@ export default function Home() {
 
       {/* Products */}
       <ScrollView contentContainerStyle={styles.productsGrid}>
-        {publicaciones.map((pub) => (
+        {filteredPublications.map((pub) => (
           <ProductCard
             key={pub._id}
             name={pub.titulo}
