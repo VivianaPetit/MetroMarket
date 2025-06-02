@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,10 +20,6 @@ const RegisterScreen = () => {
 
   const handleRegister = () => {
     console.log('Registro:', { name, phone, email, password });
-  };
-
-  const handleGoogleSignUp = () => {
-    console.log('SignUp con Google');
   };
 
   return (
@@ -70,17 +65,18 @@ const RegisterScreen = () => {
 
         <View style={styles.inputGroup}>
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail" size={20} color="#888" style={styles.icon} />
-            <TextInput
+            <View style={styles.inputContainer}>
+              <Ionicons name="mail" size={20} color="#888" style={styles.icon} />
+              <TextInput
               style={styles.inputField}
               placeholder="Correo electrónico"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-            />
-          </View>
+              placeholderTextColor="#b0b0b0"
+              />
+            </View>
         </View>
 
         <View style={styles.inputGroup}>
@@ -115,16 +111,6 @@ const RegisterScreen = () => {
                   <Text style={styles.dividerText}>o</Text>
                   <View style={styles.dividerLine} />
                 </View>
-
-        {/* Botón de Google */}
-                <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUp}>
-                  <Image
-                    source={{ uri: 'https://cdn-icons-png.flaticon.com/512/2991/2991148.png' }}
-                    style={styles.googleIcon}
-                  />
-                  <Text style={styles.googleButtonText}>Continuar con Google</Text>
-                </TouchableOpacity>
-
 
         {/* Footer */}
         <View style={styles.footer}>
@@ -227,6 +213,7 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     backgroundColor: '#fff',
+    paddingHorizontal: 10,
   },
   passwordInput: {
     flex: 1,

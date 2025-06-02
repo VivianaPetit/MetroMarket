@@ -181,9 +181,8 @@ const styles = StyleSheet.create({
   },
 
   errorMensaje: {
-    fontSize: 25,
+    fontSize: 20,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    fontFamily: 'Bold'
   },
 });

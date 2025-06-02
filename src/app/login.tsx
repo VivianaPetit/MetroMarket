@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
-  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,9 +20,6 @@ const LoginScreen = () => {
     console.log('Password:', password);
   };
 
-  const handleGoogleLogin = () => {
-    console.log('Login con Google');
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -76,14 +72,17 @@ const LoginScreen = () => {
           <View style={styles.dividerLine} />
         </View>
 
-        {/* Botón de Google */}
-        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
+       {/* Botón de Google 
+
+       <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
           <Image
             source={{ uri: 'https://cdn-icons-png.flaticon.com/512/2991/2991148.png' }}
             style={styles.googleIcon}
           />
           <Text style={styles.googleButtonText}>Continuar con Google</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>  // No tenemos Google en el proyecto por ahora
+       */}
+        
 
         {/* Footer */}
         <View style={styles.footer}>

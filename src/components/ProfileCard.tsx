@@ -45,7 +45,7 @@ const ProfileCard = ({
 
   return (
     <View style={{alignItems:'center',marginTop:5, justifyContent:'center'}} >
-                <View style={styles.circleContainer}> #ejemplo de img, aqui va el del usuario q toque
+                <View style={styles.circleContainer}> 
                     <Image source={imagen}
                     style={styles.circleImage} />
                 </View>
@@ -88,7 +88,7 @@ const ProfileCard = ({
         </View>
     
                 <View style={styles.containerAcc}>
-                    <View style={styles.DatosContainer}> #name
+                    <View style={styles.DatosContainer}>
                         <Ionicons name='person' size={25}/>
                         {isEditing ? (
             <TextInput
@@ -101,7 +101,7 @@ const ProfileCard = ({
           )}
         </View>
                     
-                     <View style={styles.DatosContainer}> #ubicacion
+                     <View style={styles.DatosContainer}>  
                         <Ionicons name='pin' size={25}/>
                          {isEditing ? (
             <TextInput
@@ -113,7 +113,7 @@ const ProfileCard = ({
             <Text style={styles.subtitle}>{editData.address}</Text>
           )}
         </View>
-                    <View style={styles.DatosContainer}> #tlf
+                    <View style={styles.DatosContainer}>
                         <Ionicons name='call' size={25}/>
                         {isEditing ? (
             <TextInput

@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity,ScrollView,Switch,Alert, } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Switch,
+  Alert,
+  Platform,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
+
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
+const categorias = ['Electrónica', 'Ropa', 'Libros', 'Hogar', 'Otros'];
 
 const CreatePublication = () => {
   const navigation = useNavigation();
@@ -15,7 +28,8 @@ const CreatePublication = () => {
   const [estado, setEstado] = useState('');
   const [disponible, setDisponible] = useState(true);
   const [lugarEntrega, setLugarEntrega] = useState('');
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('');
+  const [metodoPago, setMetodoPago] = useState('');
+  const [categoria, setCategoria] = useState('');
 
   const handlePublicar = () => {
     if (!titulo || !precio || !cantidad) {
@@ -24,7 +38,6 @@ const CreatePublication = () => {
     }
 
     Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
-    // Aquí iría la lógica para enviar los datos
   };
 
   return (
@@ -75,16 +88,12 @@ const CreatePublication = () => {
         {estados.map((op) => (
           <TouchableOpacity
             key={op}
-            style={[
-              styles.chip,
-              estado === op && styles.chipSelected,
-            ]}
+            style={[styles.chip, estado === op && styles.chipSelected]}
             onPress={() => setEstado(op)}
           >
-            <Text style={[
-              styles.chipText,
-              estado === op && styles.chipTextSelected,
-            ]}>{op}</Text>
+            <Text style={[styles.chipText, estado === op && styles.chipTextSelected]}>
+              {op}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -95,6 +104,7 @@ const CreatePublication = () => {
           value={disponible}
           onValueChange={setDisponible}
           thumbColor={disponible ? '#fff' : '#00318D'}
+          trackColor={{ true: '#00318D', false: '#999' }}
         />
       </View>
 
@@ -108,13 +118,24 @@ const CreatePublication = () => {
       <Text style={styles.label}>Método de pago</Text>
       <TextInput
         style={styles.input}
-        value={titulo}
-        onChangeText={setTitulo}
+        value={metodoPago}
+        onChangeText={setMetodoPago}
       />
 
       <Text style={styles.label}>Categoría</Text>
-      
-
+      <View style={styles.pickerWrapper}>
+        <Picker 
+          selectedValue={categoria}
+          onValueChange={(itemValue) => setCategoria(itemValue)}
+          style={[
+            Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
+          ]}
+        >
+            {categorias.map((cat) => (
+            <Picker.Item key={cat} label={cat} value={cat}  />
+            ))}
+        </Picker>
+      </View>
 
       <TouchableOpacity style={styles.botonPublicar} onPress={handlePublicar}>
         <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
@@ -188,14 +209,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 10,
     marginTop: 10,
+    
   },
-  pickerContainer: {
+  pickerWrapper: {
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 10,
+    overflow: 'hidden',
     backgroundColor: '#fafafa',
     marginBottom: 20,
-    overflow: 'hidden',
+  },
+  picker: {
+    height: 50,
+    color: '#000',
+  },
+  pickerIOS: {
+    height: 200,
+    color: '#000',
   },
   botonPublicar: {
     marginTop: 20,
