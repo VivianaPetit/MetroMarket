@@ -32,6 +32,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, category, image,
   );
 };
 
+
 export default ProductCard;
 
 const styles = StyleSheet.create({

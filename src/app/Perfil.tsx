@@ -19,7 +19,7 @@ export default function Perfil() {
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <View style={styles.containerAcc}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.push("/")}>
             <Ionicons name="arrow-back" size={28} color="white" />
           </TouchableOpacity>
 
@@ -36,7 +36,6 @@ export default function Perfil() {
           UserName={user?.correo.split('@')[0] ?? 'Usuario'}
           nombreyA={user?.nombre ?? 'Nombre'}
           tlf={user?.telefono ?? ''}
-          rating={5}
           editable={false}
         />
 

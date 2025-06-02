@@ -19,7 +19,12 @@ export default function Perfil() {
       {/* Invitado/User Card */}
       <TouchableOpacity
         style={styles.menuButton}
-        activeOpacity={1} // Make it not dim on touch for consistent look
+        activeOpacity={1}
+        onPress={() => {
+          if (user) {
+            router.push('../../Perfil');
+          }
+        }}
       >
         <View style={styles.guestCardContent}>
           <Ionicons name="person-outline" size={30} color="#fff" />
@@ -31,7 +36,8 @@ export default function Perfil() {
       {user ? (
         <TouchableOpacity
           style={styles.menuButton}
-          onPress={() => router.push('/login')}
+          onPress={handleLogout}
+          
           activeOpacity={0.8}
         >
           <View style={styles.loginButtonContent}>
@@ -42,7 +48,7 @@ export default function Perfil() {
       ): (
         <TouchableOpacity
           style={styles.menuButton}
-          onPress={handleLogout}
+          onPress={() => router.push('/login')}
           activeOpacity={0.8}
         >
           <View style={styles.loginButtonContent}>

@@ -9,7 +9,6 @@ import ProductCard from '../components/ProductCard'; // <-- KEEP THIS import
 import { Categoria, Publicacion } from '../interfaces/types'; 
 import { fetchCategorias } from '../services/categoriaService';
 import { fetchPublicaciones } from '../services/publicacionService';
-// import EditableProductCard from '../../components/ProductCard'; // <-- REMOVE THIS LINE, we're modifying ProductCard directly
 
 
 export default function Home() {
@@ -43,12 +42,13 @@ export default function Home() {
     );
   };
 
-  // <-- NEW: Handler for the edit icon press
-  const handleEditProduct = (productId: string, productName: string) => {
-    Alert.alert('Editar Producto', `Has presionado editar para: ${productName} (ID: ${productId})`);
-    // Here, you would typically navigate to an edit screen:
-    // router.push(`/edit-product/${productId}`);
-  };
+ 
+  const handleEditProduct = (producto: Publicacion) => {
+  router.push({
+    pathname: '/EditarProducto',
+    params: { producto: JSON.stringify(producto) },
+  });
+};
 
   return (
     <View style={styles.container}>
@@ -97,7 +97,7 @@ export default function Home() {
                   : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
               }
               
-              onEdit={() => handleEditProduct(pub._id, pub.titulo)} // Example: Pass ID and title
+              onEdit={() => handleEditProduct(pub)} // Example: Pass ID and title
             />
           ))
         ) : (
