@@ -41,8 +41,8 @@ const styles = StyleSheet.create({
     // Sombra naranja
     shadowColor: '#FF8C00',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.6,
-    shadowRadius: 3,
+    shadowOpacity: 1,
+    shadowRadius: 9,
     elevation: 6,
   },
   categoryButtonText: {
