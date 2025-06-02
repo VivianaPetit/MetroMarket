@@ -8,6 +8,12 @@ import ProductCard from '../../components/ProductCard';
 import { Categoria, Publicacion } from '../../interfaces/types'; // ruta según tu estructura
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
+<<<<<<< Updated upstream
+=======
+import {ServiceCategory } from '../../services/ServiceCategory';
+import { AuthProvider, useAuth } from '../../context/userContext';
+import { Label } from '@react-navigation/elements';
+>>>>>>> Stashed changes
 
 //constante que guarde el link o api de lo que se va a mostrar
 const categoriasURL = 'http://192.168.68.109:3000/api/categorias';
@@ -29,6 +35,24 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
+<<<<<<< Updated upstream
+=======
+  const handleCategoryPress = (categoryId: string, category: string) => {
+    setSelectedCategoryId(current => 
+      current === categoryId ? null : categoryId
+    );
+     ServiceCategory(category)
+      .then(data => setPublicaciones(data))
+      .catch(console.error);
+  };
+
+  // <-- NEW: Handler for the edit icon press
+  const handleEditProduct = (productId: string, productName: string) => {
+    Alert.alert('Editar Producto', `Has presionado editar para: ${productName} (ID: ${productId})`);
+    // Here, you would typically navigate to an edit screen:
+    // router.push(`/edit-product/${productId}`);
+  };
+>>>>>>> Stashed changes
 
   return (
     <View style={styles.container}>
@@ -40,10 +64,21 @@ export default function Home() {
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
+<<<<<<< Updated upstream
         {/* <TouchableOpacity style={styles.headerIcon}>
           <Ionicons name="person-outline" size={24} color="#333" />
         </TouchableOpacity> */}
       </SafeAreaView>
+=======
+        { user ? (<TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
+          <Ionicons name="person" size={24} color="#00318D" />
+        </TouchableOpacity>) : (
+          <TouchableOpacity style={styles.headerIcon} onPress={() => router.push("/login")}>  
+            <Ionicons name="log-in-outline" size={24} color="#00318D" />
+          </TouchableOpacity>)
+        }
+      </SafeAreaView> 
+>>>>>>> Stashed changes
 
       {/* Barra de búsqueda */}
       <View style={styles.searchContainer}>
@@ -65,7 +100,16 @@ export default function Home() {
           contentContainerStyle={styles.categoriesContainer}
            >
           {categorias.map((cat) => (
+<<<<<<< Updated upstream
             <CategoryBadge key={cat._id} label={cat.nombre} />
+=======
+            <CategoryBadge 
+              key={cat._id}
+              label={cat.nombre}
+              isSelected={selectedCategoryId === cat._id}
+              onPress={() => handleCategoryPress(cat._id,cat.nombre)}
+            />
+>>>>>>> Stashed changes
           ))}
 
 

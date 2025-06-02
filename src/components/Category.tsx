@@ -22,6 +22,7 @@ type CategoryBadgeProps = {
   textStyle?: TextStyle;
 };
 
+<<<<<<< Updated upstream
 const CategoryBadge: React.FC<CategoryBadgeProps> = ({ label, onPress, style, textStyle }) => {
 const buscado = async (): Promise<Publicacion[]> => {
   try {
@@ -42,6 +43,15 @@ const buscado = async (): Promise<Publicacion[]> => {
         .catch(console.error);
     }, []);
 
+=======
+export const CategoryBadge: React.FC<CategoryBadgeProps> = ({ 
+  label, 
+  onPress, 
+  isSelected = false, // Valor por defecto
+  style, 
+  textStyle,
+}) => {
+>>>>>>> Stashed changes
   return (
     <TouchableOpacity style={[styles.categoryButton, style]} onPress={onPress}>
       <Text style={[styles.categoryButtonText, textStyle]}>{label}</Text>
