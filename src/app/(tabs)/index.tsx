@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -11,6 +12,7 @@ import { fetchPublicaciones } from '../../services/publicacionService';
 
 
 export default function Home() {
+  const router = useRouter();
   //codigo que usa axio como intermediario entre el front y la base de datos solamente falta colocar la api de nuestra base de datos
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
@@ -55,7 +57,7 @@ export default function Home() {
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
-        {<TouchableOpacity style={styles.headerIcon}>
+        {<TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
           <Ionicons name="person" size={24} color="#00318D" />
         </TouchableOpacity>}
       </SafeAreaView>
