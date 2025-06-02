@@ -34,7 +34,7 @@ export default function Home() {
       .catch(console.error);
 
     fetchPublicaciones()
-      .then(data => setPublicaciones(data.slice(0, 10)))
+      .then(data => setPublicaciones(data))
       .catch(console.error);
   }, []);
 

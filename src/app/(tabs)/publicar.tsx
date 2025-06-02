@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
-import {
-  View, Text, TextInput, StyleSheet, TouchableOpacity,ScrollView,Switch,Alert, } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity,ScrollView,Switch,Alert, } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { Picker } from '@react-native-picker/picker';
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 
