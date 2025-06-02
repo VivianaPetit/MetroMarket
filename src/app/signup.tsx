@@ -28,7 +28,7 @@ const SignUp = () => {
     return /@(?:correo\.)?unimet\.edu\.ve$/i.test(email);
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
   const newErrors: typeof errors = {};
 
   if (!name.trim()) newErrors.name = 'El nombre es obligatorio.';
@@ -43,27 +43,26 @@ const SignUp = () => {
   setErrors(newErrors);
 
   if (Object.keys(newErrors).length === 0) {
-    console.log('Registro:', { name, phone, email, password });
+    try {
+      const newUser: Omit<Usuario, '_id'> = {
+        nombre: name,
+        telefono: phone,
+        correo: email,
+        contrasena: password,
+      };
 
-    const newUser: Usuario = {
-      nombre: name,
-      telefono: phone,
-      correo: email,
-      contrasena: password,
-    };
+      const usuarioCreado = await createUsuario(newUser); // ✅ obtenemos el usuario con _id
+      console.log('Usuario creado exitosamente:', usuarioCreado);
 
-    createUsuario(newUser)
-      .then(() => {
-        console.log('Usuario creado exitosamente');
-        setUser(newUser);          // ✅ Guardar el usuario en el contexto
-        router.push('/Perfil');    // ✅ Ir directamente al perfil
-      })
-      .catch((error) => {
-        console.error('Error al crear el usuario:', error);
-        Alert.alert('Error', 'No se pudo crear la cuenta. Inténtalo de nuevo.');
-      });
+      setUser(usuarioCreado); // ✅ ahora sí, guardar el usuario completo
+      router.push('/Perfil');
+    } catch (error) {
+      console.error('Error al crear el usuario:', error);
+      Alert.alert('Error', 'No se pudo crear la cuenta. Inténtalo de nuevo.');
+    }
   }
 };
+
 
   return (
     <SafeAreaView style={styles.container}>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Usuario } from '../interfaces/types'; // Asegúrate de que la ruta sea correcta
+import { Usuario } from '../interfaces/types'; 
 
 interface AuthContextType {
   user: Usuario | null;
@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
-    // Aquí podrías también limpiar tokens, storage, etc.
+    
   };
 
   return (

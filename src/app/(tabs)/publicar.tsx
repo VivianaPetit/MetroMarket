@@ -49,11 +49,14 @@ const CreatePublication = () => {
     }, []);
 
   const handlePublicar = async () => {
+   
      if (!user) {
     Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
     router.push("/") // o el nombre correcto de tu pantalla inicial
     return;
   }
+
+   console.log(user._id)
     
   if (!titulo || !precio || !cantidad) {
     Alert.alert('Error', 'Título, precio y cantidad son obligatorios.');
@@ -82,6 +85,7 @@ const CreatePublication = () => {
     lugarEntrega,
     metodoPago,
     categoria,
+    usuario: user._id,
   };
 
   try {
