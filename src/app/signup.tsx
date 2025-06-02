@@ -5,162 +5,265 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  SafeAreaView,
+  Image,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import  { useRouter }  from 'expo-router';
 
-// Define tu tipo de rutas según tu stack de navegación
-type RootStackParamList = {
-  Login: undefined;
-  Register: undefined;
-};
-
-type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
-
-const RegisterScreen: React.FC<Props> = ({ navigation }) => {
+const RegisterScreen = () => {
+  const [name, setName] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const router = useRouter();
 
   const handleRegister = () => {
-    // Validaciones y lógica para crear cuenta
-    console.log('Email:', email);
-    console.log('Password:', password);
+    console.log('Registro:', { name, phone, email, password });
+  };
+
+  const handleGoogleSignUp = () => {
+    console.log('SignUp con Google');
   };
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="#00318D" />
-      </TouchableOpacity>
-      <Text style={styles.title}> Registrarse </Text>
-            {/* Nombre */}
-      <View style={styles.inputContainer}>
-        <Ionicons name="person" size={20} color="#888" style={styles.icon} />
-        <TextInput
-          placeholder="Nombre"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-      </View>
-
-            {/* Telefono */}
-      <View style={styles.inputContainer}>
-        <Ionicons name="call" size={20} color="#888" style={styles.icon} />
-        <TextInput
-          placeholder="Telefono"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-      </View>
-
-      {/* Email */}
-      <View style={styles.inputContainer}>
-        <Ionicons name="mail" size={20} color="#888" style={styles.icon} />
-        <TextInput
-          placeholder="Email"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-      </View>
-
-      {/* Contraseña */}
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed" size={20} color="#888" style={styles.icon} />
-        <TextInput
-          placeholder="Contraseña"
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-        />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-          <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#888" />
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        {/* Flecha de retroceso */}
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#F68628" />
         </TouchableOpacity>
-      </View>
 
-      {/* Botón Crear Cuenta */}
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Crear Cuenta</Text>
-      </TouchableOpacity>
+        <Text style={styles.welcomeText}>Crear Cuenta</Text>
+        
+        {/* Campos de entrada */}
+        <View style={styles.inputGroup}>
+          <View style={styles.inputContainer}>
+            <Ionicons name="person" size={20} color="#888" style={styles.icon} />
+            <TextInput
+              style={styles.inputField}
+              placeholder="Nombre completo"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+            />
+          </View>
+        </View>
 
-      {/* Ya tengo cuenta */}
-      <View style={styles.footer}>
-        <Text style={{ color: '#555' }}>Ya tengo una cuenta </Text>
-        <TouchableOpacity onPress={() => router.push('/login')}>
-          <Text style={styles.loginText}>Login</Text>
+        <View style={styles.inputGroup}>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="call" size={20} color="#888" style={styles.icon} />
+            <TextInput
+              style={styles.inputField}
+              placeholder="Número de teléfono"
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputGroup}>
+
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail" size={20} color="#888" style={styles.icon} />
+            <TextInput
+              style={styles.inputField}
+              placeholder="Correo electrónico"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+          </View>
+        </View>
+
+        <View style={styles.inputGroup}>
+          <View style={styles.passwordContainer}>
+            <Ionicons name="lock-closed" size={20} color="#888" style={styles.icon} />
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Crea una contraseña"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+            />
+            <TouchableOpacity 
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.showPasswordButton}
+            >
+              <Text style={styles.showPasswordText}>
+                {showPassword ? 'Ocultar' : 'Mostrar'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Botón de Registro */}
+        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+          <Text style={styles.registerButtonText}>Crear Cuenta</Text>
         </TouchableOpacity>
+
+        {/* Línea divisoria */}
+                <View style={styles.dividerContainer}>
+                  <View style={styles.dividerLine} />
+                  <Text style={styles.dividerText}>o</Text>
+                  <View style={styles.dividerLine} />
+                </View>
+
+        {/* Botón de Google */}
+                <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUp}>
+                  <Image
+                    source={{ uri: 'https://cdn-icons-png.flaticon.com/512/2991/2991148.png' }}
+                    style={styles.googleIcon}
+                  />
+                  <Text style={styles.googleButtonText}>Continuar con Google</Text>
+                </TouchableOpacity>
+
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
+          <TouchableOpacity onPress={() => router.push('/login')}>
+            <Text style={styles.loginText}>Ingresar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
-
-export default RegisterScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
+    padding: 24,
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 32,
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 24,
+    zIndex: 1,
+  },
+  welcomeText: {
+    fontSize: 56,
     fontWeight: 'bold',
-    marginBottom: 30,
+    marginBottom: 40,
     color: '#000',
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: '#ccc',
     borderWidth: 1,
+    borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 10,
-    marginBottom: 15,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff',
   },
-  input: {
+  inputField: {
     flex: 1,
-    padding: 10,
+    padding: 14,
+    fontSize: 16,
   },
   icon: {
     marginRight: 10,
   },
-  button: {
-    backgroundColor: '#f58220',
-    paddingVertical: 15,
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#eee',
+  },
+  dividerText: {
+    width: 40,
+    textAlign: 'center',
+    color: '#666',
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 24,
+  },
+  googleIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+  },
+  googleButtonText: {
+    color: '#333',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 14,
+    fontSize: 16,
+  },
+  showPasswordButton: {
+    padding: 14,
+  },
+  showPasswordText: {
+    color: '#F68628',
+    fontWeight: '500',
+  },
+  registerButton: {
+    backgroundColor: '#F68628',
+    padding: 16,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 25,
+    marginTop: 20,
   },
-  buttonText: {
+  registerButtonText: {
     color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
-    fontSize: 18,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    marginTop: 24,
+  },
+  footerText: {
+    color: '#666',
   },
   loginText: {
-    color: '#f58220',
+    color: '#F68628',
     fontWeight: 'bold',
   },
-  backButton: {
-    marginBottom: 10,
-    alignSelf: 'flex-start',
-  },
 });
+
+export default RegisterScreen;

@@ -5,22 +5,15 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  SafeAreaView,
+  Image,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
-type RootStackParamList = {
-  Login: undefined;
-  Register: undefined;
-};
-
-type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
-
-const LoginScreen: React.FC<Props> = ({ navigation }) => {
+const LoginScreen = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
   const router = useRouter();
 
   const handleLogin = () => {
@@ -28,140 +21,197 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     console.log('Password:', password);
   };
 
+  const handleGoogleLogin = () => {
+    console.log('Login con Google');
+  };
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="#00318D" />
-      </TouchableOpacity>
-      <Text style={styles.title}>
-        <Text style={styles.titleBold}>¡Bienvenido de vuelta!</Text> 
-      </Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        {/* Flecha de retroceso */}
+          <TouchableOpacity 
+              style={styles.backButton} 
+              onPress={() => router.back()}
+                >
+              <Ionicons name="arrow-back" size={24} color="#F68628" />
+          </TouchableOpacity>
+        <Text style={styles.welcomeText}>¡Bienvenido de vuelta!</Text>
+        
+        {/* Campos de entrada */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+        
+        <View style={styles.inputGroup}>
+          <Text style={styles.inputLabel}>Contraseña</Text>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+            />
+            <TouchableOpacity style={styles.showPasswordButton}>
+              <Text style={styles.showPasswordText}>Mostrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-      {/* Email */}
-      <View style={styles.inputContainer}>
-        <Ionicons name="mail" size={20} color="#888" style={styles.icon} />
-        <TextInput
-          placeholder="Email"
-          style={styles.input}
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-      </View>
-
-      {/* Contraseña */}
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed" size={20} color="#888" style={styles.icon} />
-        <TextInput
-          placeholder="Contraseña"
-          style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-        />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-          <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={20} color="#888" />
+        {/* Botón de Login */}
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.loginButtonText}>Ingresar</Text>
         </TouchableOpacity>
-      </View>
 
-      {/* Botón Login */}
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
+        {/* Línea divisoria */}
+        <View style={styles.dividerContainer}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>o</Text>
+          <View style={styles.dividerLine} />
+        </View>
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={{ color: '#555' }}>Crea una cuenta </Text>
-        <TouchableOpacity onPress={() => router.push('/signup')}>
-          <Text style={styles.signupText}>Sign Up</Text>
+        {/* Botón de Google */}
+        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin}>
+          <Image
+            source={{ uri: 'https://cdn-icons-png.flaticon.com/512/2991/2991148.png' }}
+            style={styles.googleIcon}
+          />
+          <Text style={styles.googleButtonText}>Continuar con Google</Text>
         </TouchableOpacity>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>¿No tienes una cuenta? </Text>
+          <TouchableOpacity onPress={() => router.push('/signup')}>
+            <Text style={styles.signupText}>Regístrate</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
-
-export default LoginScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
+  },
+  content: {
+    flex: 1,
+    padding: 24,
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 28,
+  welcomeText: {
+    fontSize: 60,
     fontWeight: 'bold',
-    marginBottom: 30,
+    marginBottom: 40,
     color: '#000',
-    textAlign: 'left',
   },
-  titleBold: {
-    fontWeight: 'bold',
+  inputGroup: {
+    marginBottom: 20,
   },
-  titleUnderline: {
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
-    color: '#0077cc',
+  inputLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-    backgroundColor: '#f9f9f9',
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 24,
+    zIndex: 1,
   },
   input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 14,
+    fontSize: 16,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+  },
+  passwordInput: {
     flex: 1,
-    padding: 10,
+    padding: 14,
+    fontSize: 16,
   },
-  icon: {
-    marginRight: 10,
+  showPasswordButton: {
+    padding: 14,
   },
-  button: {
-    backgroundColor: '#f58220',
-    paddingVertical: 15,
+  showPasswordText: {
+    color: '#F68628',
+    fontWeight: '500',
+  },
+  loginButton: {
+    backgroundColor: '#F68628',
+    padding: 16,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
-    marginBottom: 25,
   },
-  buttonText: {
+  loginButtonText: {
     color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
-    fontSize: 18,
   },
-  divider: {
+  dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 10,
-    justifyContent: 'center',
+    marginVertical: 24,
   },
-  line: {
+  dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ccc',
-    marginHorizontal: 10,
+    backgroundColor: '#eee',
   },
   dividerText: {
-    color: '#555',
-    fontSize: 14,
+    width: 40,
+    textAlign: 'center',
+    color: '#666',
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 14,
+    marginBottom: 24,
+  },
+  googleIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
+  },
+  googleButtonText: {
+    color: '#333',
+    fontSize: 16,
+    fontWeight: '500',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 20,
+    marginTop: 16,
+  },
+  footerText: {
+    color: '#666',
   },
   signupText: {
-    color: '#f58220',
+    color: '#F68628',
     fontWeight: 'bold',
   },
-    backButton: {
-    marginBottom: 20,
-    alignSelf: 'flex-start',
-  },
 });
+
+export default LoginScreen;
