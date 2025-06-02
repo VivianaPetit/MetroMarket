@@ -10,7 +10,7 @@ import { Categoria, Publicacion } from '../../interfaces/types';
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
 import { AuthProvider, useAuth } from '../../context/userContext';
-
+import {ServiceCategory } from '../../services/ServiceCategory';
 
 export default function Home() {
   const router = useRouter();
@@ -38,10 +38,13 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
-  const handleCategoryPress = (categoryId: string) => {
+  const handleCategoryPress = (categoryId: string,category: string) => {
     setSelectedCategoryId(current => 
       current === categoryId ? null : categoryId
     );
+     ServiceCategory(category)
+      .then(data => setPublicaciones(data))
+      .catch(console.error);
   };
 
   // <-- NEW: Handler for the edit icon press
@@ -92,7 +95,7 @@ export default function Home() {
               key={cat._id}
               label={cat.nombre}
               isSelected={selectedCategoryId === cat._id}
-              onPress={() => handleCategoryPress(cat._id)}
+              onPress={() => handleCategoryPress(cat._id,cat.nombre)}
             />
           ))}
         </ScrollView>
