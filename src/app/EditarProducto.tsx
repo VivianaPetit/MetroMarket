@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,100 +11,69 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
-import { Categoria } from '../../interfaces/types';
-import { fetchCategorias } from '../../services/categoriaService';
-import { crearPublicacion } from '../../services/publicacionService';
-import { useAuth } from '../../context/userContext';
-import { useRouter } from 'expo-router';
-
+import { Categoria } from '../interfaces/types';
+import { fetchCategorias } from '../services/categoriaService';
+import { updatePublicacion } from '../services/actualizarService';
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
-const categorias = ['Electrónica', 'Ropa', 'Libros', 'Hogar', 'Otros'];
 
-
-
-
-
-const CreatePublication = () => {
-  const navigation = useNavigation();
+const EditarProducto = () => {
   const router = useRouter();
-  const { user } = useAuth();
+  const { producto } = useLocalSearchParams();
+  const parsedProducto = producto ? JSON.parse(producto as string) : null;
+
   const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [titulo, setTitulo] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [precio, setPrecio] = useState('');
-  const [cantidad, setCantidad] = useState('');
-  const [estado, setEstado] = useState('');
-  const [disponible, setDisponible] = useState(true);
-  const [lugarEntrega, setLugarEntrega] = useState('');
-  const [metodoPago, setMetodoPago] = useState('');
-  const [categoria, setCategoria] = useState('');
+  const [titulo, setTitulo] = useState(parsedProducto?.titulo || '');
+  const [descripcion, setDescripcion] = useState(parsedProducto?.descripcion || '');
+  const [precio, setPrecio] = useState(parsedProducto?.precio?.toString() || '');
+  const [cantidad, setCantidad] = useState(parsedProducto?.cantidad?.toString() || '');
+  const [estado, setEstado] = useState(parsedProducto?.estado || '');
+  const [disponible, setDisponible] = useState(parsedProducto?.disponible ?? true);
+  const [lugarEntrega, setLugarEntrega] = useState(parsedProducto?.lugarEntrega || '');
+  const [metodoPago, setMetodoPago] = useState(parsedProducto?.metodoPago || '');
+  const [categoria, setCategoria] = useState(parsedProducto?.categoria || '');
 
-    useEffect(() => {
-      fetchCategorias()
-        .then(data => setCategorias(data))
-        .catch(console.error);
-    }, []);
+  useEffect(() => {
+    fetchCategorias()
+      .then(data => setCategorias(data))
+      .catch(console.error);
+  }, []);
 
-  const handlePublicar = async () => {
-   
-     if (!user) {
-    Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
-    router.push("/") // o el nombre correcto de tu pantalla inicial
-    return;
-  }
-
-   console.log(user._id)
-    
+  const handleActualizar = async () => {
   if (!titulo || !precio || !cantidad) {
     Alert.alert('Error', 'Título, precio y cantidad son obligatorios.');
     return;
   }
 
-  const resetForm = () => {
-  setTitulo('');
-  setDescripcion('');
-  setPrecio('');
-  setCantidad('');
-  setEstado('');
-  setDisponible(true);
-  setLugarEntrega('');
-  setMetodoPago('');
-  setCategoria('');
-};
-
-  const nuevaPublicacion = {
-    titulo,
-    descripcion,
-    precio : parseInt(precio),
-    cantidad,
-    estado,
-    disponible,
-    lugarEntrega,
-    metodoPago,
-    categoria,
-    usuario: user._id,
-  };
-
   try {
-    await crearPublicacion(nuevaPublicacion);
-    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
-    resetForm();
-    navigation.goBack();
+    const updated = await updatePublicacion(parsedProducto._id, {
+      titulo,
+      descripcion,
+      precio,
+      cantidad,
+      estado,
+      disponible,
+      lugarEntrega,
+      metodoPago,
+      categoria,
+    });
+
+    Alert.alert('Éxito', `Producto "${updated.titulo}" actualizado correctamente.`);
+    router.back();
   } catch (error) {
-    Alert.alert('Error', 'No se pudo crear la publicación.');
+    Alert.alert('Error', 'No se pudo actualizar la publicación.');
   }
 };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="#00318D" />
       </TouchableOpacity>
 
-      <Text style={styles.titulo}>Crear Publicación</Text>
+      <Text style={styles.titulo}>Editar Publicación</Text>
 
       <Text style={styles.label}>Título *</Text>
       <TextInput
@@ -182,29 +151,30 @@ const CreatePublication = () => {
 
       <Text style={styles.label}>Categoría</Text>
       <View style={styles.pickerWrapper}>
-        <Picker 
+        <Picker
           selectedValue={categoria}
           onValueChange={(itemValue) => setCategoria(itemValue)}
           style={[
             Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
           ]}
         >
-            {categorias.map((cat) => (
-            <Picker.Item key={cat._id} label={cat.nombre} value={cat}  />
-            ))}
+          {categorias.map((cat) => (
+            <Picker.Item key={cat._id} label={cat.nombre} value={cat.nombre} />
+          ))}
         </Picker>
       </View>
 
-      <TouchableOpacity style={styles.botonPublicar} onPress={handlePublicar}>
-        <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
-        <Text style={styles.botonTexto}>Publicar</Text>
+      <TouchableOpacity style={styles.botonPublicar} onPress={handleActualizar}>
+        <Ionicons name="create-outline" size={20} color="#fff" />
+        <Text style={styles.botonTexto}>Actualizar</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 };
 
-export default CreatePublication;
+export default EditarProducto;
 
+// Reutilizamos tus estilos originales
 const styles = StyleSheet.create({
   container: {
     padding: 20,
@@ -267,7 +237,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 10,
     marginTop: 10,
-    
   },
   pickerWrapper: {
     borderWidth: 1,

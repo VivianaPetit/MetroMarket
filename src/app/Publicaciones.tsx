@@ -1,17 +1,15 @@
-// app/index.tsx
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert,} from 'react-native'; // <-- NEW: Import Alert for example
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { CategoryBadge } from '../../components/Category';
-import ProductCard from '../../components/ProductCard'; 
-import { Categoria, Publicacion } from '../../interfaces/types'; 
-import { fetchCategorias } from '../../services/categoriaService';
-import { fetchPublicaciones } from '../../services/publicacionService';
-import { AuthProvider, useAuth } from '../../context/userContext';
-import {ServiceCategory } from '../../services/ServiceCategory';
+import { CategoryBadge } from '../components/Category';
+import ProductCard from '../components/ProductCard'; // <-- KEEP THIS import
+import { Categoria, Publicacion } from '../interfaces/types'; 
+import { fetchCategorias } from '../services/categoriaService';
+import { fetchPublicaciones } from '../services/publicacionService';
+
 
 export default function Home() {
   const router = useRouter();
@@ -19,7 +17,6 @@ export default function Home() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const { user } = useAuth();
 
   const filteredPublications = publicaciones.filter((pub) => {
     if (!search) return true;
@@ -39,21 +36,19 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
-  const handleCategoryPress = (categoryId: string,category: string) => {
+  const handleCategoryPress = (categoryId: string) => {
     setSelectedCategoryId(current => 
       current === categoryId ? null : categoryId
     );
-     ServiceCategory(category)
-      .then(data => setPublicaciones(data))
-      .catch(console.error);
   };
 
-  // <-- NEW: Handler for the edit icon press
-  const handleEditProduct = (productId: string, productName: string) => {
-    Alert.alert('Editar Producto', `Has presionado editar para: ${productName} (ID: ${productId})`);
-    // Here, you would typically navigate to an edit screen:
-    // router.push(`/edit-product/${productId}`);
-  };
+ 
+  const handleEditProduct = (producto: Publicacion) => {
+  router.push({
+    pathname: '/EditarProducto',
+    params: { producto: JSON.stringify(producto) },
+  });
+};
 
   return (
     <View style={styles.container}>
@@ -62,27 +57,12 @@ export default function Home() {
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
-        { user ? (<TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
           <Ionicons name="person" size={24} color="#00318D" />
-        </TouchableOpacity>) : (
-          <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/login')}>  
-            <Ionicons name="log-in-outline" size={24} color="#00318D" />
-          </TouchableOpacity>)
-        }
-      </SafeAreaView> 
+        </TouchableOpacity>
+      </SafeAreaView>
 
-      {/* Barra de búsqueda */}
-      <View style={styles.searchContainer}>
-        <FontAwesome name="search" size={18} color="#bbb" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Buscar producto..."
-          placeholderTextColor="#bbb"
-          value={search}
-          onChangeText={(text) => setSearch(text)}
-          returnKeyType="search"
-        />
-      </View>
+     
 
       {/* Categorias */}
       <View style={styles.categoriesWrapper}>
@@ -96,7 +76,7 @@ export default function Home() {
               key={cat._id}
               label={cat.nombre}
               isSelected={selectedCategoryId === cat._id}
-              onPress={() => handleCategoryPress(cat._id,cat.nombre)}
+              onPress={() => handleCategoryPress(cat._id)}
             />
           ))}
         </ScrollView>
@@ -117,7 +97,7 @@ export default function Home() {
                   : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
               }
               
-              //onEdit={() => handleEditProduct(pub._id, pub.titulo)} // Example: Pass ID and title
+              onEdit={() => handleEditProduct(pub)} // Example: Pass ID and title
             />
           ))
         ) : (
@@ -127,7 +107,6 @@ export default function Home() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
