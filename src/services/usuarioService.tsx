@@ -4,7 +4,7 @@ import { API_BASE_URL } from '../../config';
 
 const usuariosURL = `${API_BASE_URL}/usuarios`;
 
-export const fetchPublicaciones = async (): Promise<Usuario[]> => {
+export const fetchUsuarios = async (): Promise<Usuario[]> => {
   try {
     const response = await axios.get<Usuario[]>(usuariosURL);
     return response.data;
@@ -22,6 +22,20 @@ export const createUsuario = async (nuevoUsuario: Omit<Usuario, 'id'>): Promise<
     console.error('Error creando el usuario:', error);
     throw error;
   }
+  
 };
+
+export const buscarUsuarioPorCorreo = async (correo: string): Promise<Usuario> => {
+  try {
+    const response = await axios.post<Usuario>(`${usuariosURL}/buscarPorCorreo`, { correo });
+    return response.data;
+  } catch (error) {
+    console.error('Error buscando el usuario por correo:', error);
+    throw error;
+  }
+};
+
+
+
 
 

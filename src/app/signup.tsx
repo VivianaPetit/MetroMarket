@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Usuario } from '../interfaces/types'; 
 import { createUsuario } from '../services/usuarioService'; // Asegúrate de tener este servicio implementado
 import { useAuth } from '../context/userContext'; // Asegúrate de que la ruta sea correcta
+import * as Crypto from 'expo-crypto';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -28,7 +29,7 @@ const SignUp = () => {
     return /@(?:correo\.)?unimet\.edu\.ve$/i.test(email);
   };
 
-  const handleRegister = () => {
+const handleRegister = async () => {
   const newErrors: typeof errors = {};
 
   if (!name.trim()) newErrors.name = 'El nombre es obligatorio.';
@@ -43,27 +44,31 @@ const SignUp = () => {
   setErrors(newErrors);
 
   if (Object.keys(newErrors).length === 0) {
-    console.log('Registro:', { name, phone, email, password });
+    try {
+      const cleanPassword = password.trim();
+      const hashedPassword = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        cleanPassword
+      );
 
-    const newUser: Usuario = {
-      nombre: name,
-      telefono: phone,
-      correo: email,
-      contrasena: password,
-    };
+      const newUser: Usuario = {
+        nombre: name,
+        telefono: phone,
+        correo: email,
+        contrasena: hashedPassword,
+      };
 
-    createUsuario(newUser)
-      .then(() => {
-        console.log('Usuario creado exitosamente');
-        setUser(newUser);          // ✅ Guardar el usuario en el contexto
-        router.push('/Perfil');    // ✅ Ir directamente al perfil
-      })
-      .catch((error) => {
-        console.error('Error al crear el usuario:', error);
-        Alert.alert('Error', 'No se pudo crear la cuenta. Inténtalo de nuevo.');
-      });
+      await createUsuario(newUser);
+      console.log('Usuario creado exitosamente');
+      setUser(newUser);
+      router.push('/Perfil');
+    } catch (error) {
+      console.error('Error al crear el usuario:', error);
+      Alert.alert('Error', 'No se pudo crear la cuenta. Inténtalo de nuevo.');
+    }
   }
 };
+
 
   return (
     <SafeAreaView style={styles.container}>

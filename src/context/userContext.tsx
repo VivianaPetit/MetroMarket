@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
-    // Aquí podrías también limpiar tokens, storage, etc.
+
   };
 
   return (
