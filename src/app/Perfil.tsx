@@ -1,10 +1,20 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import ProfileCard from '../components/ProfileCard';
 import { useRouter } from 'expo-router';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ProfileCard from '../components/ProfileCard';
+import { useAuth } from '../context/userContext'; // Asegúrate de que la ruta sea correcta
+
 
 export default function Perfil() {
+
   const router = useRouter();
+  const { user, logout } = useAuth(); // Obtener el usuario del contexto
+
+  const handleLogout = () => {
+    logout?.(); 
+    router.push('/');
+  };
+  
   return (
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <View style={styles.containerAcc}>
@@ -23,18 +33,17 @@ export default function Perfil() {
         </View>
 
         <ProfileCard
-          UserName="SamiRojas10"
-          nombreyA="Samantha Rojas"
-          tlf="0412505981"
-          dir="Av. Fuerzas Armadas"
-          imagen={require('../../assets/images/perfil.jpeg')}
+          UserName={user?.correo.split('@')[0] ?? 'Usuario'}
+          nombreyA={user?.nombre ?? 'Nombre'}
+          tlf={user?.telefono ?? ''}
           rating={5}
           editable={false}
         />
+
       </View>
 
       {/* Botón de cerrar sesión */}
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Ionicons name="log-out" color="gray" size={24} />
         <View style={{ marginLeft: 10 }}>
           <Text style={[styles.subtitle, { color: 'gray', fontSize: 16 }]}>Cerrar Sesión</Text>

@@ -9,7 +9,7 @@ import ProductCard from '../../components/ProductCard';
 import { Categoria, Publicacion } from '../../interfaces/types'; 
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
-import { useUser } from '../../context/userContext';
+import { AuthProvider, useAuth } from '../../context/userContext';
 
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const { user } = useUser();
+  const { user } = useAuth();
 
   const filteredPublications = publicaciones.filter((pub) => {
     if (!search) return true;

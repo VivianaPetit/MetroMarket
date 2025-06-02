@@ -1,24 +1,45 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../../context/userContext';
 
 const Menu = () => {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout?.(); // Cerrar sesión si la función existe
+    router.push('/');
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.header}>
         <Ionicons name="person-circle-outline" size={24} color="#fff" />
-        <Text style={styles.headerText}>Invitado</Text>
+        <Text style={styles.headerText}>
+          {user ? user.nombre : 'Invitado'}
+        </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.card}>
-        <MaterialCommunityIcons name="login" size={20} color="#FF8C00" />
-        <Text style={styles.cardText}>Iniciar sesión</Text>
-      </TouchableOpacity>
+      {user ? (
+        <>
+          <TouchableOpacity style={styles.card} onPress={() => router.push('/Publicaciones')}>
+            <MaterialCommunityIcons name="apps" size={20} color="#FF8C00" />
+            <Text style={styles.cardText}>Mis publicaciones</Text>
+          </TouchableOpacity>
 
-      <TouchableOpacity style={styles.card}>
-        <MaterialCommunityIcons name="apps" size={20} color="#FF8C00" />
-        <Text style={styles.cardText}>Mis publicaciones</Text>
-      </TouchableOpacity>
+          <TouchableOpacity style={styles.card} onPress={handleLogout}>
+            <MaterialCommunityIcons name="logout" size={20} color="#FF8C00" />
+            <Text style={styles.cardText}>Cerrar sesión</Text>
+          </TouchableOpacity>
+        </>
+      ) : (
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/login')}>
+          <MaterialCommunityIcons name="login" size={20} color="#FF8C00" />
+          <Text style={styles.cardText}>Iniciar sesión</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };

@@ -6,11 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Usuario } from '../interfaces/types'; 
-// import { fetchUsuarios } from '../services/usuarioService'; // Asegúrate de tener este servicio implementado
+import { createUsuario } from '../services/usuarioService'; // Asegúrate de tener este servicio implementado
+import { useAuth } from '../context/userContext'; // Asegúrate de que la ruta sea correcta
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -20,38 +22,48 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const router = useRouter();
+  const { setUser } = useAuth(); // Usar el contexto de autenticación
 
   const validarEmail = (email: string) => {
     return /@(?:correo\.)?unimet\.edu\.ve$/i.test(email);
   };
 
   const handleRegister = () => {
-    const newErrors: typeof errors = {};
+  const newErrors: typeof errors = {};
 
-    if (!name.trim()) newErrors.name = 'El nombre es obligatorio.';
-    if (!phone.trim()) newErrors.phone = 'El teléfono es obligatorio.';
-    if (!email.trim()) {
-      newErrors.email = 'El correo es obligatorio.';
-    } else if (!validarEmail(email)) {
-      newErrors.email = 'Debes usar un correo UNIMET.';
-    }
-    if (!password.trim()) newErrors.password = 'La contraseña es obligatoria.';
+  if (!name.trim()) newErrors.name = 'El nombre es obligatorio.';
+  if (!phone.trim()) newErrors.phone = 'El teléfono es obligatorio.';
+  if (!email.trim()) {
+    newErrors.email = 'El correo es obligatorio.';
+  } else if (!validarEmail(email)) {
+    newErrors.email = 'Debes usar un correo UNIMET.';
+  }
+  if (!password.trim()) newErrors.password = 'La contraseña es obligatoria.';
 
-    setErrors(newErrors);
+  setErrors(newErrors);
 
-    if (Object.keys(newErrors).length === 0) {
-      console.log('Registro:', { name, phone, email, password });
+  if (Object.keys(newErrors).length === 0) {
+    console.log('Registro:', { name, phone, email, password });
 
-      const newUser: Usuario = {
-        nombre: name,
-        telefono: phone,
-        correo: email,
-        contrasena: password,
-      };
+    const newUser: Usuario = {
+      nombre: name,
+      telefono: phone,
+      correo: email,
+      contrasena: password,
+    };
 
-
-    }
-  };
+    createUsuario(newUser)
+      .then(() => {
+        console.log('Usuario creado exitosamente');
+        setUser(newUser);          // ✅ Guardar el usuario en el contexto
+        router.push('/Perfil');    // ✅ Ir directamente al perfil
+      })
+      .catch((error) => {
+        console.error('Error al crear el usuario:', error);
+        Alert.alert('Error', 'No se pudo crear la cuenta. Inténtalo de nuevo.');
+      });
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -156,8 +168,8 @@ const SignUp = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   content: { flex: 1, padding: 24, justifyContent: 'center' },
-  backButton: { position: 'absolute', top: 40, left: 24, zIndex: 1 },
-  welcomeText: { fontSize: 56, fontWeight: 'bold', marginBottom: 40, color: '#000' },
+  backButton: { position: 'absolute', top: 40, left: 24, zIndex: 1}, 
+  welcomeText: { fontSize: 56, fontWeight: 'bold', marginBottom: 30, color: '#000' },
   inputGroup: { marginBottom: 20 },
   inputContainer: {
     flexDirection: 'row',

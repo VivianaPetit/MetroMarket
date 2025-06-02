@@ -1,33 +1,33 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { Usuario } from '../interfaces/types'; // Asegúrate de que la ruta sea correcta
 
-type User = {
-  nombre: string;
-  email: string;
-};
+interface AuthContextType {
+  user: Usuario | null;
+  setUser: (user: Usuario) => void;
+  logout: () => void;          // <-- agregar logout aquí
+}
 
-type UserContextType = {
-  user: User | null;
-  login: (userData: User) => void;
-  logout: () => void;
-};
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<Usuario | null>(null);
 
-export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-
-  const login = (userData: User) => setUser(userData);
-  const logout = () => setUser(null);
+  const logout = () => {
+    setUser(null);
+    // Aquí podrías también limpiar tokens, storage, etc.
+  };
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
-    </UserContext.Provider>
+    </AuthContext.Provider>
   );
 };
 
-export const useUser = (): UserContextType => {
-  const context = useContext(UserContext);
-  if (!context) throw new Error('useUser must be used within a UserProvider');
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
 };
