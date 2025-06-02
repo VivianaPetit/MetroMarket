@@ -5,11 +5,11 @@ import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { CategoryBadge } from '../../components/Category';
-import ProductCard from '../../components/ProductCard'; // <-- KEEP THIS import
+import ProductCard from '../../components/ProductCard'; 
 import { Categoria, Publicacion } from '../../interfaces/types'; 
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
-// import EditableProductCard from '../../components/ProductCard'; // <-- REMOVE THIS LINE, we're modifying ProductCard directly
+import { useUser } from '../../context/userContext';
 
 
 export default function Home() {
@@ -18,6 +18,7 @@ export default function Home() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const { user } = useUser();
 
   const filteredPublications = publicaciones.filter((pub) => {
     if (!search) return true;
@@ -57,10 +58,14 @@ export default function Home() {
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
-        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
+        { user ? (<TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
           <Ionicons name="person" size={24} color="#00318D" />
-        </TouchableOpacity>
-      </SafeAreaView>
+        </TouchableOpacity>) : (
+          <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/login')}>  
+            <Ionicons name="log-in-outline" size={24} color="#00318D" />
+          </TouchableOpacity>)
+        }
+      </SafeAreaView> 
 
       {/* Barra de búsqueda */}
       <View style={styles.searchContainer}>
