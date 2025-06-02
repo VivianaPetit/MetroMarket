@@ -16,6 +16,8 @@ const LoginScreen = () => {
   const router = useRouter();
 
   const handleLogin = () => {
+
+    
     console.log('Email:', email);
     console.log('Password:', password);
   };

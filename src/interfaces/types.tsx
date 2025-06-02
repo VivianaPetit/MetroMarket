@@ -3,9 +3,11 @@ export interface Categoria {
   nombre: string;
 }
 
-type User = {
+export interface Usuario {
   nombre: string;
-  email: string;
+  correo: string;
+  telefono: string;
+  contrasena: string;
 }
 
 export interface Publicacion {

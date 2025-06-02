@@ -1,72 +1,69 @@
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useUser } from '../../context/userContext';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
-export default function Perfil() {
-  const { user } = useUser();
-  const router = useRouter();
-
+const Menu = () => {
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.profileCard}>
-        <Ionicons name="person-circle-outline" size={50} color="#fff" />
-        <View style={styles.profileText}>
-          <Text style={styles.username}>{user?.nombre ?? 'Invitado'}</Text>
-        </View>
-      </View>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.header}>
+        <Ionicons name="person-circle-outline" size={24} color="#fff" />
+        <Text style={styles.headerText}>Invitado</Text>
+      </TouchableOpacity>
 
-      {!user && (
-        <TouchableOpacity
-          style={styles.loginButton}
-          onPress={() => router.push('/login')}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
-        </TouchableOpacity>
-      )}
-    </SafeAreaView>
+      <TouchableOpacity style={styles.card}>
+        <MaterialCommunityIcons name="login" size={20} color="#FF8C00" />
+        <Text style={styles.cardText}>Iniciar sesión</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.card}>
+        <MaterialCommunityIcons name="apps" size={20} color="#FF8C00" />
+        <Text style={styles.cardText}>Mis publicaciones</Text>
+      </TouchableOpacity>
+    </View>
   );
-}
+};
+
+export default Menu;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
-    paddingHorizontal: 16,
+    padding: 20,
+    backgroundColor: '#fff',
+    alignSelf: 'center',
+    gap: 12,
+    width: '100%',
   },
-  profileCard: {
+  header: {
     flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: '#00318D',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 5,
-  },
-  profileText: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: 'center',
-  },
-  username: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-  loginButton: {
-    backgroundColor: '#FF8C00', 
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignSelf: 'stretch',
     alignItems: 'center',
-
+    padding: 12,
+    borderRadius: 10,
+    gap: 8,
   },
-  loginButtonText: {
+  headerText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 1,
+    elevation: 1,
+    gap: 8,
+  },
+  cardText: {
+    color: '#FF8C00',
+    fontSize: 15,
+    fontWeight: '500',
   },
 });

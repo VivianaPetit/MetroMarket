@@ -9,33 +9,60 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Usuario } from '../interfaces/types'; 
+// import { fetchUsuarios } from '../services/usuarioService'; // Asegúrate de tener este servicio implementado
 
-const RegisterScreen = () => {
-  const [name, setName] = useState<string>('');
-  const [phone, setPhone] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+const SignUp = () => {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const router = useRouter();
 
+  const validarEmail = (email: string) => {
+    return /@(?:correo\.)?unimet\.edu\.ve$/i.test(email);
+  };
+
   const handleRegister = () => {
-    console.log('Registro:', { name, phone, email, password });
+    const newErrors: typeof errors = {};
+
+    if (!name.trim()) newErrors.name = 'El nombre es obligatorio.';
+    if (!phone.trim()) newErrors.phone = 'El teléfono es obligatorio.';
+    if (!email.trim()) {
+      newErrors.email = 'El correo es obligatorio.';
+    } else if (!validarEmail(email)) {
+      newErrors.email = 'Debes usar un correo UNIMET.';
+    }
+    if (!password.trim()) newErrors.password = 'La contraseña es obligatoria.';
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      console.log('Registro:', { name, phone, email, password });
+
+      const newUser: Usuario = {
+        nombre: name,
+        telefono: phone,
+        correo: email,
+        contrasena: password,
+      };
+
+
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* Flecha de retroceso */}
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => router.back()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#F68628" />
         </TouchableOpacity>
 
         <Text style={styles.welcomeText}>Crear Cuenta</Text>
-        
-        {/* Campos de entrada */}
+
+        {/* Nombre */}
         <View style={styles.inputGroup}>
           <View style={styles.inputContainer}>
             <Ionicons name="person" size={20} color="#888" style={styles.icon} />
@@ -47,10 +74,11 @@ const RegisterScreen = () => {
               autoCapitalize="words"
             />
           </View>
+          {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
         </View>
 
+        {/* Teléfono */}
         <View style={styles.inputGroup}>
-
           <View style={styles.inputContainer}>
             <Ionicons name="call" size={20} color="#888" style={styles.icon} />
             <TextInput
@@ -61,13 +89,14 @@ const RegisterScreen = () => {
               keyboardType="phone-pad"
             />
           </View>
+          {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
         </View>
 
+        {/* Correo */}
         <View style={styles.inputGroup}>
-
-            <View style={styles.inputContainer}>
-              <Ionicons name="mail" size={20} color="#888" style={styles.icon} />
-              <TextInput
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail" size={20} color="#888" style={styles.icon} />
+            <TextInput
               style={styles.inputField}
               placeholder="Correo electrónico"
               value={email}
@@ -75,10 +104,12 @@ const RegisterScreen = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               placeholderTextColor="#b0b0b0"
-              />
-            </View>
+            />
+          </View>
+          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
         </View>
 
+        {/* Contraseña */}
         <View style={styles.inputGroup}>
           <View style={styles.passwordContainer}>
             <Ionicons name="lock-closed" size={20} color="#888" style={styles.icon} />
@@ -89,28 +120,26 @@ const RegisterScreen = () => {
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
             />
-            <TouchableOpacity 
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.showPasswordButton}
-            >
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
               <Text style={styles.showPasswordText}>
                 {showPassword ? 'Ocultar' : 'Mostrar'}
               </Text>
             </TouchableOpacity>
           </View>
+          {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
         </View>
 
-        {/* Botón de Registro */}
+        {/* Botón de registro */}
         <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
           <Text style={styles.registerButtonText}>Crear Cuenta</Text>
         </TouchableOpacity>
 
         {/* Línea divisoria */}
-                <View style={styles.dividerContainer}>
-                  <View style={styles.dividerLine} />
-                  <Text style={styles.dividerText}>o</Text>
-                  <View style={styles.dividerLine} />
-                </View>
+        <View style={styles.dividerContainer}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>o</Text>
+          <View style={styles.dividerLine} />
+        </View>
 
         {/* Footer */}
         <View style={styles.footer}>
@@ -125,35 +154,11 @@ const RegisterScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  content: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 40,
-    left: 24,
-    zIndex: 1,
-  },
-  welcomeText: {
-    fontSize: 56,
-    fontWeight: 'bold',
-    marginBottom: 40,
-    color: '#000',
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-  },
+  container: { flex: 1, backgroundColor: '#fff' },
+  content: { flex: 1, padding: 24, justifyContent: 'center' },
+  backButton: { position: 'absolute', top: 40, left: 24, zIndex: 1 },
+  welcomeText: { fontSize: 56, fontWeight: 'bold', marginBottom: 40, color: '#000' },
+  inputGroup: { marginBottom: 20 },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -163,49 +168,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: '#fff',
   },
-  inputField: {
-    flex: 1,
-    padding: 14,
-    fontSize: 16,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#eee',
-  },
-  dividerText: {
-    width: 40,
-    textAlign: 'center',
-    color: '#666',
-  },
-  googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 24,
-  },
-  googleIcon: {
-    width: 24,
-    height: 24,
-    marginRight: 12,
-  },
-  googleButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: '500',
-  },
+  inputField: { flex: 1, padding: 14, fontSize: 16 },
+  icon: { marginRight: 10 },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,18 +179,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingHorizontal: 10,
   },
-  passwordInput: {
-    flex: 1,
-    padding: 14,
-    fontSize: 16,
-  },
-  showPasswordButton: {
-    padding: 14,
-  },
-  showPasswordText: {
-    color: '#F68628',
-    fontWeight: '500',
-  },
+  passwordInput: { flex: 1, padding: 14, fontSize: 16 },
+  showPasswordButton: { padding: 14 },
+  showPasswordText: { color: '#F68628', fontWeight: '500' },
   registerButton: {
     backgroundColor: '#F68628',
     padding: 16,
@@ -234,23 +189,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-  registerButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 24,
-  },
-  footerText: {
-    color: '#666',
-  },
-  loginText: {
-    color: '#F68628',
-    fontWeight: 'bold',
-  },
+  registerButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  dividerContainer: { flexDirection: 'row', alignItems: 'center', marginVertical: 24 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: '#eee' },
+  dividerText: { width: 40, textAlign: 'center', color: '#666' },
+  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
+  footerText: { color: '#666' },
+  loginText: { color: '#F68628', fontWeight: 'bold' },
+  errorText: { color: '#FF4D4F', fontSize: 13, marginTop: 6, marginLeft: 6 },
 });
 
-export default RegisterScreen;
+export default SignUp;
