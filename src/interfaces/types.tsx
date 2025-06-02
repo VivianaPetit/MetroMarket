@@ -10,6 +10,7 @@ type User = {
 
 export interface Publicacion {
   _id: string;
+  categoria: string;
   titulo: string;
   precio: number;
   fotos: string[];  
