@@ -143,9 +143,10 @@ export default function Home() {
             />
           ))
         ) : (
-          <Text style={styles.noResultsText}>
-            {search ? "No se encontraron resultados para tu búsqueda" : "No hay publicaciones disponibles"}
-          </Text>
+          <View style={styles.emptyContainer}>
+            <Ionicons name="sad-outline" size={48} color="#888" />
+            <Text style={styles.emptyText}>No hay productos en esta categoría</Text>
+          </View>
         )}
       </ScrollView>
     </View>
@@ -183,6 +184,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     paddingHorizontal: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+    width: '100%',
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#888',
+    marginTop: 16,
+    textAlign: 'center',
   },
 });
 
