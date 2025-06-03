@@ -18,8 +18,9 @@ export default function Home() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [publicacionesCategoria, setPublicacionesCategoria] = useState<Publicacion[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>("1"); // "1" es el I
   const [search, setSearch] = useState("");
+  
   const { user } = useAuth();
   var boolean1 = false
   var boolean2 = false
@@ -35,12 +36,13 @@ export default function Home() {
   });
 
   const reseteo = () => {
-     fetchPublicaciones()
-      .then(data => setPublicacionesCategoria(data))
-      .catch(console.error);
-      boolean1 = false
-     boolean2 = false
-  };
+  fetchPublicaciones()
+    .then(data => setPublicacionesCategoria(data))
+    .catch(console.error);
+  setSelectedCategoryId("1"); // Asegurar que "Todos" esté seleccionado
+  boolean1 = false;
+  boolean2 = false;
+};
 
   useEffect(() => {
     fetchCategorias()
@@ -62,16 +64,24 @@ export default function Home() {
   );
 
   const handleCategoryPress = (categoryId: string, category: string) => {
-    setSelectedCategoryId(current => 
-      current === categoryId ? null : categoryId
-    );
-      const filtered = publicaciones.filter(user => user.categoria.includes(category))
-      //console.log(filtered)
-      setPublicacionesCategoria(filtered)
-      console.log(publicacionesCategoria)
-       boolean1 = false;
-       boolean2 = true;
-  };
+  if (selectedCategoryId === categoryId) {
+    // Si se hace clic en la categoría ya seleccionada, volver a "Todos"
+    setSelectedCategoryId("1");
+    fetchPublicaciones()
+      .then(data => setPublicacionesCategoria(data))
+      .catch(console.error);
+    boolean1 = false;
+    boolean2 = false;
+  } else {
+    // Seleccionar nueva categoría
+    setSelectedCategoryId(categoryId);
+    const filtered = publicaciones.filter(user => user.categoria.includes(category));
+    setPublicacionesCategoria(filtered);
+    boolean1 = false;
+    boolean2 = true;
+  }
+};
+
 
   const handleEditProduct = (productId: string, productName: string) => {
     Alert.alert('Editar Producto', `Has presionado editar para: ${productName} (ID: ${productId})`);
@@ -131,40 +141,44 @@ export default function Home() {
       </View>
 
       {/* Products */}
-            <ScrollView contentContainerStyle={styles.productsGrid}>
-        {filteredPublications.length > 0 && boolean1? (
-          filteredPublications.map((pub) => (
-            <ProductCard
-              key={pub._id}
-              name={pub.titulo}
-              price={pub.precio}
-              category={pub.categoria}
-              image={
-                pub.fotos && pub.fotos.length > 0
-                  ? pub.fotos[0]
-                  : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
-              }
-              // onEdit={() => handleEditProduct(pub._id, pub.titulo)}
-            />
-          ))
-        ) : (
-           publicacionesCategoria.map((pub) => (
-            <ProductCard
-              key={pub._id}
-              name={pub.titulo}
-              price={pub.precio}
-              category={pub.categoria}
-              image={
-                pub.fotos && pub.fotos.length > 0
-                  ? pub.fotos[0]
-                  : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
-              }
-              
-              //onEdit={() => handleEditProduct(pub._id, pub.titulo)} // Example: Pass ID and title
-            />
-          ))
-        )}
-      </ScrollView>
+<ScrollView contentContainerStyle={styles.productsGrid}>
+  {filteredPublications.length > 0 && boolean1 ? (
+    filteredPublications.map((pub) => (
+      <ProductCard
+        key={pub._id}
+        name={pub.titulo}
+        price={pub.precio}
+        category={pub.categoria}
+        image={
+          pub.fotos && pub.fotos.length > 0
+            ? pub.fotos[0]
+            : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
+        }
+      />
+    ))
+  ) : (
+    publicacionesCategoria.length > 0 ? (
+      publicacionesCategoria.map((pub) => (
+        <ProductCard
+          key={pub._id}
+          name={pub.titulo}
+          price={pub.precio}
+          category={pub.categoria}
+          image={
+            pub.fotos && pub.fotos.length > 0
+              ? pub.fotos[0]
+              : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
+          }
+        />
+      ))
+    ) : (
+      <View style={styles.emptyContainer}>
+        <Ionicons name="sad-outline" size={48} color="#888" />
+        <Text style={styles.emptyText}>No hay productos en esta categoría</Text>
+      </View>
+    )
+  )}
+</ScrollView>
     </View>
   );
 }
@@ -194,4 +208,18 @@ const styles = StyleSheet.create({
   errorMensaje: {
     fontSize: 20, textAlign: 'center', width: '100%', marginTop: 20,
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+    width: '100%',
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#888',
+    marginTop: 16,
+    textAlign: 'center',
+  },
 });
+
