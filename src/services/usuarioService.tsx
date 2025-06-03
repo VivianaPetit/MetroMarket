@@ -14,6 +14,21 @@ export const fetchUsuarios = async (): Promise<Usuario[]> => {
   }
 };
 
+
+export const editarUsuario = async (
+  userId: string,
+  datos: Partial<Pick<Usuario, 'nombre' | 'telefono'>>
+): Promise<Usuario> => {
+  try {
+    const response = await axios.patch<Usuario>(`${usuariosURL}/${userId}`, datos);
+    return response.data;
+  } catch (error) {
+    console.error('Error editando el usuario:', error);
+    throw error;
+  }
+};
+
+
 export const fetchUsuario = async (userId: string): Promise<Usuario> => {
   try {
     const response = await axios.get<Usuario>(`${usuariosURL}/${userId}`);

@@ -26,6 +26,27 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
+router.patch('/:userId', async (req, res) => {
+  const { userId } = req.params;
+  const { nombre, telefono } = req.body;
+
+  try {
+    const usuario = await Usuario.findById(userId);
+    if (!usuario) {
+      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+    }
+
+    if (nombre !== undefined) usuario.nombre = nombre;
+    if (telefono !== undefined) usuario.telefono = telefono;
+
+    await usuario.save();
+    res.json(usuario);
+  } catch (error) {
+    console.error('Error actualizando usuario:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
+});
+
 // Crear un nuevo usuario
 router.post('/', async (req, res) => {
   try {
