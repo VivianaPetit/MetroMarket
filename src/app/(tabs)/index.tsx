@@ -98,7 +98,7 @@ export default function Home() {
         </ScrollView>
       </View>
 
-      {/* Products */}
+      {/* Publicaciones */}
       <ScrollView contentContainerStyle={styles.productsGrid}>
         {filteredPublications.length > 0 ? (
           filteredPublications.map((pub) => (
