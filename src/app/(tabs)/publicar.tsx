@@ -36,6 +36,7 @@ const CreatePublication = () => {
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
 
+
 useEffect(() => {
   fetchCategorias()
     .then(data => setCategorias(data))
@@ -77,7 +78,7 @@ const handlePublicar = async () => {
     categoria: categoriaSeleccionada?.nombre, 
     usuario: user._id,
   };
-
+};
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
