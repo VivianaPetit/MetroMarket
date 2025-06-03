@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 
 const usuarioSchema = new mongoose.Schema({
-    nombre: String,
-    correo: String,
-    contrasena: String, 
-    telefono: String,
-    calificacionPromedio: { type: Number, default: 0 }, 
+    nombre: { type: String, required: true },
+    correo: { type: String, unique: true, required: true },
+    contrasena: { type: String, required: true },
+    telefono: { type: String, required: true },
+    calificacionPromedio: { type: Number, default: 0 },
     publicaciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Publicacion' }],
     nivelReputacion: String, // Oro, Plata, Bronce (???)
     transacciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaccion' }],
