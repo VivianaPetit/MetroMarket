@@ -22,6 +22,9 @@ export default function Perfil() {
   };
 
   const handleGuardar = async () => {
+    if(!user){
+      return
+    }
     try {
       const usuarioActualizado = await editarUsuario(user._id, { nombre, telefono });
       setUser(usuarioActualizado); // Actualizar en el contexto
