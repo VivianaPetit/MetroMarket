@@ -30,7 +30,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchCategorias()
-      .then(data => setCategorias(data.slice(0, 10)))
+      .then(data => setCategorias(data)) //data.slice(0, 10)) para cuando solo queremos mostrar 1 categoria
       .catch(console.error);
 
     fetchPublicaciones()

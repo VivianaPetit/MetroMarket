@@ -4,7 +4,7 @@
     "slug": "metromarket",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/LogoMetroMarket.png",
+    "icon": "./assets/images/LogoMetroMarket-completo.png",
     "scheme": "metromarket",
     "userInterfaceStyle": "automatic",
     "permissions": ["CAMERA", "MEDIA_LIBRARY"],
@@ -14,7 +14,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/LogoMetroMarket.png",
+        "foregroundImage": "./assets/images/LogoMetroMarket-completo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
@@ -29,7 +29,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/LogoMetroMarket.png",
+          "image": "./assets/images/LogoMetroMarket-completo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
