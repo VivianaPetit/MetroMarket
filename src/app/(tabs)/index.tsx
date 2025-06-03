@@ -111,6 +111,12 @@ export default function Home() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesContainer}
         >
+                   <CategoryBadge 
+              key={1}
+              label={"Todos"}
+              isSelected={selectedCategoryId === "1"}
+              onPress={() => reseteo()}
+            />
           {categorias.map((cat) => (
             <CategoryBadge 
               key={cat._id}
@@ -119,12 +125,6 @@ export default function Home() {
               onPress={() => handleCategoryPress(cat._id,cat.nombre)}
             />
           ))}
-         <CategoryBadge 
-              key={1}
-              label={"Todos"}
-              isSelected={selectedCategoryId === "1"}
-              onPress={() => reseteo()}
-            />
         </ScrollView>
       </View>
 
