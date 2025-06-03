@@ -64,15 +64,22 @@ export default function ProductDetails() {
   return (
     <ScrollView style={styles.container}>
       <Image 
-        source={{ uri: product.fotos?.[0] || 'https://via.placeholder.com/300' }} 
+        source={{ uri: product.fotos?.[0] || 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg' }} 
         style={styles.productImage}
       />
       <View style={styles.detailsContainer}>
-        <Text style={styles.productTitle}>Nombre del producto: {product.titulo}</Text>
+        <Text style={styles.productTitle}>Nombre del producto:</Text>
+        <Text style={styles.productTitle2}>{product.titulo}</Text>
         <Text style={styles.productDescription}>Descripcion: {product.descripcion}</Text>
+        
         <Text style={styles.productPrice}>Precio: ${product.precio}</Text>
-        <Text style={styles.productPrice}>Cantidad: {product.precio}</Text>
-        <Text style={styles.productCategory}>Categoria: {product.categoria}</Text>
+        <Text style={styles.productPrice}>Cantidad: {product.cantidad}</Text>
+        <Text style={styles.productPrice}>Categoria:</Text>
+        <Text style={styles.productCategory}>{product.categoria}</Text>
+        <Text style={styles.productPrice}>Estado:</Text>
+        <Text style={styles.productCategory}>{product.estado}</Text>
+        <Text style={styles.productPrice}>Metodo de Pago:</Text>
+        <Text style={styles.productmetodo}>{product.metodoPago}</Text>
         
       </View>
     </ScrollView>
@@ -102,16 +109,34 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  productTitle2: {
+    fontSize: 24,
+    marginBottom: 10,
+  },
+  productmetodo: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
   productPrice: {
-    fontSize: 20,
-    color: '#00318D',
+    fontSize: 20,/* 
+    color: '#00318D', */
     fontWeight: 'bold',
     marginBottom: 10,
   },
   productCategory: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 15,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    height: 30,
+    width:98,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    fontSize: 12,
+    color: '#333',
+    marginBottom: 10,
   },
   productDescription: {
     fontSize: 16,

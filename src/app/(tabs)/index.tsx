@@ -68,7 +68,7 @@ export default function Home() {
       const filtered = publicaciones.filter(user => user.categoria.includes(category))
       //console.log(filtered)
       setPublicacionesCategoria(filtered)
-      console.log(publicacionesCategoria)
+      /* console.log(publicacionesCategoria) */
        boolean1 = false;
        boolean2 = true;
   };
@@ -154,9 +154,18 @@ export default function Home() {
               }
               // onEdit={() => handleEditProduct(pub._id, pub.titulo)}
             />
+            </TouchableOpacity>
           ))
         ) : (
            publicacionesCategoria.map((pub) => (
+            <TouchableOpacity 
+                key={pub._id}
+                onPress={() => router.push({
+                  pathname: "/product-details",
+                  params: { productId: pub._id }
+                })}
+                activeOpacity={0.7}
+            >
             <ProductCard
               key={pub._id}
               name={pub.titulo}
