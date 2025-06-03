@@ -9,6 +9,7 @@ export interface Usuario {
   correo: string;
   telefono: string;
   contrasena: string;
+  publicaciones: string[];  
 }
 
 export interface Publicacion {
