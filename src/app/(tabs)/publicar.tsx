@@ -160,6 +160,7 @@ const handlePublicar = async () => {
           Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
         ]}
       >
+        <Picker.Item key="pick" label="Selecciona una categoría" value="" />
         {categorias.map((cat) => (
           <Picker.Item key={cat._id} label={cat.nombre} value={cat._id} />
         ))}
