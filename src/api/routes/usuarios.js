@@ -61,9 +61,8 @@ router.patch('/:userId/publicaciones', async (req, res) => {
   }
 });
 
-// Buscar usuario por correo con validación de dominio
-router.post('/buscarPorCorreo', async (req, res) => {
-  const { correo } = req.body;
+router.get('/buscarPorCorreo/:correo', async (req, res) => {  // Usa `:correo` como parámetro
+  const { correo } = req.params;  // Cambia req.body a req.params
 
   if (!correo) {
     return res.status(400).json({ mensaje: 'El correo es obligatorio' });
@@ -79,7 +78,6 @@ router.post('/buscarPorCorreo', async (req, res) => {
     if (!usuario) {
       return res.status(404).json({ mensaje: 'Usuario no encontrado' });
     }
-
     res.json(usuario); 
   } catch (error) {
     console.error('Error al buscar usuario:', error);
