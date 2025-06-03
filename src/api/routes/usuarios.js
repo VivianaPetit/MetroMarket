@@ -12,6 +12,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const usuario = await Usuario.findById(userId);
+    if (!usuario) {
+      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+    }
+    res.json(usuario);
+  } catch (error) {
+    console.error('Error al buscar usuario por ID:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
+});
+
 // Crear un nuevo usuario
 router.post('/', async (req, res) => {
   try {

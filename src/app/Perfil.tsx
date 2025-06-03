@@ -33,9 +33,10 @@ export default function Perfil() {
         </View>
 
         <ProfileCard
-          UserName={user?.correo.split('@')[0] ?? 'Usuario'}
+          UserName={user?.correo ?? 'Usuario'}
           nombreyA={user?.nombre ?? 'Nombre'}
           tlf={user?.telefono ?? ''}
+          
           editable={false}
         />
 

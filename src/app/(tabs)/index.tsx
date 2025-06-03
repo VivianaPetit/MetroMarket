@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert,} from 'react-native'; // <-- NEW: Import Alert for example
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { CategoryBadge } from '../../components/Category';
@@ -9,8 +9,8 @@ import ProductCard from '../../components/ProductCard';
 import { Categoria, Publicacion } from '../../interfaces/types'; 
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
-import { AuthProvider, useAuth } from '../../context/userContext';
-
+import { useFocusEffect } from '@react-navigation/native'; 
+import { useAuth } from '../../context/userContext';
 
 export default function Home() {
   const router = useRouter();
@@ -30,13 +30,18 @@ export default function Home() {
 
   useEffect(() => {
     fetchCategorias()
-      .then(data => setCategorias(data)) //data.slice(0, 10)) para cuando solo queremos mostrar 1 categoria
-      .catch(console.error);
-
-    fetchPublicaciones()
-      .then(data => setPublicaciones(data))
+      .then(data => setCategorias(data))
       .catch(console.error);
   }, []);
+
+  // ✅ Reemplaza useEffect por useFocusEffect para publicaciones
+  useFocusEffect(
+    useCallback(() => {
+      fetchPublicaciones()
+        .then(data => setPublicaciones(data))
+        .catch(console.error);
+    }, [])
+  );
 
   const handleCategoryPress = (categoryId: string) => {
     setSelectedCategoryId(current => 
@@ -44,11 +49,8 @@ export default function Home() {
     );
   };
 
-  // <-- NEW: Handler for the edit icon press
   const handleEditProduct = (productId: string, productName: string) => {
     Alert.alert('Editar Producto', `Has presionado editar para: ${productName} (ID: ${productId})`);
-    // Here, you would typically navigate to an edit screen:
-    // router.push(`/edit-product/${productId}`);
   };
 
   return (
@@ -58,16 +60,17 @@ export default function Home() {
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
-        { user ? (<TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
-          <Ionicons name="person" size={24} color="#00318D" />
-        </TouchableOpacity>) : (
-          <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/login')}>  
+        { user ? (
+          <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
+            <Ionicons name="person" size={24} color="#00318D" />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/login')}>
             <Ionicons name="log-in-outline" size={24} color="#00318D" />
-          </TouchableOpacity>)
-        }
+          </TouchableOpacity>
+        )}
       </SafeAreaView> 
 
-      {/* Barra de búsqueda */}
       <View style={styles.searchContainer}>
         <FontAwesome name="search" size={18} color="#bbb" style={styles.searchIcon} />
         <TextInput
@@ -80,7 +83,6 @@ export default function Home() {
         />
       </View>
 
-      {/* Categorias */}
       <View style={styles.categoriesWrapper}>
         <ScrollView
           horizontal
@@ -98,7 +100,6 @@ export default function Home() {
         </ScrollView>
       </View>
 
-      {/* Publicaciones */}
       <ScrollView contentContainerStyle={styles.productsGrid}>
         {filteredPublications.length > 0 ? (
           filteredPublications.map((pub) => (
@@ -112,8 +113,7 @@ export default function Home() {
                   ? pub.fotos[0]
                   : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
               }
-              
-              //onEdit={() => handleEditProduct(pub._id, pub.titulo)} // Example: Pass ID and title
+              // onEdit={() => handleEditProduct(pub._id, pub.titulo)}
             />
           ))
         ) : (
@@ -125,68 +125,27 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8f8f8',
-  },
+  container: { flex: 1, backgroundColor: '#f8f8f8' },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee',
   },
-  headerIcon: {
-    paddingLeft: 10,
-    paddingBottom: 20,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
+  headerIcon: { paddingLeft: 10, paddingBottom: 20 },
+  headerTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 30,
-    marginHorizontal: 16,
-    marginTop: 10,
-    paddingHorizontal: 15,
-    height: 45,
-    elevation: 4,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
+    borderRadius: 30, marginHorizontal: 16, marginTop: 10, paddingHorizontal: 15,
+    height: 45, elevation: 4,
   },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    color: '#333',
-  },
-  categoriesWrapper: {
-    marginTop: 12,
-    paddingBottom: 10,
-    backgroundColor: '#f8f8f8',
-  },
-  categoriesContainer: {
-    paddingHorizontal: 16,
-  },
+  searchIcon: { marginRight: 8 },
+  searchInput: { flex: 1, fontSize: 14, color: '#333' },
+  categoriesWrapper: { marginTop: 12, paddingBottom: 10, backgroundColor: '#f8f8f8' },
+  categoriesContainer: { paddingHorizontal: 16 },
   productsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 80,
+    flexDirection: 'row', flexWrap: 'wrap',
+    justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 80,
   },
   errorMensaje: {
-    fontSize: 20,
-    flexDirection: 'row', // This won't do much for a single Text component
-    flexWrap: 'wrap',
-    textAlign: 'center', // Added for better centering of the message
-    width: '100%', // Ensure it takes full width to center
-    marginTop: 20,
+    fontSize: 20, textAlign: 'center', width: '100%', marginTop: 20,
   },
 });

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import {
   ScrollView,
@@ -17,24 +17,34 @@ import ProductCard from '../components/ProductCard';
 import { Categoria, Publicacion } from '../interfaces/types';
 import { fetchCategorias } from '../services/categoriaService';
 import { fetchPublicaciones } from '../services/publicacionService';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Home() {
   const router = useRouter();
-  const { user } = useAuth(); // <-- 🔹 OBTÉN el usuario
+  const { user } = useAuth(); 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetchCategorias()
-      .then(data => setCategorias(data.slice(0, 10)))
-      .catch(console.error);
-
+ useEffect(() => {
+     fetchCategorias()
+       .then(data => setCategorias(data))
+       .catch(console.error);
+   }, []);
+ 
+   // ✅ Reemplaza useEffect por useFocusEffect para publicaciones
+   useFocusEffect(
+  useCallback(() => {
+    if (!user) {
+      setPublicaciones([]);
+      return;
+    }
     fetchPublicaciones()
       .then(data => setPublicaciones(data))
       .catch(console.error);
-  }, []);
+  }, [user?._id]) // <-- agregar dependencia del usuario
+);
 
   // 🔹 Filtra por usuario autenticado
   const publicacionesDelUsuario = publicaciones.filter(pub =>
@@ -64,6 +74,12 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.header}>
+        <TouchableOpacity 
+            onPress={() => router.push('/menu')}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={24} color="#00318D" />
+          </TouchableOpacity>
         <Text style={styles.headerTitle}>
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
@@ -73,18 +89,8 @@ export default function Home() {
         </TouchableOpacity>
       </SafeAreaView>
 
-      {/* Categorías */}
-      <View style={styles.categoriesWrapper}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesContainer}>
-          {categorias.map((cat) => (
-            <CategoryBadge
-              key={cat._id}
-              label={cat.nombre}
-              isSelected={selectedCategoryId === cat._id}
-              onPress={() => handleCategoryPress(cat._id)}
-            />
-          ))}
-        </ScrollView>
+      <View >
+        
       </View>
 
       {/* Productos */}
@@ -134,6 +140,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+   backButton: {
+    marginRight: 10,
+    paddingBottom: 20,
   },
   searchContainer: {
     flexDirection: 'row',

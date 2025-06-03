@@ -14,6 +14,16 @@ export const fetchUsuarios = async (): Promise<Usuario[]> => {
   }
 };
 
+export const fetchUsuario = async (userId: string): Promise<Usuario> => {
+  try {
+    const response = await axios.get<Usuario>(`${usuariosURL}/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching usuario by ID:', error);
+    throw error;
+  }
+};
+
 export const agregarPublicacionAUsuario = async (
   userId: string,
   publicacionId: string
