@@ -54,6 +54,7 @@ const handlePublicar = async () => {
     Alert.alert('Error', 'Título, precio, cantidad y categoría son obligatorios.');
     return;
   }
+  console.log(user)
 
   const resetForm = () => {
     setTitulo('');
@@ -78,6 +79,23 @@ const handlePublicar = async () => {
     categoria: categoriaSeleccionada?.nombre, 
     usuario: user._id,
   };
+
+  try {
+      // Crear la publicación y obtener el objeto creado con _id
+      const publicacionCreada = await crearPublicacion(nuevaPublicacion);
+
+      console.log('aca esta la pub id', publicacionCreada._id)
+      // Agregar el ID de la publicación creada al usuario
+      await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
+
+      Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
+      resetForm();
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo crear la publicación.');
+      console.error(error);
+    }
+  
 };
   return (
     <ScrollView contentContainerStyle={styles.container}>

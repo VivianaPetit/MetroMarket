@@ -1,30 +1,30 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert,} from 'react-native'; // <-- NEW: Import Alert for example
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Alert,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { useAuth } from '../context/userContext'; // <-- 🔹 IMPORTA el contexto
 import { CategoryBadge } from '../components/Category';
-import ProductCard from '../components/ProductCard'; // <-- KEEP THIS import
-import { Categoria, Publicacion } from '../interfaces/types'; 
+import ProductCard from '../components/ProductCard';
+import { Categoria, Publicacion } from '../interfaces/types';
 import { fetchCategorias } from '../services/categoriaService';
 import { fetchPublicaciones } from '../services/publicacionService';
 
-
 export default function Home() {
   const router = useRouter();
+  const { user } = useAuth(); // <-- 🔹 OBTÉN el usuario
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-
-  const filteredPublications = publicaciones.filter((pub) => {
-    if (!search) return true;
-    const searchTerm = search.toLowerCase();
-    const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
-    const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
-    return titleMatch || categoryMatch;
-  });
 
   useEffect(() => {
     fetchCategorias()
@@ -36,19 +36,30 @@ export default function Home() {
       .catch(console.error);
   }, []);
 
+  // 🔹 Filtra por usuario autenticado
+  const publicacionesDelUsuario = publicaciones.filter(pub =>
+    user?.publicaciones?.includes(pub._id)
+  );
+
+  // 🔹 Aplica búsqueda sobre las publicaciones del usuario
+  const filteredPublications = publicacionesDelUsuario.filter((pub) => {
+    if (!search) return true;
+    const searchTerm = search.toLowerCase();
+    const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
+    const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
+    return titleMatch || categoryMatch;
+  });
+
   const handleCategoryPress = (categoryId: string) => {
-    setSelectedCategoryId(current => 
-      current === categoryId ? null : categoryId
-    );
+    setSelectedCategoryId(current => current === categoryId ? null : categoryId);
   };
 
- 
   const handleEditProduct = (producto: Publicacion) => {
-  router.push({
-    pathname: '/EditarProducto',
-    params: { producto: JSON.stringify(producto) },
-  });
-};
+    router.push({
+      pathname: '/EditarProducto',
+      params: { producto: JSON.stringify(producto) },
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -62,17 +73,11 @@ export default function Home() {
         </TouchableOpacity>
       </SafeAreaView>
 
-     
-
-      {/* Categorias */}
+      {/* Categorías */}
       <View style={styles.categoriesWrapper}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesContainer}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesContainer}>
           {categorias.map((cat) => (
-            <CategoryBadge 
+            <CategoryBadge
               key={cat._id}
               label={cat.nombre}
               isSelected={selectedCategoryId === cat._id}
@@ -82,7 +87,7 @@ export default function Home() {
         </ScrollView>
       </View>
 
-      {/* Products */}
+      {/* Productos */}
       <ScrollView contentContainerStyle={styles.productsGrid}>
         {filteredPublications.length > 0 ? (
           filteredPublications.map((pub) => (
@@ -96,8 +101,7 @@ export default function Home() {
                   ? pub.fotos[0]
                   : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
               }
-              
-              onEdit={() => handleEditProduct(pub)} // Example: Pass ID and title
+              onEdit={() => handleEditProduct(pub)}
             />
           ))
         ) : (
