@@ -102,6 +102,14 @@ export default function Home() {
       <ScrollView contentContainerStyle={styles.productsGrid}>
         {filteredPublications.length > 0 ? (
           filteredPublications.map((pub) => (
+            <TouchableOpacity 
+                key={pub._id}
+                onPress={() => router.push({
+                  pathname: "/product-details",
+                  params: { productId: pub._id }
+                })}
+                activeOpacity={0.7}
+            >
             <ProductCard
               key={pub._id}
               name={pub.titulo}
@@ -115,6 +123,7 @@ export default function Home() {
               
               //onEdit={() => handleEditProduct(pub._id, pub.titulo)} // Example: Pass ID and title
             />
+            </TouchableOpacity>
           ))
         ) : (
           <Text style={styles.errorMensaje}>No se encontraron productos</Text>
