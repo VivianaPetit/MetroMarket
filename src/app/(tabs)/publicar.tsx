@@ -15,14 +15,22 @@ import { useNavigation } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import { Categoria } from '../../interfaces/types';
 import { fetchCategorias } from '../../services/categoriaService';
+import { crearPublicacion } from '../../services/publicacionService';
+import { useAuth } from '../../context/userContext';
+import { useRouter } from 'expo-router';
+
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 const categorias = ['Electrónica', 'Ropa', 'Libros', 'Hogar', 'Otros'];
 
 
 
+
+
 const CreatePublication = () => {
   const navigation = useNavigation();
+  const router = useRouter();
+  const { user } = useAuth();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -40,14 +48,55 @@ const CreatePublication = () => {
         .catch(console.error);
     }, []);
 
-  const handlePublicar = () => {
-    if (!titulo || !precio || !cantidad) {
-      Alert.alert('Error', 'Título, precio y cantidad son obligatorios.');
-      return;
-    }
+  const handlePublicar = async () => {
+   
+     if (!user) {
+    Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
+    router.push("/") // o el nombre correcto de tu pantalla inicial
+    return;
+  }
 
-    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
+   console.log(user._id)
+    
+  if (!titulo || !precio || !cantidad) {
+    Alert.alert('Error', 'Título, precio y cantidad son obligatorios.');
+    return;
+  }
+
+  const resetForm = () => {
+  setTitulo('');
+  setDescripcion('');
+  setPrecio('');
+  setCantidad('');
+  setEstado('');
+  setDisponible(true);
+  setLugarEntrega('');
+  setMetodoPago('');
+  setCategoria('');
+};
+
+  const nuevaPublicacion = {
+    titulo,
+    descripcion,
+    precio : parseInt(precio),
+    cantidad,
+    estado,
+    disponible,
+    lugarEntrega,
+    metodoPago,
+    categoria,
+    usuario: user._id,
   };
+
+  try {
+    await crearPublicacion(nuevaPublicacion);
+    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
+    resetForm();
+    navigation.goBack();
+  } catch (error) {
+    Alert.alert('Error', 'No se pudo crear la publicación.');
+  }
+};
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

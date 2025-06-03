@@ -13,4 +13,15 @@ export const fetchPublicaciones = async (): Promise<Publicacion[]> => {
     console.error('Error fetching publicaciones:', error);
     throw error;
   }
+  };
+
+export const crearPublicacion = async (publicacion: Partial<Publicacion>): Promise<Publicacion> => {
+  try {
+    const response = await axios.post(publicacionesURL, publicacion);
+    return response.data;
+  } catch (error) {
+    console.error('Error creando publicación:', error);
+    throw error;
+  }
 };
+
