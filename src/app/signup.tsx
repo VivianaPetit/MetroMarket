@@ -10,66 +10,103 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Usuario } from '../interfaces/types'; 
-import { createUsuario } from '../services/usuarioService'; // Asegúrate de tener este servicio implementado
-import { useAuth } from '../context/userContext'; // Asegúrate de que la ruta sea correcta
+import { Usuario } from '../interfaces/types';
+import { createUsuario } from '../services/usuarioService';
+import { useAuth } from '../context/userContext';
 import * as Crypto from 'expo-crypto';
+import { buscarUsuarioPorCorreo } from '../services/usuarioService';
 
 const SignUp = () => {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    password: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
-  const { setUser } = useAuth(); // Usar el contexto de autenticación
+  const { setUser } = useAuth();
 
   const validarEmail = (email: string) => {
     return /@(?:correo\.)?unimet\.edu\.ve$/i.test(email);
   };
 
-const handleRegister = async () => {
-  const newErrors: typeof errors = {};
+  const handleChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
 
-  if (!name.trim()) newErrors.name = 'El nombre es obligatorio.';
-  if (!phone.trim()) newErrors.phone = 'El teléfono es obligatorio.';
-  if (!email.trim()) {
-    newErrors.email = 'El correo es obligatorio.';
-  } else if (!validarEmail(email)) {
-    newErrors.email = 'Debes usar un correo UNIMET.';
-  }
-  if (!password.trim()) newErrors.password = 'La contraseña es obligatoria.';
+  const handleRegister = async () => {
+    const newErrors: typeof errors = {};
+    
+    if (!formData.name.trim()) newErrors.name = 'El nombre es obligatorio.';
+    if (!formData.phone.trim()) newErrors.phone = 'El teléfono es obligatorio.';
+    if (!formData.email.trim()) {
+      newErrors.email = 'El correo es obligatorio.';
+    } else if (!validarEmail(formData.email)) {
+      newErrors.email = 'Debes usar un correo UNIMET.';
+    }
+    if (!formData.password.trim()) {
+      newErrors.password = 'La contraseña es obligatoria.';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres.';
+    }
 
-  setErrors(newErrors);
+    setErrors(newErrors);
 
-  if (Object.keys(newErrors).length === 0) {
+    if (Object.keys(newErrors).length > 0) return;
+
+    setIsSubmitting(true);
+
     try {
-      const cleanPassword = password.trim();
+      // Verificar si el correo ya existe
+      try {
+        await buscarUsuarioPorCorreo(formData.email.trim());
+        // Si no lanza error, el usuario existe
+        Alert.alert('Error', 'Este correo ya está registrado');
+        return;
+      } catch (error) {
+        // Error 404 significa que el usuario no existe (lo cual es bueno)
+        if (
+          !(typeof error === 'object' && error !== null && 'response' in error && typeof (error as any).response === 'object') ||
+          (error as any).response?.status !== 404
+        ) throw error;
+      }
+
+      // Hashear la contraseña (en un entorno real, esto debería hacerse en el backend)
       const hashedPassword = await Crypto.digestStringAsync(
         Crypto.CryptoDigestAlgorithm.SHA256,
-        cleanPassword
+        formData.password.trim()
       );
 
-      const newUser: Usuario = {
-        nombre: name,
-        telefono: phone,
-        correo: email,
+      const newUser: Omit<Usuario, '_id'> = {
+        nombre: formData.name.trim(),
+        telefono: formData.phone.trim(),
+        correo: formData.email.trim(),
         contrasena: hashedPassword,
+        publicaciones: [],
       };
 
-      await createUsuario(newUser);
+      const createdUser = await createUsuario(newUser);
       console.log('Usuario creado exitosamente');
-      setUser(newUser);
+      
+      // Establecer el usuario en el contexto de autenticación
+      setUser(createdUser);
+      
+      // Redirigir al perfil
       router.push('/Perfil');
     } catch (error) {
-      console.error('Error al crear el usuario:', error);
-      Alert.alert('Error', 'No se pudo crear la cuenta. Inténtalo de nuevo.');
+      console.error('Error en el registro:', error);
+      Alert.alert('Error', 'Ocurrió un error al crear la cuenta. Por favor, inténtalo de nuevo.');
+    } finally {
+      setIsSubmitting(false);
     }
-  }
-};
-
-
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -80,86 +117,67 @@ const handleRegister = async () => {
 
         <Text style={styles.welcomeText}>Crear Cuenta</Text>
 
-        {/* Nombre */}
-        <View style={styles.inputGroup}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="person" size={20} color="#888" style={styles.icon} />
-            <TextInput
-              style={styles.inputField}
-              placeholder="Nombre completo"
-              value={name}
-              onChangeText={setName}
-              autoCapitalize="words"
-            />
+        {/* Campos del formulario */}
+        {['name', 'phone', 'email', 'password'].map((field) => (
+          <View key={field} style={styles.inputGroup}>
+            <View style={styles.inputContainer}>
+              <Ionicons 
+                name={
+                  field === 'name' ? 'person' :
+                  field === 'phone' ? 'call' :
+                  field === 'email' ? 'mail' : 'lock-closed'
+                } 
+                size={20} 
+                color="#888" 
+                style={styles.icon} 
+              />
+              <TextInput
+                style={styles.inputField}
+                placeholder={
+                  field === 'name' ? 'Nombre completo' :
+                  field === 'phone' ? 'Número de teléfono' :
+                  field === 'email' ? 'Correo electrónico' : 'Crea una contraseña'
+                }
+                value={formData[field as keyof typeof formData]}
+                onChangeText={(text) => handleChange(field as keyof typeof formData, text)}
+                secureTextEntry={field === 'password' && !showPassword}
+                keyboardType={
+                  field === 'email' ? 'email-address' :
+                  field === 'phone' ? 'phone-pad' : 'default'
+                }
+                autoCapitalize={field === 'name' ? 'words' : 'none'}
+              />
+              {field === 'password' && (
+                <TouchableOpacity 
+                  onPress={() => setShowPassword(!showPassword)} 
+                  style={styles.showPasswordButton}
+                >
+                  <Text style={styles.showPasswordText}>
+                    {showPassword ? 'Ocultar' : 'Mostrar'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            {errors[field] && <Text style={styles.errorText}>{errors[field]}</Text>}
           </View>
-          {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
-        </View>
+        ))}
 
-        {/* Teléfono */}
-        <View style={styles.inputGroup}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="call" size={20} color="#888" style={styles.icon} />
-            <TextInput
-              style={styles.inputField}
-              placeholder="Número de teléfono"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-            />
-          </View>
-          {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
-        </View>
-
-        {/* Correo */}
-        <View style={styles.inputGroup}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="mail" size={20} color="#888" style={styles.icon} />
-            <TextInput
-              style={styles.inputField}
-              placeholder="Correo electrónico"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              placeholderTextColor="#b0b0b0"
-            />
-          </View>
-          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-        </View>
-
-        {/* Contraseña */}
-        <View style={styles.inputGroup}>
-          <View style={styles.passwordContainer}>
-            <Ionicons name="lock-closed" size={20} color="#888" style={styles.icon} />
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Crea una contraseña"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
-              <Text style={styles.showPasswordText}>
-                {showPassword ? 'Ocultar' : 'Mostrar'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-        </View>
-
-        {/* Botón de registro */}
-        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-          <Text style={styles.registerButtonText}>Crear Cuenta</Text>
+        <TouchableOpacity 
+          style={[styles.registerButton, isSubmitting && styles.disabledButton]} 
+          onPress={handleRegister}
+          disabled={isSubmitting}
+        >
+          <Text style={styles.registerButtonText}>
+            {isSubmitting ? 'Creando cuenta...' : 'Crear Cuenta'}
+          </Text>
         </TouchableOpacity>
 
-        {/* Línea divisoria */}
         <View style={styles.dividerContainer}>
           <View style={styles.dividerLine} />
           <Text style={styles.dividerText}>o</Text>
           <View style={styles.dividerLine} />
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>¿Ya tienes una cuenta? </Text>
           <TouchableOpacity onPress={() => router.push('/login')}>
@@ -215,6 +233,7 @@ const styles = StyleSheet.create({
   footerText: { color: '#666' },
   loginText: { color: '#F68628', fontWeight: 'bold' },
   errorText: { color: '#FF4D4F', fontSize: 13, marginTop: 6, marginLeft: 6 },
+  disabledButton: { opacity: 0.7 },
 });
 
 export default SignUp;

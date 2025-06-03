@@ -14,6 +14,31 @@ export const fetchUsuarios = async (): Promise<Usuario[]> => {
   }
 };
 
+
+export const editarUsuario = async (
+  userId: string,
+  datos: Partial<Pick<Usuario, 'nombre' | 'telefono'>>
+): Promise<Usuario> => {
+  try {
+    const response = await axios.patch<Usuario>(`${usuariosURL}/${userId}`, datos);
+    return response.data;
+  } catch (error) {
+    console.error('Error editando el usuario:', error);
+    throw error;
+  }
+};
+
+
+export const fetchUsuario = async (userId: string): Promise<Usuario> => {
+  try {
+    const response = await axios.get<Usuario>(`${usuariosURL}/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching usuario by ID:', error);
+    throw error;
+  }
+};
+
 export const agregarPublicacionAUsuario = async (
   userId: string,
   publicacionId: string
@@ -52,10 +77,10 @@ export const createUsuario = async (
 
 export const buscarUsuarioPorCorreo = async (correo: string): Promise<Usuario> => {
   try {
-    const response = await axios.get<Usuario>(`${usuariosURL}/buscarPorCorreo/${correo}`);
+    const response = await axios.get<Usuario>(`${usuariosURL}/buscarPorCorreo/${encodeURIComponent(correo)}`);
     return response.data;
   } catch (error) {
-    console.error('Error buscando el usuario por correo:', error);
+    console.error('No se encontró ese correo en la bdd:', error);
     throw error;
   }
 };

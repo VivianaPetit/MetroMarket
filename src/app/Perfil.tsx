@@ -3,16 +3,32 @@ import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ProfileCard from '../components/ProfileCard';
 import { useAuth } from '../context/userContext'; // Asegúrate de que la ruta sea correcta
+import { editarUsuario } from '../services/usuarioService';
+import React, { useState } from 'react';
 
 
 export default function Perfil() {
 
   const router = useRouter();
-  const { user, logout } = useAuth(); // Obtener el usuario del contexto
+  const { user, logout, setUser } = useAuth();
+
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [nombre, setNombre] = useState(user?.nombre ?? '');
+  const [telefono, setTelefono] = useState(user?.telefono ?? '');
 
   const handleLogout = () => {
     logout?.(); 
     router.push('/');
+  };
+
+  const handleGuardar = async () => {
+    try {
+      const usuarioActualizado = await editarUsuario(user._id, { nombre, telefono });
+      setUser(usuarioActualizado); // Actualizar en el contexto
+      setModoEdicion(false);
+    } catch (error) {
+      alert('Hubo un error actualizando el perfil');
+    }
   };
   
   return (
@@ -22,32 +38,40 @@ export default function Perfil() {
           <TouchableOpacity onPress={() => router.push("/")}>
             <Ionicons name="arrow-back" size={28} color="white" />
           </TouchableOpacity>
-
           <View style={{ width: 30 }} />
-
           <Text style={styles.title}>Mi Perfil</Text>
-
-          <TouchableOpacity>
-            <Ionicons name="create" color="white" size={30} />
+          <TouchableOpacity onPress={() => setModoEdicion(!modoEdicion)}>
+            <Ionicons name={modoEdicion ? "close" : "create"} color="white" size={30} />
           </TouchableOpacity>
         </View>
 
         <ProfileCard
           UserName={user?.correo ?? 'Usuario'}
-          nombreyA={user?.nombre ?? 'Nombre'}
-          tlf={user?.telefono ?? ''}
-          editable={false}
+          nombreyA={modoEdicion ? nombre : user?.nombre ?? 'Nombre'}
+          tlf={modoEdicion ? telefono : user?.telefono ?? ''}
+          editable={modoEdicion}
+          onNombreChange={setNombre}
+          onTelefonoChange={setTelefono}
         />
-
       </View>
 
-      {/* Botón de cerrar sesión */}
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Ionicons name="log-out" color="gray" size={24} />
-        <View style={{ marginLeft: 10 }}>
-          <Text style={[styles.subtitle, { color: 'gray', fontSize: 16 }]}>Cerrar Sesión</Text>
-        </View>
-      </TouchableOpacity>
+      {modoEdicion && (
+        <TouchableOpacity style={styles.logoutButton} onPress={handleGuardar}>
+          <Ionicons name="save" color="green" size={24} />
+          <View style={{ marginLeft: 10 }}>
+            <Text style={{ color: 'green', fontSize: 16 }}>Guardar Cambios</Text>
+          </View>
+        </TouchableOpacity>
+      )}
+
+      {!modoEdicion && (
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Ionicons name="log-out" color="gray" size={24} />
+          <View style={{ marginLeft: 10 }}>
+            <Text style={{ color: 'gray', fontSize: 16 }}>Cerrar Sesión</Text>
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
