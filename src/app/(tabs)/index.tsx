@@ -17,17 +17,30 @@ export default function Home() {
   const router = useRouter();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
+  const [publicacionesCategoria, setPublicacionesCategoria] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const { user } = useAuth();
+  var boolean1 = false
+  var boolean2 = false
 
   const filteredPublications = publicaciones.filter((pub) => {
     if (!search) return true;
     const searchTerm = search.toLowerCase();
     const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
     const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
+     boolean2 = false;
+     boolean1 = true;
     return titleMatch || categoryMatch;
   });
+
+  const reseteo = () => {
+     fetchPublicaciones()
+      .then(data => setPublicacionesCategoria(data))
+      .catch(console.error);
+      boolean1 = false
+     boolean2 = false
+  };
 
   useEffect(() => {
     fetchCategorias()
@@ -37,15 +50,22 @@ export default function Home() {
     fetchPublicaciones()
       .then(data => setPublicaciones(data))
       .catch(console.error);
+
+          fetchPublicaciones()
+      .then(data => setPublicacionesCategoria(data))
+      .catch(console.error);
   }, []);
 
   const handleCategoryPress = (categoryId: string,category: string) => {
     setSelectedCategoryId(current => 
       current === categoryId ? null : categoryId
     );
-     ServiceCategory(category)
-      .then(data => setPublicaciones(data))
-      .catch(console.error);
+      const filtered = publicaciones.filter(user => user.categoria.includes(category))
+      //console.log(filtered)
+      setPublicacionesCategoria(filtered)
+      console.log(publicacionesCategoria)
+       boolean1 = false;
+       boolean2 = true;
   };
 
   // <-- NEW: Handler for the edit icon press
@@ -99,12 +119,18 @@ export default function Home() {
               onPress={() => handleCategoryPress(cat._id,cat.nombre)}
             />
           ))}
+         <CategoryBadge 
+              key={1}
+              label={"Todos"}
+              isSelected={selectedCategoryId === "1"}
+              onPress={() => reseteo()}
+            />
         </ScrollView>
       </View>
 
       {/* Products */}
-      <ScrollView contentContainerStyle={styles.productsGrid}>
-        {filteredPublications.length > 0 ? (
+            <ScrollView contentContainerStyle={styles.productsGrid}>
+        {filteredPublications.length > 0 && boolean1? (
           filteredPublications.map((pub) => (
             <ProductCard
               key={pub._id}
@@ -121,7 +147,21 @@ export default function Home() {
             />
           ))
         ) : (
-          <Text style={styles.errorMensaje}>No se encontraron productos</Text>
+           publicacionesCategoria.map((pub) => (
+            <ProductCard
+              key={pub._id}
+              name={pub.titulo}
+              price={pub.precio}
+              category={pub.categoria}
+              image={
+                pub.fotos && pub.fotos.length > 0
+                  ? pub.fotos[0]
+                  : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
+              }
+              
+              //onEdit={() => handleEditProduct(pub._id, pub.titulo)} // Example: Pass ID and title
+            />
+          ))
         )}
       </ScrollView>
     </View>
