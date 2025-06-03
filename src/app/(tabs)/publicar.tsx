@@ -32,69 +32,50 @@ const CreatePublication = () => {
   const [precio, setPrecio] = useState('');
   const [cantidad, setCantidad] = useState('');
   const [estado, setEstado] = useState('');
-  const [disponible, setDisponible] = useState(true);
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
 
-  useEffect(() => {
-    fetchCategorias()
-      .then(data => setCategorias(data))
-      .catch(console.error);
-  }, []);
+useEffect(() => {
+  fetchCategorias()
+    .then(data => setCategorias(data))
+    .catch(console.error);
+}, []);
 
-  const handlePublicar = async () => {
-    if (!user) {
-      Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
-      router.push("/");
-      return;
-    }
+const handlePublicar = async () => {
+  if (!user) {
+    Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
+    router.push("/");
+    return;
+  }
 
-    if (!titulo || !precio || !cantidad) {
-      Alert.alert('Error', 'Título, precio y cantidad son obligatorios.');
-      return;
-    }
+  if (!titulo || !precio || !cantidad || !categoria) {
+    Alert.alert('Error', 'Título, precio, cantidad y categoría son obligatorios.');
+    return;
+  }
 
-    const resetForm = () => {
-      setTitulo('');
-      setDescripcion('');
-      setPrecio('');
-      setCantidad('');
-      setEstado('');
-      setDisponible(true);
-      setLugarEntrega('');
-      setMetodoPago('');
-      setCategoria('');
-    };
+  const resetForm = () => {
+    setTitulo('');
+    setDescripcion('');
+    setPrecio('');
+    setCantidad('');
+    setEstado('');
+    setLugarEntrega('');
+    setMetodoPago('');
+    setCategoria('');
+  };
+  const categoriaSeleccionada = categorias.find(c => c._id === categoria);
 
-    const nuevaPublicacion = {
-      titulo,
-      descripcion,
-      precio: parseInt(precio),
-      cantidad,
-      estado,
-      disponible,
-      lugarEntrega,
-      metodoPago,
-      categoria,
-      usuario: user._id,
-    };
-
-    try {
-      // Crear la publicación y obtener el objeto creado con _id
-      const publicacionCreada = await crearPublicacion(nuevaPublicacion);
-
-      console.log('aca esta la pub id', publicacionCreada._id)
-      // Agregar el ID de la publicación creada al usuario
-      await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
-
-      Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
-      resetForm();
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo crear la publicación.');
-      console.error(error);
-    }
+  const nuevaPublicacion = {
+    titulo,
+    descripcion,
+    precio: parseInt(precio),
+    cantidad,
+    estado,
+    lugarEntrega,
+    metodoPago,
+    categoria: categoriaSeleccionada?.nombre, 
+    usuario: user._id,
   };
 
   return (
@@ -155,16 +136,6 @@ const CreatePublication = () => {
         ))}
       </View>
 
-      <View style={styles.switchContainer}>
-        <Text style={styles.label}>¿Disponible?</Text>
-        <Switch
-          value={disponible}
-          onValueChange={setDisponible}
-          thumbColor={disponible ? '#fff' : '#00318D'}
-          trackColor={{ true: '#00318D', false: '#999' }}
-        />
-      </View>
-
       <Text style={styles.label}>Lugar de entrega</Text>
       <TextInput
         style={styles.input}
@@ -179,20 +150,20 @@ const CreatePublication = () => {
         onChangeText={setMetodoPago}
       />
 
-      <Text style={styles.label}>Categoría</Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={categoria}
-          onValueChange={(itemValue) => setCategoria(itemValue)}
-          style={[
-            Platform.OS === 'ios' ? styles.pickerIOS : styles.picker,
-          ]}
-        >
-          {categorias.map((cat) => (
-            <Picker.Item key={cat._id} label={cat.nombre} value={cat} />
-          ))}
-        </Picker>
-      </View>
+    <Text style={styles.label}>Categoría *</Text>
+    <View style={styles.pickerWrapper}>
+      <Picker
+        selectedValue={categoria}
+        onValueChange={(itemValue) => setCategoria(itemValue)}
+        style={[
+          Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
+        ]}
+      >
+        {categorias.map((cat) => (
+          <Picker.Item key={cat._id} label={cat.nombre} value={cat._id} />
+        ))}
+      </Picker>
+    </View>
 
       <TouchableOpacity style={styles.botonPublicar} onPress={handlePublicar}>
         <Ionicons name="cloud-upload-outline" size={20} color="#fff" />

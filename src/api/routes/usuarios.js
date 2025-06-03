@@ -47,4 +47,31 @@ router.patch('/:userId/publicaciones', async (req, res) => {
   }
 });
 
+// Buscar usuario por correo con validación de dominio
+router.post('/buscarPorCorreo', async (req, res) => {
+  const { correo } = req.body;
+
+  if (!correo) {
+    return res.status(400).json({ mensaje: 'El correo es obligatorio' });
+  }
+
+  const dominioValido = /@correo\.unimet\.edu\.ve$|@unimet\.edu\.ve$/;
+  if (!dominioValido.test(correo)) {
+    return res.status(400).json({ mensaje: 'Correo no permitido' });
+  }
+
+  try {
+    const usuario = await Usuario.findOne({ correo });
+    if (!usuario) {
+      return res.status(404).json({ mensaje: 'Usuario no encontrado' });
+    }
+
+    res.json(usuario); 
+  } catch (error) {
+    console.error('Error al buscar usuario:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
+});
+
+
 module.exports = router;

@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Usuario } from '../interfaces/types'; 
 import { createUsuario } from '../services/usuarioService'; // Asegúrate de tener este servicio implementado
 import { useAuth } from '../context/userContext'; // Asegúrate de que la ruta sea correcta
+import * as Crypto from 'expo-crypto';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -28,7 +29,7 @@ const SignUp = () => {
     return /@(?:correo\.)?unimet\.edu\.ve$/i.test(email);
   };
 
-  const handleRegister = async () => {
+const handleRegister = async () => {
   const newErrors: typeof errors = {};
 
   if (!name.trim()) newErrors.name = 'El nombre es obligatorio.';
@@ -44,17 +45,22 @@ const SignUp = () => {
 
   if (Object.keys(newErrors).length === 0) {
     try {
-      const newUser: Omit<Usuario, '_id'> = {
+      const cleanPassword = password.trim();
+      const hashedPassword = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        cleanPassword
+      );
+
+      const newUser: Usuario = {
         nombre: name,
         telefono: phone,
         correo: email,
-        contrasena: password,
+        contrasena: hashedPassword,
       };
 
-      const usuarioCreado = await createUsuario(newUser); // ✅ obtenemos el usuario con _id
-      console.log('Usuario creado exitosamente:', usuarioCreado);
-
-      setUser(usuarioCreado); // ✅ ahora sí, guardar el usuario completo
+      await createUsuario(newUser);
+      console.log('Usuario creado exitosamente');
+      setUser(newUser);
       router.push('/Perfil');
     } catch (error) {
       console.error('Error al crear el usuario:', error);
@@ -62,6 +68,7 @@ const SignUp = () => {
     }
   }
 };
+
 
 
   return (
