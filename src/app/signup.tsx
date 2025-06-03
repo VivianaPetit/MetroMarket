@@ -51,24 +51,25 @@ const handleRegister = async () => {
         cleanPassword
       );
 
-      const newUser: Omit<Usuario, '_id'> = {
+      const newUser: Usuario = {
         nombre: name,
         telefono: phone,
         correo: email,
         contrasena: hashedPassword,
       };
 
-      const usuarioCreado = await createUsuario(newUser); // ✅ obtenemos el usuario con _id
-      console.log('Usuario creado exitosamente:', usuarioCreado);
-
-      setUser(usuarioCreado); // ✅ ahora sí, guardar el usuario completo
+      await createUsuario(newUser);
+      console.log('Usuario creado exitosamente');
+      setUser(newUser);
       router.push('/Perfil');
     } catch (error) {
       console.error('Error al crear el usuario:', error);
       Alert.alert('Error', 'No se pudo crear la cuenta. Inténtalo de nuevo.');
     }
   }
-}
+};
+
+
 
   return (
     <SafeAreaView style={styles.container}>
