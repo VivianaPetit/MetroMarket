@@ -42,9 +42,9 @@ export default function Layout() {
             <View
               style={{
                 backgroundColor: 'white',
-                width: size + 40,    
-                height: size + 40,
-                borderRadius: (size + 40) / 2,
+                width: size + 30,    
+                height: size + 30,
+                borderRadius: (size + 30) / 2,
                 justifyContent: 'center',
                 marginTop: 0, 
                 alignItems: 'center',
@@ -69,7 +69,7 @@ export default function Layout() {
           tabBarShowLabel: false,
           title: 'Menu',
           tabBarIcon: ({ size, color }) => (
-            <Ionicons name="menu" size={30} color={color} />
+            <Ionicons name="menu" size={32} color={color} />
           ),
         }}
       />

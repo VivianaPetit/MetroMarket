@@ -1,8 +1,7 @@
-// app/index.tsx
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert,} from 'react-native'; // <-- NEW: Import Alert for example
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { CategoryBadge } from '../../components/Category';
@@ -11,13 +10,15 @@ import { Categoria, Publicacion } from '../../interfaces/types';
 import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
 import { useFocusEffect } from '@react-navigation/native'; 
-import { useAuth } from '../../context/userContext';
+import { AuthProvider, useAuth } from '../../context/userContext';
+
 
 export default function Home() {
   const router = useRouter();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [publicacionesCategoria, setPublicacionesCategoria] = useState<Publicacion[]>([]);
+  
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const { user } = useAuth();
@@ -29,8 +30,6 @@ export default function Home() {
     const searchTerm = search.toLowerCase();
     const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
     const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
-     boolean2 = false;
-     boolean1 = true;
     return titleMatch || categoryMatch;
   });
 
@@ -44,15 +43,14 @@ export default function Home() {
 
   useEffect(() => {
     fetchCategorias()
-      .then(data => setCategorias(data))
+      .then(data => setCategorias(data)) //data.slice(0, 10)
       .catch(console.error);
 
-          fetchPublicaciones()
-      .then(data => setPublicacionesCategoria(data))
+    fetchPublicaciones()
+      .then(data => setPublicaciones(data))
       .catch(console.error);
   }, []);
 
-  // ✅ Reemplaza useEffect por useFocusEffect para publicaciones
   useFocusEffect(
     useCallback(() => {
       fetchPublicaciones()
@@ -68,7 +66,7 @@ export default function Home() {
       const filtered = publicaciones.filter(user => user.categoria.includes(category))
       //console.log(filtered)
       setPublicacionesCategoria(filtered)
-      /* console.log(publicacionesCategoria) */
+      //console.log(publicacionesCategoria)
        boolean1 = false;
        boolean2 = true;
   };
@@ -95,6 +93,7 @@ export default function Home() {
         )}
       </SafeAreaView> 
 
+      {/* Barra de búsqueda */}
       <View style={styles.searchContainer}>
         <FontAwesome name="search" size={18} color="#bbb" style={styles.searchIcon} />
         <TextInput
@@ -107,18 +106,19 @@ export default function Home() {
         />
       </View>
 
+      {/* Categorias */}
       <View style={styles.categoriesWrapper}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesContainer}
         >
-                   <CategoryBadge 
-              key={1}
-              label={"Todos"}
-              isSelected={selectedCategoryId === "1"}
-              onPress={() => reseteo()}
-            />
+          <CategoryBadge 
+            key={1}
+            label={"Todos"}
+            isSelected={selectedCategoryId === "1"}
+            onPress={() => reseteo()}
+          />
           {categorias.map((cat) => (
             <CategoryBadge 
               key={cat._id}
@@ -131,8 +131,8 @@ export default function Home() {
       </View>
 
       {/* Products */}
-            <ScrollView contentContainerStyle={styles.productsGrid}>
-        {filteredPublications.length > 0 && boolean1? (
+      <ScrollView contentContainerStyle={styles.productsGrid}>
+        {filteredPublications.length > 0 ? (
           filteredPublications.map((pub) => (
             <TouchableOpacity 
                 key={pub._id}
@@ -152,7 +152,6 @@ export default function Home() {
                   ? pub.fotos[0]
                   : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
               }
-              // onEdit={() => handleEditProduct(pub._id, pub.titulo)}
             />
             </TouchableOpacity>
           ))
@@ -187,29 +186,90 @@ export default function Home() {
   );
 }
 
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f8f8' },
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f8f8',
+  },
   header: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingHorizontal: 16, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#eee',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
-  headerIcon: { paddingLeft: 10, paddingBottom: 20 },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
+  headerIcon: {
+    paddingLeft: 10,
+    paddingBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
   searchContainer: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff',
-    borderRadius: 30, marginHorizontal: 16, marginTop: 10, paddingHorizontal: 15,
-    height: 45, elevation: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    marginHorizontal: 16,
+    marginTop: 10,
+    paddingHorizontal: 15,
+    height: 45,
+    elevation: 4,
   },
-  searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 14, color: '#333' },
-  categoriesWrapper: { marginTop: 12, paddingBottom: 10, backgroundColor: '#f8f8f8' },
-  categoriesContainer: { paddingHorizontal: 16 },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#333',
+  },
+  categoriesWrapper: {
+    marginTop: 12,
+    paddingBottom: 10,
+    backgroundColor: '#f8f8f8',
+  },
+  categoriesContainer: {
+    paddingHorizontal: 16,
+  },
   productsGrid: {
-    flexDirection: 'row', flexWrap: 'wrap',
-    justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 80,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 80,
   },
   errorMensaje: {
-    fontSize: 20, textAlign: 'center', width: '100%', marginTop: 20,
+    fontSize: 20,
+    flexDirection: 'row', // This won't do much for a single Text component
+    flexWrap: 'wrap',
+    textAlign: 'center', // Added for better centering of the message
+    width: '100%', // Ensure it takes full width to center
+    marginTop: 20,
+  },
+    noResultsText: {
+    flex: 1,
+    textAlign: 'center',
+    marginTop: 40,
+    fontSize: 16,
+    color: '#666',
+    paddingHorizontal: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+    width: '100%',
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#888',
+    marginTop: 16,
+    textAlign: 'center',
   },
 });

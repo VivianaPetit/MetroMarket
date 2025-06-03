@@ -85,13 +85,9 @@ export default function Home() {
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
         <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
-          <Ionicons name="person" size={24} color="#00318D" />
+          <Ionicons name="person-outline" size={24} color="#00318D" />
         </TouchableOpacity>
       </SafeAreaView>
-
-      <View >
-        
-      </View>
 
       {/* Productos */}
       <ScrollView contentContainerStyle={styles.productsGrid}>
@@ -178,13 +174,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 80,
+    paddingTop: 10, 
   },
   errorMensaje: {
     fontSize: 20,
-    flexDirection: 'row', // This won't do much for a single Text component
+    flexDirection: 'row', 
     flexWrap: 'wrap',
-    textAlign: 'center', // Added for better centering of the message
-    width: '100%', // Ensure it takes full width to center
+    textAlign: 'center', 
+    width: '100%', 
     marginTop: 20,
   },
 });
