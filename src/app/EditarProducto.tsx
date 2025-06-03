@@ -15,7 +15,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
 import { Categoria } from '../interfaces/types';
 import { fetchCategorias } from '../services/categoriaService';
-import { updatePublicacion } from '../services/actualizarService';
+import { updatePublicacion, deletePublicacion } from '../services/actualizarService'; // Asegúrate de importar deletePublicacion
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 
@@ -66,6 +66,32 @@ const EditarProducto = () => {
     Alert.alert('Error', 'No se pudo actualizar la publicación.');
   }
 };
+
+  const handleEliminar = async () => {
+      Alert.alert(
+        'Confirmar eliminación',
+        '¿Estás seguro que deseas eliminar esta publicación?',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Eliminar',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await deletePublicacion(parsedProducto._id);
+                Alert.alert('Éxito', 'Publicación eliminada correctamente');
+                router.back();
+              } catch (error) {
+                Alert.alert('Error', 'No se pudo eliminar la publicación');
+              }
+            },
+          },
+        ]
+      );
+    };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -168,6 +194,14 @@ const EditarProducto = () => {
         <Ionicons name="create-outline" size={20} color="#fff" />
         <Text style={styles.botonTexto}>Actualizar</Text>
       </TouchableOpacity>
+
+       <TouchableOpacity 
+        style={styles.botonEliminar} 
+        onPress={handleEliminar}
+      >
+        <Ionicons name="trash-outline" size={20} color="#fff" />
+        <Text style={styles.botonTexto}>Eliminar publicación</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -258,6 +292,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexDirection: 'row',
     backgroundColor: '#00318D',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderRadius: 10,
+  },
+  botonEliminar: {
+    marginTop: 15,
+    flexDirection: 'row',
+    backgroundColor: '#FF3B30', // Rojo estándar para acciones destructivas
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 14,

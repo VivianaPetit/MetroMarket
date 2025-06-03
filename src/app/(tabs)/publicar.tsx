@@ -19,13 +19,16 @@ import { crearPublicacion } from '../../services/publicacionService';
 import { agregarPublicacionAUsuario } from '../../services/usuarioService'; // <-- IMPORTA ESTO
 import { useAuth } from '../../context/userContext';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
+
+
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 
 const CreatePublication = () => {
   const navigation = useNavigation();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, refrescarUsuario } = useAuth();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
@@ -54,7 +57,8 @@ const handlePublicar = async () => {
     Alert.alert('Error', 'Título, precio, cantidad y categoría son obligatorios.');
     return;
   }
-  console.log(user)
+
+  console.log(user);
 
   const resetForm = () => {
     setTitulo('');
@@ -66,6 +70,7 @@ const handlePublicar = async () => {
     setMetodoPago('');
     setCategoria('');
   };
+
   const categoriaSeleccionada = categorias.find(c => c._id === categoria);
 
   const nuevaPublicacion = {
@@ -76,27 +81,32 @@ const handlePublicar = async () => {
     estado,
     lugarEntrega,
     metodoPago,
-    categoria: categoriaSeleccionada?.nombre, 
+    categoria: categoriaSeleccionada?.nombre,
     usuario: user._id,
   };
 
   try {
-      // Crear la publicación y obtener el objeto creado con _id
-      const publicacionCreada = await crearPublicacion(nuevaPublicacion);
+    // Crear la publicación y obtener el objeto creado con _id
+    const publicacionCreada = await crearPublicacion(nuevaPublicacion);
 
-      console.log('aca esta la pub id', publicacionCreada._id)
-      // Agregar el ID de la publicación creada al usuario
-      await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
+    console.log('aca esta la pub id', publicacionCreada._id);
 
-      Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
-      resetForm();
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo crear la publicación.');
-      console.error(error);
-    }
-  
+    // Agregar el ID de la publicación creada al usuario
+    await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
+
+    // Refrescar usuario en contexto para obtener datos actualizados
+    await refrescarUsuario();
+
+    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
+    resetForm();
+    navigation.goBack();
+  } catch (error) {
+    Alert.alert('Error', 'No se pudo crear la publicación.');
+    console.error(error);
+  }
 };
+
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>

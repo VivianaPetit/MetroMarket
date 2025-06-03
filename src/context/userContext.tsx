@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Usuario } from '../interfaces/types'; 
+import { Usuario } from '../interfaces/types';
+import { fetchUsuario } from '../services/usuarioService'; // IMPORTANTE: crea o asegura que exista esta función
 
 interface AuthContextType {
   user: Usuario | null;
   setUser: (user: Usuario) => void;
-  logout: () => void;          // <-- agregar logout aquí
+  logout: () => void;
+  refrescarUsuario: () => Promise<void>;  // <-- agrega esta función
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -14,12 +16,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
-
-    
   };
 
+   const refrescarUsuario = async () => {
+  console.log('refrescarUsuario, user:', user);
+  if (user?._id) {
+    console.log('refrescarUsuario, user._id:', user,  user._id);
+    try {
+      const usuarioActualizado = await fetchUsuario(user._id);
+      setUser(usuarioActualizado);
+    } catch (error) {
+      console.error('Error al refrescar usuario:', error);
+    }
+  } else {
+    console.warn('No hay user._id para refrescar');
+  }
+};
+
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider value={{ user, setUser, logout, refrescarUsuario }}>
       {children}
     </AuthContext.Provider>
   );

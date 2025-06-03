@@ -13,3 +13,12 @@ export const updatePublicacion = async (id: string, data: Partial<Publicacion>):
     throw error;
   }
 };
+
+export const deletePublicacion = async (id: string): Promise<void> => {
+  try {
+    await axios.delete(`${publicacionesURL}/${id}`);
+  } catch (error) {
+    console.error(`Error eliminando publicación con id ${id}:`, error);
+    throw error;
+  }
+};
