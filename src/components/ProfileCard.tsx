@@ -26,34 +26,34 @@ const ProfileCard = ({
       </View>
 
       <View style={[styles.containerAcc, { paddingTop: 15 }]}>
-        <Text style={styles.subtitle}>{UserName}</Text>
+        <Text style={[styles.subtitle, { textAlign: 'center' }]}>{UserName}</Text>
       </View>
 
       <View style={styles.containerAcc}>
-        <View style={styles.DatosContainer}>
+        <View style={[styles.DatosContainer, { justifyContent: 'center' }]}>
           <Ionicons name='person' size={25} />
           {editable ? (
             <TextInput
-              style={styles.input}
+              style={[styles.input, { textAlign: 'center' }]}
               value={nombreyA}
               onChangeText={onNombreChange}
             />
           ) : (
-            <Text style={styles.subtitle}>{nombreyA}</Text>
+            <Text style={[styles.subtitle, { textAlign: 'center', flex: 1 }]}>{nombreyA}</Text>
           )}
         </View>
 
-        <View style={styles.DatosContainer}>
+        <View style={[styles.DatosContainer, { justifyContent: 'center' }]}>
           <Ionicons name='call' size={25} />
           {editable ? (
             <TextInput
-              style={styles.input}
+              style={[styles.input, { textAlign: 'center' }]}
               value={tlf}
               onChangeText={onTelefonoChange}
               keyboardType="phone-pad"
             />
           ) : (
-            <Text style={styles.subtitle}>{tlf}</Text>
+            <Text style={[styles.subtitle, { textAlign: 'center', flex: 1 }]}>{tlf}</Text>
           )}
         </View>
       </View>
@@ -91,7 +91,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   DatosContainer: {
-    alignSelf: 'flex-start',
     borderRadius: 15,
     padding: 12,
     backgroundColor: '#00256B',
@@ -106,8 +105,6 @@ const styles = StyleSheet.create({
     color: 'white',
     borderBottomWidth: 1,
     borderBottomColor: 'white',
-    marginLeft: 10,
     paddingVertical: 5,
   },
 });
-
