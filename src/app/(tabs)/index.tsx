@@ -17,36 +17,29 @@ export default function Home() {
   const router = useRouter();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [publicacionesCategoria, setPublicacionesCategoria] = useState<Publicacion[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  
   const { user } = useAuth();
+  var boolean1 = false
+  var boolean2 = false
 
-  // Función que combina ambos filtros
-  const getFilteredPublications = () => {
-    let filtered = [...publicaciones];
+  const filteredPublications = publicaciones.filter((pub) => {
+    if (!search) return true;
+    const searchTerm = search.toLowerCase();
+    const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
+    const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
+     boolean2 = false;
+     boolean1 = true;
+    return titleMatch || categoryMatch;
+  });
 
-    if (selectedCategory) {
-      filtered = filtered.filter(pub => pub.categoria === selectedCategory);
-    }
-
-    // Filtro por búsqueda si hay texto
-    if (search) {
-      const searchTerm = search.toLowerCase();
-      filtered = filtered.filter(pub => 
-        pub.titulo.toLowerCase().includes(searchTerm) || 
-        pub.categoria.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    return filtered;
-  };
-
-  const filteredPublications = getFilteredPublications();
-
-  const resetFilters = () => {
-    setSelectedCategory(null);
-    setSearch("");
+  const reseteo = () => {
+     fetchPublicaciones()
+      .then(data => setPublicacionesCategoria(data))
+      .catch(console.error);
+      boolean1 = false
+     boolean2 = false
   };
 
   useEffect(() => {
@@ -54,11 +47,12 @@ export default function Home() {
       .then(data => setCategorias(data))
       .catch(console.error);
 
-    fetchPublicaciones()
-      .then(data => setPublicaciones(data))
+          fetchPublicaciones()
+      .then(data => setPublicacionesCategoria(data))
       .catch(console.error);
   }, []);
 
+  // ✅ Reemplaza useEffect por useFocusEffect para publicaciones
   useFocusEffect(
     useCallback(() => {
       fetchPublicaciones()
@@ -67,22 +61,32 @@ export default function Home() {
     }, [])
   );
 
-  const handleCategoryPress = (categoryId: string, categoryName: string) => {
-    setSelectedCategory(current => 
-      current === categoryName ? null : categoryName
+  const handleCategoryPress = (categoryId: string, category: string) => {
+    setSelectedCategoryId(current => 
+      current === categoryId ? null : categoryId
     );
+      const filtered = publicaciones.filter(user => user.categoria.includes(category))
+      //console.log(filtered)
+      setPublicacionesCategoria(filtered)
+      /* console.log(publicacionesCategoria) */
+       boolean1 = false;
+       boolean2 = true;
+  };
+
+  const handleEditProduct = (productId: string, productName: string) => {
+    Alert.alert('Editar Producto', `Has presionado editar para: ${productName} (ID: ${productId})`);
   };
 
   return (
     <View style={styles.container}>
-            <SafeAreaView style={styles.header}>
+      <SafeAreaView style={styles.header}>
         <Text style={styles.headerTitle}>
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
           <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
         </Text>
         { user ? (
           <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
-            <Ionicons name="person-outline" size={24} color="#00318D" />
+            <Ionicons name="person" size={24} color="#00318D" />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/login')}>
@@ -109,26 +113,26 @@ export default function Home() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesContainer}
         >
-          <CategoryBadge 
-            key="all"
-            label="Todos"
-            isSelected={!selectedCategory}
-            onPress={resetFilters}
-          />
+                   <CategoryBadge 
+              key={1}
+              label={"Todos"}
+              isSelected={selectedCategoryId === "1"}
+              onPress={() => reseteo()}
+            />
           {categorias.map((cat) => (
             <CategoryBadge 
               key={cat._id}
               label={cat.nombre}
-              isSelected={selectedCategory === cat.nombre}
-              onPress={() => handleCategoryPress(cat._id, cat.nombre)}
+              isSelected={selectedCategoryId === cat._id}
+              onPress={() => handleCategoryPress(cat._id,cat.nombre)}
             />
           ))}
         </ScrollView>
       </View>
 
       {/* Products */}
-      <ScrollView contentContainerStyle={styles.productsGrid}>
-        {filteredPublications.length > 0 ? (
+            <ScrollView contentContainerStyle={styles.productsGrid}>
+        {filteredPublications.length > 0 && boolean1? (
           filteredPublications.map((pub) => (
             <TouchableOpacity 
                 key={pub._id}
@@ -148,19 +152,41 @@ export default function Home() {
                   ? pub.fotos[0]
                   : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
               }
+              // onEdit={() => handleEditProduct(pub._id, pub.titulo)}
             />
             </TouchableOpacity>
           ))
         ) : (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="sad-outline" size={48} color="#888" />
-            <Text style={styles.emptyText}>No hay productos en esta categoría</Text>
-          </View>
+           publicacionesCategoria.map((pub) => (
+            <TouchableOpacity 
+                key={pub._id}
+                onPress={() => router.push({
+                  pathname: "/product-details",
+                  params: { productId: pub._id }
+                })}
+                activeOpacity={0.7}
+            >
+            <ProductCard
+              key={pub._id}
+              name={pub.titulo}
+              price={pub.precio}
+              category={pub.categoria}
+              image={
+                pub.fotos && pub.fotos.length > 0
+                  ? pub.fotos[0]
+                  : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
+              }
+              
+              //onEdit={() => handleEditProduct(pub._id, pub.titulo)} // Example: Pass ID and title
+            />
+            </TouchableOpacity>
+          ))
         )}
       </ScrollView>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f8f8' },
@@ -186,26 +212,4 @@ const styles = StyleSheet.create({
   errorMensaje: {
     fontSize: 20, textAlign: 'center', width: '100%', marginTop: 20,
   },
-    noResultsText: {
-    flex: 1,
-    textAlign: 'center',
-    marginTop: 40,
-    fontSize: 16,
-    color: '#666',
-    paddingHorizontal: 20,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 50,
-    width: '100%',
-  },
-  emptyText: {
-    fontSize: 18,
-    color: '#888',
-    marginTop: 16,
-    textAlign: 'center',
-  },
 });
-
