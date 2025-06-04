@@ -130,6 +130,14 @@ export default function Home() {
       <ScrollView contentContainerStyle={styles.productsGrid}>
         {filteredPublications.length > 0 ? (
           filteredPublications.map((pub) => (
+            <TouchableOpacity 
+                key={pub._id}
+                onPress={() => router.push({
+                  pathname: "/product-details",
+                  params: { productId: pub._id }
+                })}
+                activeOpacity={0.7}
+            >
             <ProductCard
               key={pub._id}
               name={pub.titulo}
@@ -141,6 +149,7 @@ export default function Home() {
                   : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
               }
             />
+            </TouchableOpacity>
           ))
         ) : (
           <View style={styles.emptyContainer}>

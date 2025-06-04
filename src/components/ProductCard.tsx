@@ -19,8 +19,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, price, category, image,
       <Image source={{ uri: image }} style={styles.productImage} />
 
       {/* <-- NEW: Edit Icon */}
-      {onEdit && ( // Only render if onEdit prop is provided
-        <TouchableOpacity style={styles.editIconContainer} onPress={onEdit}>
+      {onEdit &&  ( 
+        <TouchableOpacity style={styles.editIconContainer} onPress={onEdit} >
           <Ionicons name="pencil-outline" size={20} color="#fff" />
         </TouchableOpacity>
       )}
