@@ -10,6 +10,7 @@ const usuarioSchema = new mongoose.Schema({
     nivelReputacion: String, // Oro, Plata, Bronce (???)
     transacciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaccion' }],
     fechaRegistro: { type: Date, default: Date.now },
+    favoritos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Publicacion' }],
 });
 
 usuarioSchema.pre('save', function(next) {
