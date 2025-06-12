@@ -83,7 +83,7 @@ router.patch('/:userId/publicaciones', async (req, res) => {
 });
 
 router.get('/buscarPorCorreo/:correo', async (req, res) => {  // Usa `:correo` como parámetro
-  const { correo } = req.params;  // Cambia req.body a req.params
+  const { correo } = req.params;  
 
   if (!correo) {
     return res.status(400).json({ mensaje: 'El correo es obligatorio' });

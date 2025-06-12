@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { use } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/userContext';
 
@@ -9,13 +9,13 @@ export default function Perfil() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-    const handleLogout = () => {
-    logout?.(); 
+  const handleLogout = () => {
+    logout?.();
     router.push('/');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Invitado/User Card */}
       <TouchableOpacity
         style={styles.menuButton}
@@ -32,20 +32,82 @@ export default function Perfil() {
         </View>
       </TouchableOpacity>
 
-      {/* Iniciar Sesión Button */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => router.push('/')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.publicationsButtonContent}>
+              <Ionicons name="home-outline" size={24} color="#FF8C00" />
+              <Text style={styles.publicationsButtonText}>Inicio</Text>
+            </View>
+          </TouchableOpacity>
+
+      {user && (
+        <>
+          {/* Mis Publicaciones */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => router.push('../Publicaciones')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.publicationsButtonContent}>
+              <Ionicons name="grid-outline" size={24} color="#FF8C00" />
+              <Text style={styles.publicationsButtonText}>Mis publicaciones</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Mis Favoritos */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => router.push('../Favoritos')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.publicationsButtonContent}>
+              <Ionicons name="heart-outline" size={24} color="#FF8C00" />
+              <Text style={styles.publicationsButtonText}>Mis favoritos</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Mis Compras */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => router.push('../Compras')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.publicationsButtonContent}>
+              <Ionicons name="cart-outline" size={24} color="#FF8C00" />
+              <Text style={styles.publicationsButtonText}>Mis compras</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Mis Ventas */}
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => router.push('../Ventas')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.publicationsButtonContent}>
+              <Ionicons name="cash-outline" size={24} color="#FF8C00" />
+              <Text style={styles.publicationsButtonText}>Mis ventas</Text>
+            </View>
+          </TouchableOpacity>
+        </>
+      )}
+
+      {/* Iniciar/Cerrar Sesión */}
       {user ? (
         <TouchableOpacity
           style={styles.menuButton}
           onPress={handleLogout}
-          
           activeOpacity={0.8}
         >
           <View style={styles.loginButtonContent}>
             <Ionicons name="log-out-outline" size={24} color="#fff" />
-            <Text style={styles.loginButtonText}>Cerrar sesion</Text>
+            <Text style={styles.loginButtonText}>Cerrar sesión</Text>
           </View>
         </TouchableOpacity>
-      ): (
+      ) : (
         <TouchableOpacity
           style={styles.menuButton}
           onPress={() => router.push('/login')}
@@ -53,25 +115,11 @@ export default function Perfil() {
         >
           <View style={styles.loginButtonContent}>
             <Ionicons name="document-text-outline" size={24} color="#fff" />
-            <Text style={styles.loginButtonText}>Iniciar sesion</Text>
+            <Text style={styles.loginButtonText}>Iniciar sesión</Text>
           </View>
         </TouchableOpacity>
-      ) }
-
-      {user && (
-        <TouchableOpacity
-        style={styles.menuButton}
-         onPress={() => router.push('../Publicaciones')}
-        activeOpacity={0.8}
-      >
-        <View style={styles.publicationsButtonContent}>
-          <Ionicons name="grid-outline" size={24} color="#FF8C00" />
-          <Text style={styles.publicationsButtonText}>Mis publicaciones</Text>
-        </View>
-      </TouchableOpacity>
       )}
-      
-    </SafeAreaView>
+    </ScrollView>
   );
 }
 
@@ -80,29 +128,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f8f8',
     paddingHorizontal: 16,
-    paddingTop: 30, // Adjust top padding to match the image
-
+    paddingTop: 30,
   },
   menuButton: {
-    backgroundColor: '#fff', // Default background for buttons, will be overridden
+    backgroundColor: '#fff',
     borderRadius: 12,
-    marginBottom: 20, // Space between buttons
-    // Shadow properties
+    marginBottom: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
-    height : 70,
-
+    height: 70,
   },
   guestCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#00318D', // Blue background for guest card
+    backgroundColor: '#00318D',
     padding: 16,
     borderRadius: 12,
-    height : 70,
+    height: 70,
   },
   guestText: {
     color: '#fff',
@@ -113,11 +158,11 @@ const styles = StyleSheet.create({
   loginButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FF8C00', // Orange background for login button
+    backgroundColor: '#FF8C00',
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderRadius: 12,
-    height : 70,
+    height: 70,
   },
   loginButtonText: {
     color: '#fff',
@@ -128,14 +173,14 @@ const styles = StyleSheet.create({
   publicationsButtonContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff', // White background for publications button
+    backgroundColor: '#fff',
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderRadius: 12,
-    height : 70,
+    height: 70,
   },
   publicationsButtonText: {
-    color: '#000', // Black text for publications button
+    color: '#000',
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 12,

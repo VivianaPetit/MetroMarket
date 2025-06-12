@@ -5,14 +5,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../context/userContext'; // <-- 🔹 IMPORTA el contexto
-import { CategoryBadge } from '../components/Category';
+import { useAuth } from '../context/userContext'; 
 import ProductCard from '../components/ProductCard';
 import { Categoria, Publicacion } from '../interfaces/types';
 import { fetchCategorias } from '../services/categoriaService';
@@ -33,7 +30,7 @@ export default function Home() {
        .catch(console.error);
    }, []);
  
-   // ✅ Reemplaza useEffect por useFocusEffect para publicaciones
+   
    useFocusEffect(
   useCallback(() => {
     if (!user) {
@@ -43,7 +40,7 @@ export default function Home() {
     fetchPublicaciones()
       .then(data => setPublicaciones(data))
       .catch(console.error);
-  }, [user?._id]) // <-- agregar dependencia del usuario
+  }, [user?._id]) 
 );
 
   // 🔹 Filtra por usuario autenticado
@@ -81,8 +78,7 @@ export default function Home() {
             <Ionicons name="arrow-back" size={24} color="#00318D" />
           </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Metro</Text>
-          <Text style={{ color: '#FF8C00', fontWeight: 'bold' }}>Market</Text>
+          <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Mis Publicaciones</Text>
         </Text>
         <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
           <Ionicons name="person-outline" size={24} color="#00318D" />

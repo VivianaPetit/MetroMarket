@@ -7,7 +7,7 @@ const usuarioSchema = new mongoose.Schema({
     telefono: { type: String, required: true },
     calificacionPromedio: { type: Number, default: 0 },
     publicaciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Publicacion' }],
-    nivelReputacion: String, // Oro, Plata, Bronce (???)
+    nivelReputacion: { type: String, default: 'Bronce' }, // Oro, Plata, Bronce (???)
     transacciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaccion' }],
     fechaRegistro: { type: Date, default: Date.now },
     favoritos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Publicacion' }],

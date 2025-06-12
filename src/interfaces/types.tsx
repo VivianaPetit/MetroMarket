@@ -1,6 +1,7 @@
 export interface Categoria {
   _id: string;
   nombre: string;
+  foto: string 
 }
 
 export interface Usuario {

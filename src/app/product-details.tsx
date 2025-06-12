@@ -1,6 +1,14 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import { Publicacion } from '../interfaces/types';
 import { fetchPublicaciones } from '../services/publicacionService';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,21 +23,15 @@ export default function ProductDetails() {
   useEffect(() => {
     const loadProduct = async () => {
       try {
-        // 1. Obtener TODAS las publicaciones usando tu función existente
         const publicaciones = await fetchPublicaciones();
-        
-        // 2. Buscar la publicación específica por ID
         const publicacionEncontrada = publicaciones.find(
           (pub) => pub._id === productId
         );
-
-        if (!publicacionEncontrada) {
-          throw new Error('El producto no existe o fue eliminado');
-        }
-
+        if (!publicacionEncontrada) throw new Error('El producto no existe o fue eliminado');
         setProduct(publicacionEncontrada);
       } catch (err) {
-        console.error('Error al cargar el producto:', error);
+        setError('Error al cargar el producto');
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -46,45 +48,56 @@ export default function ProductDetails() {
     );
   }
 
-  if (error) {
+  if (error || !product) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>{error}</Text>
-      </View>
-    );
-  }
-
-  if (!product) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.errorText}>Producto no encontrado</Text>
+        <Text style={styles.errorText}>{error || 'Producto no encontrado'}</Text>
       </View>
     );
   }
 
   return (
     <ScrollView style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#00318D" />
-      </TouchableOpacity>
-      <Image 
-        source={{ uri: product.fotos?.[0] || 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg' }} 
-        style={styles.productImage}
-      />
+      <View style={styles.imageContainer}>
+        <Image
+          source={{
+            uri:
+              product.fotos?.[0] ||
+              'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg',
+          }}
+          style={styles.productImage}
+        />
+
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={26} color="#fff" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.heartButton}>
+          <Ionicons name="heart-outline" size={26} color="#fff" />
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.detailsContainer}>
-        <Text style={styles.productTitle}>Nombre del producto:</Text>
-        <Text style={styles.productTitle2}>{product.titulo}</Text>
-        <Text style={styles.productDescription}>Descripcion: {product.descripcion}</Text>
-        
-        <Text style={styles.productPrice}>Precio: ${product.precio}</Text>
-        <Text style={styles.productPrice}>Cantidad: {product.cantidad}</Text>
-        <Text style={styles.productPrice}>Categoria:</Text>
-        <Text style={styles.productCategory}>{product.categoria}</Text>
-        <Text style={styles.productPrice}>Estado:</Text>
-        <Text style={styles.productCategory}>{product.estado}</Text>
-        <Text style={styles.productPrice}>Metodo de Pago:</Text>
-        <Text style={styles.productmetodo}>{product.metodoPago}</Text>
-        
+
+        <Text style={styles.titleText}>{product.titulo}</Text>
+
+        <Text style={styles.priceText}>${product.precio}</Text>
+
+        <Text style={styles.sectionLabel}>Descripción</Text>
+        <Text style={styles.descriptionText}>{product.descripcion}</Text>
+
+        <Text style={styles.sectionLabel}>Cantidad disponible</Text>
+        <Text style={styles.detailText}>{product.cantidad}</Text>
+
+        <Text style={styles.sectionLabel}>Estado</Text>
+        <Text style={styles.badge}>{product.estado}</Text>
+
+        <Text style={styles.sectionLabel}>Método de pago</Text>
+        <Text style={styles.detailText}>{product.metodoPago}</Text>
+
+        <TouchableOpacity style={styles.buyButton}>
+          <Text style={styles.buyButtonText}>Comprar</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -100,68 +113,89 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  imageContainer: {
+    position: 'relative',
+  },
   productImage: {
     width: '100%',
-    height: 300,
+    height: 320,
     resizeMode: 'cover',
+  },
+  titleText: {
+    fontSize: 32,
+    color: '#000',
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    left: 16,
+    zIndex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 20,
+    padding: 6,
+  },
+  heartButton: {
+    position: 'absolute',
+    top: 20,
+    right: 16,
+    zIndex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: 20,
+    padding: 6,
   },
   detailsContainer: {
     padding: 20,
   },
-  productTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  productTitle2: {
-    fontSize: 24,
-    marginBottom: 10,
-  },
-  productmetodo: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  productPrice: {
-    fontSize: 20,/* 
-    color: '#00318D', */
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  productCategory: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 18,
-    paddingVertical: 6,
-    height: 30,
-    width:98,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    fontSize: 12,
-    color: '#333',
-    marginBottom: 10,
-  },
-  productDescription: {
+  sectionLabel: {
     fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 15,
+    fontWeight: '600',
+    color: '#444',
+    marginBottom: 4,
+  },
+  priceText: {
+    fontSize: 24,
+    color: 'green',
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  descriptionText: {
+    fontSize: 16,
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  badge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#E6F0FF',
+    color: '#00318D',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 16,
   },
   detailText: {
     fontSize: 16,
-    marginBottom: 8,
-    color: '#444',
+    marginBottom: 16,
+  },
+  buyButton: {
+    backgroundColor: '#00318D',
+    paddingVertical: 14,
+    borderRadius: 10,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  buyButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
   },
   errorText: {
     fontSize: 18,
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
-  },
-   backButton: { 
-    position: 'absolute', 
-    top: 40, 
-    left: 24, 
-    zIndex: 1 
   },
 });

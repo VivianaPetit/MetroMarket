@@ -4,7 +4,7 @@ const publicacionSchema = new mongoose.Schema({
   titulo: String,
   descripcion: String,
   tipo: String, 
-  categoria: { type: mongoose.Schema.Types.ObjectId, ref: 'Categoria' },
+  categoria: String,
   precio: Number,
   cantidad: Number,
   fotos: [String],

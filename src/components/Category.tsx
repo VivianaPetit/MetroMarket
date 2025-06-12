@@ -1,44 +1,53 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   GestureResponderEvent,
+  Image,
   StyleSheet,
   Text,
-  TextStyle,
   TouchableOpacity,
+  View,
   ViewStyle,
+  TextStyle,
 } from 'react-native';
 
 type CategoryBadgeProps = {
   label: string;
+  imageSource: string; // URL o path local
   onPress?: (event: GestureResponderEvent) => void;
   style?: ViewStyle;
   textStyle?: TextStyle;
-  isSelected?: boolean; // Opcional: si quieres controlar la selección desde el padre
+  isSelected?: boolean;
 };
 
-export const CategoryBadge: React.FC<CategoryBadgeProps> = ({ 
-  label, 
-  onPress, 
-  isSelected = false, // Valor por defecto
-  style, 
-  textStyle 
+export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
+  label,
+  imageSource,
+  onPress,
+  isSelected = false,
+  style,
+  textStyle,
 }) => {
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={[
         styles.categoryButton,
         isSelected ? styles.selected : styles.unselected,
         style,
-      ]} 
+      ]}
       onPress={onPress}
     >
-      <Text style={[
-        styles.categoryButtonText,
-        isSelected ? styles.selectedText : styles.unselectedText,
-        textStyle,
-      ]}>
-        {label}
-      </Text>
+      <View style={styles.innerContainer}>
+        <Image source={{ uri: imageSource }} style={styles.image} />
+        <Text
+          style={[
+            styles.categoryButtonText,
+            isSelected ? styles.selectedText : styles.unselectedText,
+            textStyle,
+          ]}
+        >
+          {label}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };
@@ -46,33 +55,43 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
 const styles = StyleSheet.create({
   categoryButton: {
     borderRadius: 12,
-    paddingHorizontal: 18,
-    paddingVertical: 6,
-    margin: 10,
-    height: 36,
-    justifyContent: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    margin: 6,
     alignItems: 'center',
     borderWidth: 1,
-    shadowColor: '#FF8C00',
+    width: 100,
+    height: 100,
+    backgroundColor: '#fff',
+    shadowColor: '#aaa',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 9,
-    elevation: 6,
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   selected: {
-    backgroundColor: '#FF8C00',
     borderColor: '#FF8C00',
+    backgroundColor: '#FFF7EF',
   },
   unselected: {
-    backgroundColor: '#fff',
     borderColor: '#ddd',
+  },
+  innerContainer: {
+    alignItems: 'center',
+  },
+  image: {
+    width: 40,
+    height: 40,
+    marginBottom: 8,
+    borderRadius: 8,
   },
   categoryButtonText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '600',
+    textAlign: 'center',
   },
   selectedText: {
-    color: '#fff',
+    color: '#FF8C00',
   },
   unselectedText: {
     color: '#333',
