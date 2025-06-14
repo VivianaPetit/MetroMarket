@@ -90,6 +90,7 @@ const SignUp = () => {
         correo: formData.email.trim(),
         contrasena: hashedPassword,
         publicaciones: [],
+        favoritos:[],
       };
 
       const createdUser = await createUsuario(newUser);

@@ -82,6 +82,51 @@ router.patch('/:userId/publicaciones', async (req, res) => {
   }
 });
 
+// Agregar una publicación a un usuario en favoritos
+router.patch('/:userId/favoritos', async (req, res) => {
+  const { userId } = req.params;
+  const { publicacionId } = req.body;
+
+  try {
+    const usuario = await Usuario.findById(userId);
+    if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    if (!usuario.favoritos) {
+      usuario.favoritos = [];
+    }
+
+    usuario.favoritos.push(publicacionId);
+
+    await usuario.save();
+
+    res.status(200).json(usuario);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al agregar la publicación al usuario en favoritos.' });
+  }
+});
+
+// Eliminar una publicación a un usuario en favoritos
+router.delete('/:userId/favoritos/:publicacionId', async (req, res) => {
+  const { userId, publicacionId } = req.params;
+
+  try {
+    const usuario = await Usuario.findById(userId);
+    if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+    usuario.favoritos = usuario.favoritos.filter(
+      favId => favId.toString() !== publicacionId
+    );
+    await usuario.save();
+
+    res.status(200).json(usuario);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al eliminar la publicación al usuario en favoritos.' });
+  }
+});
+
+//buscar usuario por su correo
 router.get('/buscarPorCorreo/:correo', async (req, res) => {  // Usa `:correo` como parámetro
   const { correo } = req.params;  
 

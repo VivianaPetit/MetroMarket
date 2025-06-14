@@ -1,17 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity, Alert} from 'react-native';
 import { Publicacion } from '../interfaces/types';
 import { fetchPublicaciones } from '../services/publicacionService';
 import { Ionicons } from '@expo/vector-icons';
+import { agregarPublicacionAFavorito, eliminarPublicacionDeFavorito, fetchFavoritoUsuario } from '../services/usuarioService';
+import { useAuth } from '../context/userContext';
 
 export default function ProductDetails() {
   const { productId } = useLocalSearchParams();
@@ -19,6 +13,9 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { user, refrescarUsuario } = useAuth();
+  const [isLiked, setIsLiked] = useState(false); {/*para el boton de favoritos*/}
+
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -26,9 +23,11 @@ export default function ProductDetails() {
         const publicaciones = await fetchPublicaciones();
         const publicacionEncontrada = publicaciones.find(
           (pub) => pub._id === productId
+        
         );
         if (!publicacionEncontrada) throw new Error('El producto no existe o fue eliminado');
         setProduct(publicacionEncontrada);
+        //busca si ya tiene la publicacion en favoritos
       } catch (err) {
         setError('Error al cargar el producto');
         console.error(err);
@@ -36,9 +35,27 @@ export default function ProductDetails() {
         setLoading(false);
       }
     };
-
     loadProduct();
+   
+
   }, [productId]);
+
+  // 2do useEffect - Verificación de favoritos
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (product?._id && user?._id) { // Solo ejecutar si tenemos los IDs necesarios
+        try {
+          //busca si ya tiene la publicacion en favoritos para definir el color del icono de corazon inicial  
+          const favoritoBoolean = await fetchFavoritoUsuario(user._id, product._id);
+          setIsLiked(favoritoBoolean);
+        } catch (error) {
+          console.error('Error al verificar favorito:', error);
+        }
+      }
+    };
+    
+    checkFavorite();
+  }, [product?._id, user?._id]); // Dependencias: se ejecuta cuando product o user cambien
 
   if (loading) {
     return (
@@ -56,6 +73,46 @@ export default function ProductDetails() {
     );
   }
 
+
+  const handleFavorito = async () => {
+    if (!user) {
+      Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero para marcar esta publicacion en favoritos');
+      return;
+    }
+    // //busca si ya tiene la publicacion en favoritos para definir el 
+    // const favoritoBoolean = await fetchFavoritoUsuario(user._id, product._id);
+
+    if (isLiked == false){ //para agregar el id la publicacion a favoritos
+      try{
+        //agrega el id de la publicacion a la lista de favoritos del usuario
+        await agregarPublicacionAFavorito(user._id, product._id);
+        // Refrescar usuario en contexto para obtener datos actualizados
+        await refrescarUsuario()
+
+        Alert.alert('¡Éxito!', 'La publicación ha sido añadida a tu lista de favoritos.');
+      } catch (error) {
+        Alert.alert('Error', 'La publicación no a podido ser añadida a tu lista de favoritos.');
+        console.error(error);
+      }
+      setIsLiked(true)
+      console.log('para cargar a la bdd, y colocar like')
+    }
+    if (isLiked == true){ //para eliminar el id de la publicacion de favoritos
+      try{
+        //agrega el id de la publicacion a la lista de favoritos del usuario
+        await eliminarPublicacionDeFavorito(user._id, product._id);
+        // Refrescar usuario en contexto para obtener datos actualizados
+        await refrescarUsuario()
+        Alert.alert('¡Éxito!', 'La publicación ha sido eliminada de tu lista de favoritos.');
+      } catch (error) {
+        Alert.alert('Error', 'La publicación no a podido ser eliminada de tu lista de favoritos.');
+        console.error(error);
+      }
+      setIsLiked(false)
+      console.log('para eliminar de la bdd, y colocar dislike')
+    }
+  };
+  
   return (
     <ScrollView style={styles.container}>
       <View style={styles.imageContainer}>
@@ -67,13 +124,14 @@ export default function ProductDetails() {
           }}
           style={styles.productImage}
         />
-
+      {/* boton para regresar */}
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={26} color="#fff" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.heartButton}>
-          <Ionicons name="heart-outline" size={26} color="#fff" />
+        {/* boton de favoritos */}
+        <TouchableOpacity style={styles.heartButton} onPress={handleFavorito}>
+          <Ionicons name={isLiked ? "heart" : "heart-outline"} size={26} color={isLiked ? "#ff0000" : "#fff"}/>
         </TouchableOpacity>
       </View>
 
