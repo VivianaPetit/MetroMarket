@@ -181,7 +181,7 @@ export default function ProductDetails() {
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
 
         <Text style={styles.sectionLabel}>Cantidad disponible</Text>
-        <Text style={styles.detailText}>{product.cantidad}</Text> {/* Se salvo*/}
+        <Text style={styles.detailText}>{product.cantidad}</Text> 
 
         <Text style={styles.sectionLabel}>Estado</Text>
         <Text style={styles.badge}>{product.estado}</Text>
