@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity,StyleSheet, View,Text,TextInput, Button } from "react-native";
+import { TouchableOpacity,StyleSheet, View,Text,TextInput, Button,Alert } from "react-native";
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,8 +16,15 @@ export default function Review_PostShoping() {
   const { user } = useAuth();
    const fecha = new Date()
 
+  if (!user) {
+    Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
+    router.push("./");
+    return;
+  }
+
+
       const newResena: Omit<Resena, '_id'> = {
-         usuario: "pedro",
+         usuario: user._id,
          comentario: value,
          fecha: fecha,
          calificacion: Rating, 
@@ -33,9 +40,11 @@ export default function Review_PostShoping() {
  const  continurar =  async () => {
      console.log(Rating)
     if (Finalizado){
-        //const createdUser = await createResena(newResena);
+        const createdUser = await createResena(newResena);
         console.log('Usuario creado exitosamente');
         router.push('./')
+    }else{
+       Alert.alert('Error de datos', 'Por favor califique a su vendedor.')
     }
   };
 

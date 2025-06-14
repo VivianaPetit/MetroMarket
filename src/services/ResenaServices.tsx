@@ -2,7 +2,7 @@ import axios from "axios";
 import { Resena } from '../interfaces/types';
 import { API_BASE_URL } from '../../config';
 
-const usuariosURL = `${API_BASE_URL}/Resena`;
+const usuariosURL = `${API_BASE_URL}/resenas`;
 
 export const createResena = async (
   nuevoUsuario: Omit<Resena, '_id'>
