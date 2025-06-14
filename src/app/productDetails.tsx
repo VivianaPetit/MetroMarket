@@ -8,38 +8,65 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
-  Button,
+  TextInput,
+  Alert,
 } from 'react-native';
-import { Publicacion } from '../interfaces/types';
+import { Publicacion, Usuario } from '../interfaces/types';
 import { fetchPublicaciones } from '../services/publicacionService';
 import { Ionicons } from '@expo/vector-icons';
+import { fetchUsuarioById } from '../services/usuarioService';
 
 export default function ProductDetails() {
   const { productId } = useLocalSearchParams();
   const [product, setProduct] = useState<Publicacion | null>(null);
   const [loading, setLoading] = useState(true);
+  const [vendedor, setVendedor] = useState<Usuario | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [nuevaPregunta, setNuevaPregunta] = useState('');
+  const [recomendadasCat, setRecomendadasCat] = useState<Publicacion[]>([]);
+  const [recomendadasVend, setRecomendadasVend] = useState<Publicacion[]>([]);
   const router = useRouter();
 
   useEffect(() => {
-    const loadProduct = async () => {
+    const loadProductAndRecomendadas = async () => {
       try {
         const publicaciones = await fetchPublicaciones();
-        const publicacionEncontrada = publicaciones.find(
-          (pub) => pub._id === productId
-        );
-        if (!publicacionEncontrada) throw new Error('El producto no existe o fue eliminado');
+        const publicacionEncontrada = publicaciones.find(pub => pub._id === productId);
+        if (!publicacionEncontrada) throw new Error('Producto no encontrado');
+
+        console.log(publicacionEncontrada.usuario)
+        const user = await fetchUsuarioById(publicacionEncontrada.usuario);
+        setVendedor(user);
         setProduct(publicacionEncontrada);
+
+        // Filtrar otras publicaciones de la misma categoría excepto la actual
+        const otras = publicaciones.filter(
+          (p) => p.categoria === publicacionEncontrada.categoria && p._id !== publicacionEncontrada._id
+        );
+        setRecomendadasCat(otras.slice(0, 3)); // Mostrar máximo 3 recomendadas
+
+        // Filtrar otras publicaciones del mismo vendedor excepto la actual
+        const otrasVend = publicaciones.filter(
+          (p) => p.usuario === publicacionEncontrada.usuario && p._id !== publicacionEncontrada._id
+        );
+        setRecomendadasVend(otrasVend.slice(0, 3)); // Mostrar máximo 3 recomendadas
+
       } catch (err) {
         setError('Error al cargar el producto');
-        console.error(err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadProduct();
+    loadProductAndRecomendadas();
   }, [productId]);
+
+  const handlePreguntar = () => {
+    if (!nuevaPregunta.trim()) return;
+    Alert.alert('Pregunta enviada', 'Tu pregunta ha sido enviada al vendedor.');
+    setNuevaPregunta('');
+    // Aquí deberías enviar la pregunta al backend
+  };
 
   if (loading) {
     return (
@@ -52,26 +79,26 @@ export default function ProductDetails() {
   if (error || !product) {
     return (
       <View style={styles.container}>
-        <Text style={styles.errorText}>{error || 'Producto no encontrado'}</Text>
+        <Text style={styles.errorText}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.imageContainer}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={26} color="#F68628" />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push(`/`)}>
+          <Text style={styles.linkText}>Ver más productos de la categoría "{product.categoria}"</Text>
+        </TouchableOpacity>
+      <View style={styles.imageWrapper}>
         <Image
           source={{
-            uri:
-              product.fotos?.[0] ||
-              'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg',
+            uri: product.fotos?.[0] || 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg',
           }}
           style={styles.productImage}
         />
-
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={26} color="#fff" />
-        </TouchableOpacity>
 
         <TouchableOpacity style={styles.heartButton}>
           <Ionicons name="heart-outline" size={26} color="#fff" />
@@ -79,10 +106,8 @@ export default function ProductDetails() {
       </View>
 
       <View style={styles.detailsContainer}>
-
         <Text style={styles.titleText}>{product.titulo}</Text>
-
-        <Text style={styles.priceText}>${product.precio}</Text>
+        <Text style={styles.priceText}>US$ {product.precio}</Text>
 
         <Text style={styles.sectionLabel}>Descripción</Text>
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
@@ -96,13 +121,85 @@ export default function ProductDetails() {
         <Text style={styles.sectionLabel}>Método de pago</Text>
         <Text style={styles.detailText}>{product.metodoPago}</Text>
 
-        <Button  
-            title='Comentarios'
-            onPress={() => router.push('/Review_PostShoping')}
-         />
-        <TouchableOpacity style={styles.buyButton}>
+        <Text style={styles.sectionLabel}>Vendedor</Text>
+        <Text style={styles.detailText}>
+          {vendedor ? `${vendedor.nombre} - ${vendedor.telefono}` : 'Cargando...'}
+        </Text>
+
+        <TouchableOpacity style={styles.buyButton} onPress={() => router.push('/comprar')}>
           <Text style={styles.buyButtonText}>Comprar</Text>
         </TouchableOpacity>
+
+        {/* SECCIÓN DE RECOMENDADAS POR CATEGORÍA */}
+        {recomendadasCat.length > 0 && (
+          <>
+            <Text style={[styles.sectionLabel, { marginTop: 32 }]}>Publicaciones recomendadas</Text>
+            {recomendadasCat.map((rec) => (
+              <TouchableOpacity
+                key={rec._id}
+                style={styles.recomendadaItem}
+                onPress={() => router.push(`/`)}
+              >
+                <Image
+                  source={{ uri: rec.fotos?.[0] || 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg' }}
+                  style={styles.recomendadaImage}
+                />
+                <View style={styles.recomendadaInfo}>
+                  <Text style={styles.recomendadaTitle} numberOfLines={1}>
+                    {rec.titulo}
+                  </Text>
+                  <Text style={styles.recomendadaPrice}>${rec.precio}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </>
+        )}
+        {/* SECCIÓN DE RECOMENDADAS POR VENDEDOR */}
+        {recomendadasVend.length > 0 && (
+          <>
+            <Text style={[styles.sectionLabel, { marginTop: 32 }]}>Más productos del vendedor</Text>
+            {recomendadasVend.map((rec) => (
+              <TouchableOpacity
+                key={rec._id}
+                style={styles.recomendadaItem}
+                onPress={() => router.push(`/`)}
+              >
+                <Image
+                  source={{ uri: rec.fotos?.[0] || 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg' }}
+                  style={styles.recomendadaImage}
+                />
+                <View style={styles.recomendadaInfo}>
+                  <Text style={styles.recomendadaTitle} numberOfLines={1}>
+                    {rec.titulo}
+                  </Text>
+                  <Text style={styles.recomendadaPrice}>${rec.precio}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+             <Text style={styles.sectionLabel}>Preguntas</Text>
+        {product.preguntas?.length > 0 ? (
+          product.preguntas.map((p, index) => (
+            <Text key={index} style={styles.questionText}>
+              • {p}
+            </Text>
+          ))
+        ) : (
+          <Text style={styles.detailText}>No hay preguntas aún.</Text>
+        )}
+
+        <Text style={styles.sectionLabel}>Haz una pregunta</Text>
+        <TextInput
+          placeholder="Escribe tu pregunta..."
+          value={nuevaPregunta}
+          onChangeText={setNuevaPregunta}
+          style={styles.input}
+          multiline
+        />
+        <TouchableOpacity style={styles.sendButton} onPress={handlePreguntar}>
+          <Text style={styles.buyButtonText}>Enviar</Text>
+        </TouchableOpacity>
+          </>
+        )}
       </View>
     </ScrollView>
   );
@@ -118,34 +215,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  imageContainer: {
+  imageWrapper: {
     position: 'relative',
   },
   productImage: {
     width: '100%',
-    height: 320,
-    resizeMode: 'cover',
-  },
-  titleText: {
-    fontSize: 32,
-    color: '#000',
-    fontWeight: 'bold',
-    marginBottom: 10,
+    height: 450,
   },
   backButton: {
     position: 'absolute',
-    top: 20,
-    left: 16,
-    zIndex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: 20,
+    top: 15,
+    left: 13,
     padding: 6,
   },
   heartButton: {
     position: 'absolute',
     top: 20,
     right: 16,
-    zIndex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     borderRadius: 20,
     padding: 6,
@@ -153,25 +239,37 @@ const styles = StyleSheet.create({
   detailsContainer: {
     padding: 20,
   },
+  titleText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    color: '#111',
+  },
+  priceText: {
+    fontSize: 22,
+    color: 'green',
+    fontWeight: '600',
+    marginBottom: 12,
+  },
   sectionLabel: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#444',
-    marginBottom: 4,
-  },
-  priceText: {
-    fontSize: 24,
-    color: 'green',
-    fontWeight: 'bold',
-    marginBottom: 16,
+    marginTop: 16,
+    marginBottom: 6,
+    color: '#00318D',
   },
   descriptionText: {
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: 22,
-    marginBottom: 16,
+    color: '#333',
+    marginBottom: 8,
+  },
+  detailText: {
+    fontSize: 15,
+    marginBottom: 8,
+    color: '#444',
   },
   badge: {
-    alignSelf: 'flex-start',
     backgroundColor: '#E6F0FF',
     color: '#00318D',
     paddingHorizontal: 10,
@@ -179,22 +277,49 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     fontSize: 14,
     fontWeight: '500',
-    marginBottom: 16,
+    alignSelf: 'flex-start',
   },
-  detailText: {
+  linkText: {
+    color: '#00318D',
+    fontWeight: '600',
+    marginTop: 70,
+    marginBottom: 8,
+    marginHorizontal: 20,
     fontSize: 16,
-    marginBottom: 16,
+    textDecorationLine: 'underline'
+  },
+  questionText: {
+    fontSize: 15,
+    marginBottom: 8,
+    color: '#222',
+  },
+  input: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+    minHeight: 40,
+    textAlignVertical: 'top',
+  },
+  sendButton: {
+    backgroundColor: '#00318D',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 20,
   },
   buyButton: {
     backgroundColor: '#00318D',
     paddingVertical: 14,
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 10,
     alignItems: 'center',
   },
   buyButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
   },
   errorText: {
@@ -202,5 +327,29 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
     marginTop: 20,
+  },
+  recomendadaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  recomendadaImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  recomendadaInfo: {
+    flex: 1,
+  },
+  recomendadaTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111',
+  },
+  recomendadaPrice: {
+    fontSize: 14,
+    color: 'green',
+    marginTop: 4,
   },
 });

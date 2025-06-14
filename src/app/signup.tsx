@@ -118,7 +118,7 @@ const SignUp = () => {
       console.log('Usuario creado exitosamente');
 
       setUser(createdUser);
-      router.push('/Perfil');
+      router.push('/perfil');
     } catch (error) {
       console.error('Error en el registro:', error);
       Alert.alert('Error', 'Ocurrió un error al crear la cuenta. Por favor, inténtalo de nuevo.');

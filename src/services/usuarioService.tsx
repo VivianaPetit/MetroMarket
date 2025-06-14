@@ -14,7 +14,6 @@ export const fetchUsuarios = async (): Promise<Usuario[]> => {
   }
 };
 
-
 export const editarUsuario = async (
   userId: string,
   datos: Partial<Pick<Usuario, 'nombre' | 'telefono'>>
@@ -29,7 +28,7 @@ export const editarUsuario = async (
 };
 
 
-export const fetchUsuario = async (userId: string): Promise<Usuario> => {
+export const fetchUsuarioById = async (userId: string): Promise<Usuario> => {
   try {
     const response = await axios.get<Usuario>(`${usuariosURL}/${userId}`);
     return response.data;
