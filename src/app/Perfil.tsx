@@ -18,7 +18,7 @@ export default function Perfil() {
 
   const handleLogout = () => {
     logout?.(); 
-    router.push('/');
+    router.push('./');
   };
 
   const handleGuardar = async () => {
@@ -38,7 +38,7 @@ export default function Perfil() {
     <View style={{ flex: 1, backgroundColor: '#fff' }}>
       <View style={styles.containerAcc}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push("/")}>
+          <TouchableOpacity onPress={() => router.push("./")}>
             <Ionicons name="arrow-back" size={28} color="white" />
           </TouchableOpacity>
           <View style={{ width: 30 }} />

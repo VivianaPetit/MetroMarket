@@ -27,4 +27,13 @@ export interface Publicacion {
   precio: number;
   metodoPago: string,
   fotos: string[];  
+  preguntas: string[];
+}
+
+export interface Resena {
+  _id: string,
+  usuario: string;
+  comentario: string;
+  fecha: Date;
+  calificacion: number; 
 }

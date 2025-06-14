@@ -49,7 +49,7 @@ useEffect(() => {
 const handlePublicar = async () => {
   if (!user) {
     Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
-    router.push("/");
+    router.push("./");
     return;
   }
 

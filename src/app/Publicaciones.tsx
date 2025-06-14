@@ -63,7 +63,7 @@ export default function Home() {
 
   const handleEditProduct = (producto: Publicacion) => {
     router.push({
-      pathname: '/EditarProducto',
+      pathname: '/editarPublicacion',
       params: { producto: JSON.stringify(producto) },
     });
   };
@@ -80,7 +80,7 @@ export default function Home() {
         <Text style={styles.headerTitle}>
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Mis Publicaciones</Text>
         </Text>
-        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/perfil')}>
           <Ionicons name="person-outline" size={24} color="#00318D" />
         </TouchableOpacity>
       </SafeAreaView>

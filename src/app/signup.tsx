@@ -21,7 +21,7 @@ const SignUp = () => {
     name: '',
     phone: '',
     email: '',
-    password: ''
+    password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -29,13 +29,19 @@ const SignUp = () => {
   const router = useRouter();
   const { setUser } = useAuth();
 
+  // Validar correo institucional
   const validarEmail = (email: string) => {
     return /@(?:correo\.)?unimet\.edu\.ve$/i.test(email);
   };
 
+  // Validar teléfonos móviles nacionales o internacionales
+  const validarTelefono = (phone: string) => {
+    const phoneRegex = /^(\+?\d{1,3})?(41[2466])\d{7}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -43,14 +49,33 @@ const SignUp = () => {
 
   const handleRegister = async () => {
     const newErrors: typeof errors = {};
-    
-    if (!formData.name.trim()) newErrors.name = 'El nombre es obligatorio.';
-    if (!formData.phone.trim()) newErrors.phone = 'El teléfono es obligatorio.';
+
+    // Validar nombre
+    const trimmedName = formData.name.trim();
+    if (!trimmedName) {
+      newErrors.name = 'El nombre es obligatorio.';
+    } else if (trimmedName.length < 3) {
+      newErrors.name = 'El nombre debe tener al menos 3 caracteres.';
+    } else if (trimmedName.length > 50) {
+      newErrors.name = 'El nombre no puede superar los 50 caracteres.';
+    }
+
+    // Validar teléfono
+    const trimmedPhone = formData.phone.trim();
+    if (!trimmedPhone) {
+      newErrors.phone = 'El teléfono es obligatorio.';
+    } else if (!validarTelefono(trimmedPhone)) {
+      newErrors.phone = 'Número de teléfono inválido.';
+    }
+
+    // Validar email
     if (!formData.email.trim()) {
       newErrors.email = 'El correo es obligatorio.';
     } else if (!validarEmail(formData.email)) {
       newErrors.email = 'Debes usar un correo UNIMET.';
     }
+
+    // Validar contraseña
     if (!formData.password.trim()) {
       newErrors.password = 'La contraseña es obligatoria.';
     } else if (formData.password.length < 6) {
@@ -58,7 +83,6 @@ const SignUp = () => {
     }
 
     setErrors(newErrors);
-
     if (Object.keys(newErrors).length > 0) return;
 
     setIsSubmitting(true);
@@ -67,26 +91,24 @@ const SignUp = () => {
       // Verificar si el correo ya existe
       try {
         await buscarUsuarioPorCorreo(formData.email.trim());
-        // Si no lanza error, el usuario existe
         Alert.alert('Error', 'Este correo ya está registrado');
         return;
       } catch (error) {
-        // Error 404 significa que el usuario no existe (lo cual es bueno)
         if (
           !(typeof error === 'object' && error !== null && 'response' in error && typeof (error as any).response === 'object') ||
           (error as any).response?.status !== 404
         ) throw error;
       }
 
-      // Hashear la contraseña (en un entorno real, esto debería hacerse en el backend)
+      // Hashear la contraseña
       const hashedPassword = await Crypto.digestStringAsync(
         Crypto.CryptoDigestAlgorithm.SHA256,
         formData.password.trim()
       );
 
       const newUser: Omit<Usuario, '_id'> = {
-        nombre: formData.name.trim(),
-        telefono: formData.phone.trim(),
+        nombre: trimmedName,
+        telefono: trimmedPhone,
         correo: formData.email.trim(),
         contrasena: hashedPassword,
         publicaciones: [],
@@ -95,12 +117,9 @@ const SignUp = () => {
 
       const createdUser = await createUsuario(newUser);
       console.log('Usuario creado exitosamente');
-      
-      // Establecer el usuario en el contexto de autenticación
+
       setUser(createdUser);
-      
-      // Redirigir al perfil
-      router.push('/Perfil');
+      router.push('/perfil');
     } catch (error) {
       console.error('Error en el registro:', error);
       Alert.alert('Error', 'Ocurrió un error al crear la cuenta. Por favor, inténtalo de nuevo.');
@@ -122,15 +141,15 @@ const SignUp = () => {
         {['name', 'phone', 'email', 'password'].map((field) => (
           <View key={field} style={styles.inputGroup}>
             <View style={styles.inputContainer}>
-              <Ionicons 
+              <Ionicons
                 name={
                   field === 'name' ? 'person' :
                   field === 'phone' ? 'call' :
                   field === 'email' ? 'mail' : 'lock-closed'
-                } 
-                size={20} 
-                color="#888" 
-                style={styles.icon} 
+                }
+                size={20}
+                color="#888"
+                style={styles.icon}
               />
               <TextInput
                 style={styles.inputField}
@@ -149,8 +168,8 @@ const SignUp = () => {
                 autoCapitalize={field === 'name' ? 'words' : 'none'}
               />
               {field === 'password' && (
-                <TouchableOpacity 
-                  onPress={() => setShowPassword(!showPassword)} 
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
                   style={styles.showPasswordButton}
                 >
                   <Text style={styles.showPasswordText}>
@@ -163,8 +182,8 @@ const SignUp = () => {
           </View>
         ))}
 
-        <TouchableOpacity 
-          style={[styles.registerButton, isSubmitting && styles.disabledButton]} 
+        <TouchableOpacity
+          style={[styles.registerButton, isSubmitting && styles.disabledButton]}
           onPress={handleRegister}
           disabled={isSubmitting}
         >

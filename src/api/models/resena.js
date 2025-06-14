@@ -7,4 +7,4 @@ const resenaSchema = new mongoose.Schema({
   calificacion: { type: Number, required: true, min: 1, max: 5, },
 });
 
-module.exports = resenaSchema;
+module.exports = mongoose.model('Resena', resenaSchema);
