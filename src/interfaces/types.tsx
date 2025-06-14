@@ -27,3 +27,11 @@ export interface Publicacion {
   metodoPago: string,
   fotos: string[];  
 }
+
+export interface Resena {
+  _id: string,
+  usuario: string;
+  comentario: string;
+  fecha: Date;
+  calificacion: number; 
+}

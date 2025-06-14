@@ -8,6 +8,7 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  Button,
 } from 'react-native';
 import { Publicacion } from '../interfaces/types';
 import { fetchPublicaciones } from '../services/publicacionService';
@@ -95,6 +96,10 @@ export default function ProductDetails() {
         <Text style={styles.sectionLabel}>Método de pago</Text>
         <Text style={styles.detailText}>{product.metodoPago}</Text>
 
+        <Button  
+            title='Comentarios'
+            onPress={() => router.push('/Review_PostShoping')}
+         />
         <TouchableOpacity style={styles.buyButton}>
           <Text style={styles.buyButtonText}>Comprar</Text>
         </TouchableOpacity>
