@@ -48,7 +48,7 @@ export default function Perfil() {
           {/* Mis Publicaciones */}
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push('../Publicaciones')}
+            onPress={() => router.push('../publicaciones')}
             activeOpacity={0.8}
           >
             <View style={styles.publicationsButtonContent}>

@@ -37,15 +37,7 @@ const publicacionSchema = new mongoose.Schema({
     required: [true, 'La cantidad es obligatoria'],
     min: [1, 'La cantidad debe ser al menos 1'],
   },
-  fotos: {
-    type: [String],
-    validate: {
-      validator: function (array) {
-        return array.length > 0;
-      },
-      message: 'Debe haber al menos una foto',
-    },
-  },
+  fotos: [String],
   estado: {
     type: String,
     required: [true, 'El estado es obligatorio'],

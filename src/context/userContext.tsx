@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Usuario } from '../interfaces/types';
-import { fetchUsuario } from '../services/usuarioService'; // IMPORTANTE: crea o asegura que exista esta función
+import { fetchUsuarioById } from '../services/usuarioService'; 
 
 interface AuthContextType {
   user: Usuario | null;
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   if (user?._id) {
     console.log('refrescarUsuario, user._id:', user,  user._id);
     try {
-      const usuarioActualizado = await fetchUsuario(user._id);
+      const usuarioActualizado = await fetchUsuarioById(user._id);
       setUser(usuarioActualizado);
     } catch (error) {
       console.error('Error al refrescar usuario:', error);

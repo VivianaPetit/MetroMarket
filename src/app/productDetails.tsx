@@ -161,18 +161,14 @@ export default function ProductDetails() {
           }}
           style={styles.productImage}
         />
-
-        {/* boton de favoritos */}
-        <TouchableOpacity style={styles.heartButton} onPress={handleFavorito}>
-          <Ionicons name={isLiked ? "heart" : "heart-outline"} size={26} color={isLiked ? "#ff0000" : "#fff"}/>
-        </TouchableOpacity>
       </View>
 
       <View style={styles.detailsContainer}>
         <View style={styles.header}>
-                  <Text style={styles.titleText}>{product.titulo}</Text>
-                  <TouchableOpacity>
-                    <Ionicons name="heart-outline" size={28} color="#F68628" />
+          {/* boton de favoritos */}
+                  <Text style={styles.titleText}>{product.titulo} </Text>
+                  <TouchableOpacity onPress={handleFavorito}>
+                    <Ionicons name={isLiked ? "heart" : "heart-outline"} size={28} color="#F68628" />
                   </TouchableOpacity>
                 </View>
         <Text style={styles.priceText}>US$ {product.precio}</Text>
