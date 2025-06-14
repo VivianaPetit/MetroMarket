@@ -3,8 +3,6 @@ import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
-
-
 const producto = {
   titulo: 'Audífonos Bluetooth',
   precio: 25,
@@ -23,7 +21,7 @@ const Comprar = () => {
 
       {/* Botón de volver */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={28} color="#fff" />
+        <Ionicons name="arrow-back" size={28} color="#F68628" />
       </TouchableOpacity>
 
       <View style={styles.contenido}>
@@ -47,8 +45,8 @@ const Comprar = () => {
         <Text style={styles.subtitulo}>Vendedor</Text>
         <Text style={styles.vendedor}>{producto.vendedor}</Text>
 
-        <TouchableOpacity style={styles.botonComprar}>
-          <Text style={styles.botonComprarTexto}>Comprar</Text>
+        <TouchableOpacity style={styles.botonComprar} onPress={() => router.push('/Review_PostShoping')}>
+          <Text style={styles.botonComprarTexto}>Confirmar compra</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -70,7 +68,7 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     top: 15,
-    left: 16,
+    left: 13,
     padding: 6,
   },
   contenido: {

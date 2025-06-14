@@ -99,14 +99,15 @@ export default function ProductDetails() {
           }}
           style={styles.productImage}
         />
-
-        <TouchableOpacity style={styles.heartButton}>
-          <Ionicons name="heart-outline" size={26} color="#fff" />
-        </TouchableOpacity>
       </View>
 
       <View style={styles.detailsContainer}>
-        <Text style={styles.titleText}>{product.titulo}</Text>
+        <View style={styles.header}>
+                  <Text style={styles.titleText}>{product.titulo}</Text>
+                  <TouchableOpacity>
+                    <Ionicons name="heart-outline" size={28} color="#F68628" />
+                  </TouchableOpacity>
+                </View>
         <Text style={styles.priceText}>US$ {product.precio}</Text>
 
         <Text style={styles.sectionLabel}>Descripción</Text>
@@ -133,7 +134,8 @@ export default function ProductDetails() {
         {/* SECCIÓN DE RECOMENDADAS POR CATEGORÍA */}
         {recomendadasCat.length > 0 && (
           <>
-            <Text style={[styles.sectionLabel, { marginTop: 32 }]}>Publicaciones recomendadas</Text>
+            <View style={styles.separador} />
+            <Text style={[styles.sectionLabel, { marginTop: 6 }]}>Publicaciones recomendadas</Text>
             {recomendadasCat.map((rec) => (
               <TouchableOpacity
                 key={rec._id}
@@ -157,7 +159,8 @@ export default function ProductDetails() {
         {/* SECCIÓN DE RECOMENDADAS POR VENDEDOR */}
         {recomendadasVend.length > 0 && (
           <>
-            <Text style={[styles.sectionLabel, { marginTop: 32 }]}>Más productos del vendedor</Text>
+            <View style={styles.separador} />
+            <Text style={[styles.sectionLabel, { marginTop: 6 }]}>Más productos del vendedor</Text>
             {recomendadasVend.map((rec) => (
               <TouchableOpacity
                 key={rec._id}
@@ -176,7 +179,8 @@ export default function ProductDetails() {
                 </View>
               </TouchableOpacity>
             ))}
-             <Text style={styles.sectionLabel}>Preguntas</Text>
+        <View style={styles.separador} />
+        <Text style={styles.sectionLabel}>Preguntas</Text>
         {product.preguntas?.length > 0 ? (
           product.preguntas.map((p, index) => (
             <Text key={index} style={styles.questionText}>
@@ -218,6 +222,11 @@ const styles = StyleSheet.create({
   imageWrapper: {
     position: 'relative',
   },
+    header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   productImage: {
     width: '100%',
     height: 450,
@@ -254,9 +263,9 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 16,
     fontWeight: '600',
-    marginTop: 16,
+    marginTop: 10,
     marginBottom: 6,
-    color: '#00318D',
+    color: '#444',
   },
   descriptionText: {
     fontSize: 15,
@@ -303,7 +312,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   sendButton: {
-    backgroundColor: '#00318D',
+    backgroundColor: '#F68628',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -311,7 +320,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buyButton: {
-    backgroundColor: '#00318D',
+    backgroundColor: '#F68628',
     paddingVertical: 14,
     borderRadius: 10,
     marginTop: 10,
@@ -351,5 +360,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'green',
     marginTop: 4,
+  },
+    separador: {
+    height: 1,
+    backgroundColor: '#ddd',
+    marginVertical: 16,
   },
 });

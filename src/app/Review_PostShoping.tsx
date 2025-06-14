@@ -1,30 +1,23 @@
-import React from 'react';
 import { TouchableOpacity,StyleSheet, View,Text,TextInput, Button,Alert } from "react-native";
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../context/userContext';
-import { Resena } from '../../interfaces/types';
-import { createResena } from '../../services/ResenaServices';
+import { useAuth } from '../context/userContext';
+import { Resena } from '../interfaces/types';
+import { createResena } from '../services/ResenaServices';
 
 export default function Review_PostShoping() {
   const router = useRouter();
   const [value, onChangeText] = useState('');
   const [isEditing, setIsEditing] = useState(true);
-   const [Finalizado, setFinalizado] = useState(false);
+  const [Finalizado, setFinalizado] = useState(false);
   const [Rating, setRating] = useState(0)
   const { user } = useAuth();
    const fecha = new Date()
 
-  if (!user) {
-    Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
-    router.push("./");
-    return;
-  }
-
 
       const newResena: Omit<Resena, '_id'> = {
-         usuario: user._id,
+         usuario: user ? user._id : '',
          comentario: value,
          fecha: fecha,
          calificacion: Rating, 
@@ -68,7 +61,7 @@ return (
           ))}
         </View>
 
-    <Text>Escriba un comentario</Text>
+    <Text>Deje un comentario</Text>
     <View>
         <TextInput
           editable
@@ -83,6 +76,10 @@ return (
      <Button 
             title ='Finalizar compra'
             onPress={continurar}
+         />
+      <Button 
+            title ='Ir al inicio'
+            onPress={() => router.push('/')}
          />
 </View>
 );
