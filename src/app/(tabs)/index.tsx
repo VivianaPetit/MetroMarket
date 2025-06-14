@@ -101,7 +101,7 @@ export default function Home() {
               />
             ))}
           </ScrollView>
-
+         {/* Crea la visualizacion de todas las publicaciones */}
           <View style={styles.productsGrid}>
             {filteredPublications.length > 0 ? (
               filteredPublications.map((pub) => (

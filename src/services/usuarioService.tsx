@@ -53,6 +53,44 @@ export const agregarPublicacionAUsuario = async (
   }
 };
 
+export const agregarPublicacionAFavorito = async (
+  userId: string,
+  publicacionId: string
+): Promise<Usuario> => {
+  try {
+    const response = await axios.patch(`${usuariosURL}/${userId}/favoritos`, {publicacionId,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error agregando publicación a favoritos', error);
+    throw error;
+  }
+};
+
+export const eliminarPublicacionDeFavorito = async (
+  userId: string,
+  publicacionId: string
+): Promise<Usuario> => {
+  try {
+    const response = await axios.delete(`${usuariosURL}/${userId}/favoritos/${publicacionId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error eliminando publicación de favoritos', error);
+    throw error;
+  }
+};
+
+//para verificar si una publicacion esta en favoritos
+export const fetchFavoritoUsuario = async (userId: string, publicacionId: string): Promise<boolean> => {
+  try {
+    const response = await axios.get<Usuario>(`${usuariosURL}/${userId}`);
+    return response.data.favoritos.includes(publicacionId);
+  } catch (error) {
+    console.error('Error fetching usuario by ID:', error);
+    throw error;
+  }
+};
+
 export const createUsuario = async (
   nuevoUsuario: Omit<Usuario, '_id'>
 ): Promise<Usuario> => {

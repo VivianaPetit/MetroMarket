@@ -15,6 +15,8 @@ import { Publicacion, Usuario } from '../interfaces/types';
 import { fetchPublicaciones } from '../services/publicacionService';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchUsuarioById } from '../services/usuarioService';
+import { agregarPublicacionAFavorito, eliminarPublicacionDeFavorito, fetchFavoritoUsuario } from '../services/usuarioService';
+import { useAuth } from '../context/userContext';
 
 export default function ProductDetails() {
   const { productId } = useLocalSearchParams();
@@ -26,6 +28,9 @@ export default function ProductDetails() {
   const [recomendadasCat, setRecomendadasCat] = useState<Publicacion[]>([]);
   const [recomendadasVend, setRecomendadasVend] = useState<Publicacion[]>([]);
   const router = useRouter();
+  const { user, refrescarUsuario } = useAuth();
+  const [isLiked, setIsLiked] = useState(false); {/*para el boton de favoritos*/}
+
 
   useEffect(() => {
     const loadProductAndRecomendadas = async () => {
@@ -61,6 +66,24 @@ export default function ProductDetails() {
     loadProductAndRecomendadas();
   }, [productId]);
 
+  // 2do useEffect - Verificación de favoritos
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (product?._id && user?._id) { // Solo ejecutar si tenemos los IDs necesarios
+        try {
+          //busca si ya tiene la publicacion en favoritos para definir el color del icono de corazon inicial  
+          const favoritoBoolean = await fetchFavoritoUsuario(user._id, product._id);
+          setIsLiked(favoritoBoolean);
+        } catch (error) {
+          console.error('Error al verificar favorito:', error);
+        }
+      }
+    };
+    
+    checkFavorite();
+  }, [product?._id, user?._id]); // Dependencias: se ejecuta cuando product o user cambien
+
+
   const handlePreguntar = () => {
     if (!nuevaPregunta.trim()) return;
     Alert.alert('Pregunta enviada', 'Tu pregunta ha sido enviada al vendedor.');
@@ -84,11 +107,50 @@ export default function ProductDetails() {
     );
   }
 
+  //para marcar como favorito
+  const handleFavorito = async () => {
+    if (!user) {
+      Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero para marcar esta publicacion en favoritos');
+      return;
+    }
+
+    if (isLiked == false){ //para agregar el id la publicacion a favoritos
+      try{
+        //agrega el id de la publicacion a la lista de favoritos del usuario
+        await agregarPublicacionAFavorito(user._id, product._id);
+        // Refrescar usuario en contexto para obtener datos actualizados
+        await refrescarUsuario()
+
+        Alert.alert('¡Éxito!', 'La publicación ha sido añadida a tu lista de favoritos.');
+      } catch (error) {
+        Alert.alert('Error', 'La publicación no a podido ser añadida a tu lista de favoritos.');
+        console.error(error);
+      }
+      setIsLiked(true)
+      console.log('para cargar a la bdd, y colocar like')
+    }
+    if (isLiked == true){ //para eliminar el id de la publicacion de favoritos
+      try{
+        //agrega el id de la publicacion a la lista de favoritos del usuario
+        await eliminarPublicacionDeFavorito(user._id, product._id);
+        // Refrescar usuario en contexto para obtener datos actualizados
+        await refrescarUsuario()
+        Alert.alert('¡Éxito!', 'La publicación ha sido eliminada de tu lista de favoritos.');
+      } catch (error) {
+        Alert.alert('Error', 'La publicación no a podido ser eliminada de tu lista de favoritos.');
+        console.error(error);
+      }
+      setIsLiked(false)
+      console.log('para eliminar de la bdd, y colocar dislike')
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={26} color="#F68628" />
         </TouchableOpacity>
+        {/* boton para regresar */}
         <TouchableOpacity onPress={() => router.push(`/`)}>
           <Text style={styles.linkText}>Ver más productos de la categoría "{product.categoria}"</Text>
         </TouchableOpacity>
@@ -99,6 +161,11 @@ export default function ProductDetails() {
           }}
           style={styles.productImage}
         />
+
+        {/* boton de favoritos */}
+        <TouchableOpacity style={styles.heartButton} onPress={handleFavorito}>
+          <Ionicons name={isLiked ? "heart" : "heart-outline"} size={26} color={isLiked ? "#ff0000" : "#fff"}/>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.detailsContainer}>
@@ -114,7 +181,7 @@ export default function ProductDetails() {
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
 
         <Text style={styles.sectionLabel}>Cantidad disponible</Text>
-        <Text style={styles.detailText}>{product.cantidad}</Text>
+        <Text style={styles.detailText}>{product.cantidad}</Text> {/* Se salvo*/}
 
         <Text style={styles.sectionLabel}>Estado</Text>
         <Text style={styles.badge}>{product.estado}</Text>

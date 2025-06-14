@@ -11,6 +11,7 @@ export interface Usuario {
   telefono: string;
   contrasena: string;
   publicaciones: string[];  
+  favoritos: string[];
 }
 
 export interface Publicacion {
