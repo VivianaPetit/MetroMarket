@@ -91,13 +91,6 @@ export default function Home() {
 
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesWrapper}>
-            <CategoryBadge
-              key="all"
-              label="Todos"
-              imageSource="https://cdn-icons-png.flaticon.com/512/709/709586.png"
-              isSelected={!selectedCategory}
-              onPress={resetFilters}
-            />
             {categorias.map((cat) => (
               <CategoryBadge
                 key={cat._id}
@@ -138,7 +131,7 @@ export default function Home() {
               <Text style={styles.selectedCategoryText}>{selectedCategory}</Text>
             </Text>
             ) : (
-              <Text style={styles.emptyText}> No hay resultados para la categoria <Text style={styles.selectedCategoryText}>{selectedCategory}</Text> </Text>   
+              <Text style={styles.emptyText}> No hay resultados para <Text style={styles.selectedCategoryText}>{selectedCategory || search}</Text> </Text>
             )}
           </View>
             )}
