@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Usuario } from '../interfaces/types';
-import { fetchUsuarioById } from '../services/usuarioService'; 
+import { fetchUsuarioById } from '../services/usuarioService'; // IMPORTANTE: crea o asegura que exista esta función
 
 interface AuthContextType {
   user: Usuario | null;
