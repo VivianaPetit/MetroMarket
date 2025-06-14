@@ -35,7 +35,7 @@ export default function Review_PostShoping() {
     if (Finalizado){
         //const createdUser = await createResena(newResena);
         console.log('Usuario creado exitosamente');
-        router.push('/')
+        router.push('./')
     }
   };
 

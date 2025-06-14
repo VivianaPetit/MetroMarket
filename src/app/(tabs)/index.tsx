@@ -108,7 +108,7 @@ export default function Home() {
                 <TouchableOpacity
                   key={pub._id}
                   onPress={() => router.push({
-                    pathname: "/product-details",
+                    pathname: "/productDetails",
                     params: { productId: pub._id }
                   })}
                   activeOpacity={0.7}

@@ -11,7 +11,7 @@ export default function Perfil() {
 
   const handleLogout = () => {
     logout?.();
-    router.push('/');
+    router.push('./');
   };
 
   return (
@@ -34,7 +34,7 @@ export default function Perfil() {
 
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push('/')}
+            onPress={() => router.push('./')}
             activeOpacity={0.8}
           >
             <View style={styles.publicationsButtonContent}>

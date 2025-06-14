@@ -63,7 +63,7 @@ export default function Home() {
 
   const handleEditProduct = (producto: Publicacion) => {
     router.push({
-      pathname: '/EditarProducto',
+      pathname: '/editarPublicacion',
       params: { producto: JSON.stringify(producto) },
     });
   };
