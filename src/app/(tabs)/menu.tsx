@@ -22,7 +22,7 @@ export default function Perfil() {
         activeOpacity={1}
         onPress={() => {
           if (user) {
-            router.push('../../Perfil');
+            router.push('../../perfil');
           }
         }}
       >
@@ -60,7 +60,7 @@ export default function Perfil() {
           {/* Mis Favoritos */}
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push('../Favoritos')}
+            onPress={() => router.push('../favoritos')}
             activeOpacity={0.8}
           >
             <View style={styles.publicationsButtonContent}>
@@ -72,7 +72,7 @@ export default function Perfil() {
           {/* Mis Compras */}
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push('../Compras')}
+            onPress={() => router.push('../compras')}
             activeOpacity={0.8}
           >
             <View style={styles.publicationsButtonContent}>
@@ -84,7 +84,7 @@ export default function Perfil() {
           {/* Mis Ventas */}
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => router.push('../Ventas')}
+            onPress={() => router.push('../ventas')}
             activeOpacity={0.8}
           >
             <View style={styles.publicationsButtonContent}>

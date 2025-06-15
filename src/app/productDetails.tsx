@@ -127,7 +127,7 @@ export default function ProductDetails() {
         console.error(error);
       }
       setIsLiked(true)
-      console.log('para cargar a la bdd, y colocar like')
+      //console.log('para cargar a la bdd, y colocar like')
     }
     if (isLiked == true){ //para eliminar el id de la publicacion de favoritos
       try{
@@ -141,7 +141,7 @@ export default function ProductDetails() {
         console.error(error);
       }
       setIsLiked(false)
-      // console.log('para eliminar de la bdd, y colocar dislike')
+      //console.log('para eliminar de la bdd, y colocar dislike')
     }
   };
 
@@ -150,8 +150,8 @@ export default function ProductDetails() {
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={26} color="#F68628" />
         </TouchableOpacity>
-        {/* boton para regresar */}
-        <TouchableOpacity onPress={() => router.push(`/`)}>
+        {/* boton para regresar a la pagina anterior*/}
+        <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.linkText}>Ver más productos de la categoría "{product.categoria}"</Text>
         </TouchableOpacity>
       <View style={styles.imageWrapper}>
