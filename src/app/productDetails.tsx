@@ -91,6 +91,17 @@ export default function ProductDetails() {
     // Aquí deberías enviar la pregunta al backend
   };
 
+  const Verificacion_Usuario = () => {
+    if (!user){
+       router.push("/login")
+      }else{
+          router.push({
+          pathname: "/comprar",
+          params: { productId: productId } // 🔄 Envías el mismo ID a la pantalla de compra
+        })
+      }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -190,10 +201,7 @@ export default function ProductDetails() {
           {vendedor ? `${vendedor.nombre} - ${vendedor.telefono}` : 'Cargando...'}
         </Text>
 
-        <TouchableOpacity style={styles.buyButton} onPress={() => router.push({
-          pathname: "/comprar",
-          params: { productId: productId } // 🔄 Envías el mismo ID a la pantalla de compra
-        })} >
+        <TouchableOpacity style={styles.buyButton} onPress={Verificacion_Usuario} >
           <Text style={styles.buyButtonText}>Comprar</Text>
         </TouchableOpacity>
 

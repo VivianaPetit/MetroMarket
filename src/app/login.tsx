@@ -67,7 +67,7 @@ const LoginScreen = () => {
         }
 
         setUser(user);
-        router.push('/perfil');
+        router.push('/Perfil');
 
       } catch (error) {
         console.error('Error al iniciar sesión:', error);
