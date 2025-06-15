@@ -19,14 +19,14 @@ export interface Publicacion {
   usuario : string,
   categoria: string;
   descripcion: string;
-  cantidad: string;
-  estado: string ;
-  disponible: boolean ;
-  lugarEntrega : string;
+  cantidad: number;
+  estado: string;
+  disponible: boolean;
+  lugarEntrega: string;
   titulo: string;
   precio: number;
-  metodoPago: string,
-  fotos: string[];  
+  metodoPago: string;
+  fotos: string[];
   preguntas: [string];
 }
 

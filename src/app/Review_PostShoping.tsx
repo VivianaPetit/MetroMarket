@@ -31,10 +31,10 @@ export default function Review_PostShoping() {
   };
 
  const  continurar =  async () => {
-     console.log(Rating)
+     // console.log(Rating)
     if (Finalizado){
         const createdUser = await createResena(newResena);
-        console.log('Usuario creado exitosamente');
+        // console.log('Usuario creado exitosamente');
         router.push('./')
     }else{
        Alert.alert('Error de datos', 'Por favor califique a su vendedor.')
