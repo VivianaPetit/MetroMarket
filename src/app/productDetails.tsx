@@ -141,7 +141,7 @@ export default function ProductDetails() {
         console.error(error);
       }
       setIsLiked(false)
-      console.log('para eliminar de la bdd, y colocar dislike')
+      // console.log('para eliminar de la bdd, y colocar dislike')
     }
   };
 

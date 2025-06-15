@@ -20,6 +20,7 @@ export const crearPublicacion = async (publicacion: Partial<Publicacion>): Promi
     const response = await axios.post(publicacionesURL, publicacion);
     return response.data;
   } catch (error) {
+    console.log(publicacion)
     console.error('Error creando publicación:', error);
     throw error;
   }

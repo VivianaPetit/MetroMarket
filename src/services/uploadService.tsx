@@ -4,12 +4,12 @@ import { supabase } from '../../supabase';
 
 export async function seleccionarImagen() {
   const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    mediaTypes: 'images', // Usando el tipo directamente como string
     allowsEditing: true,
     quality: 1,
   });
 
-  if (!result.canceled) {
+  if (!result.canceled && result.assets && result.assets.length > 0) {
     return result.assets[0].uri;
   } else {
     throw new Error('Selección cancelada');
@@ -23,7 +23,7 @@ export async function subirImagen(uri: string, userId: string) {
   const blob = await response.blob();
 
   const { data, error } = await supabase.storage
-    .from('imagenes-publicaciones') // nombre del bucket en Supabase
+    .from('publicaciones') // nombre del bucket en Supabase
     .upload(nombreArchivo, blob, {
       contentType: 'image/jpeg',
     });
@@ -32,7 +32,7 @@ export async function subirImagen(uri: string, userId: string) {
 
   // Obtener URL pública
   const { data: publicUrlData } = supabase.storage
-    .from('imagenes-publicaciones')
+    .from('publicaciones')
     .getPublicUrl(nombreArchivo);
 
   return publicUrlData.publicUrl;
