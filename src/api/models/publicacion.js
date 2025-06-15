@@ -48,4 +48,4 @@ const publicacionSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Publicacion', publicacionSchema);
+module.exports = mongoose.model('publicacion', publicacionSchema);

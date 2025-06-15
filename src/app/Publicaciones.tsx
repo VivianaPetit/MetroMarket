@@ -1,13 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/userContext'; 
 import ProductCard from '../components/ProductCard';
@@ -80,7 +74,7 @@ export default function Home() {
         <Text style={styles.headerTitle}>
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Mis Publicaciones</Text>
         </Text>
-        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
+        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/perfil')}>
           <Ionicons name="person-outline" size={24} color="#00318D" />
         </TouchableOpacity>
       </SafeAreaView>
