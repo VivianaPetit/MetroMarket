@@ -4,6 +4,16 @@ import { API_BASE_URL } from '../../config';
 
 const publicacionesURL = `${API_BASE_URL}/publicaciones`;
 
+export const fetchPublicacionById = async (pubId: string): Promise<Publicacion> => {
+  try {
+    const response = await axios.get<Publicacion>(`${publicacionesURL}/${pubId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching usuario by ID:', error);
+    throw error;
+  }
+};
+
 
 export const fetchPublicaciones = async (): Promise<Publicacion[]> => {
   try {

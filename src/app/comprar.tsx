@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const producto = {
   titulo: 'Audífonos Bluetooth',
@@ -13,6 +13,7 @@ const producto = {
 };
 
 const Comprar = () => {
+  const { productId } = useLocalSearchParams();
   const router = useRouter();
 
   return (
