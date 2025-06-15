@@ -12,7 +12,7 @@ const producto = {
   vendedor: 'Juan Pérez',
 };
 
-const Comprar = () => {
+const Comprar: React.FC = () => {
   const { productId } = useLocalSearchParams();
   const router = useRouter();
 
