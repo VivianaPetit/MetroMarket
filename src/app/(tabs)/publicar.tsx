@@ -7,7 +7,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Switch,
   Alert,
   Platform,
   Image, // <-- Agrega Image aquí
@@ -21,10 +20,8 @@ import { crearPublicacion } from '../../services/publicacionService';
 import { agregarPublicacionAUsuario } from '../../services/usuarioService'; // <-- IMPORTA ESTO
 import { useAuth } from '../../context/userContext';
 import { useRouter } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import { v4 as uuid } from 'uuid'; // asegúrate de tener uuid instalado
 import { supabase } from '../../../supabase';
 
 
@@ -43,11 +40,48 @@ const CreatePublication = () => {
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [images, setImages] = useState<{ uri: string; base64: string }[]>([]); // guarda [{ uri, base64 }]
+  interface FormErrors {
+  titulo?: string;
+  descripcion?: string;
+  precio?: string;
+  cantidad?: string;
+  categoria?: string;
+  imagenes?: string;
+}
+const [errors, setErrors] = useState<FormErrors>({});
 
+const validarFormulario = (): FormErrors => {
+  const errores: FormErrors = {};
 
+  if (titulo.trim().length < 3 || titulo.length > 100) {
+    errores.titulo = 'El título debe tener entre 3 y 100 caracteres.';
+  }
+
+  if (descripcion.length > 500) {
+    errores.descripcion = 'La descripción no debe superar los 500 caracteres.';
+  }
+
+  const precioNumerico = parseFloat(precio);
+  if (isNaN(precioNumerico) || precioNumerico < 0) {
+    errores.precio = 'El precio debe ser un número válido mayor o igual a 0.';
+  }
+
+  const cantidadNumerica = parseInt(cantidad);
+  if (isNaN(cantidadNumerica) || cantidadNumerica <= 0) {
+    errores.cantidad = 'La cantidad debe ser un número válido mayor que 0.';
+  }
+
+  if (!categoria || categoria === '' || categoria === 'Selecciona una categoría') {
+    errores.categoria = 'Debes seleccionar una categoría válida.';
+  }
+
+  if (images.length === 0) {
+    errores.imagenes = 'Debes seleccionar al menos una imagen.';
+  }
+
+  return errores;
+};
 
 useEffect(() => {
   fetchCategorias()
@@ -56,44 +90,16 @@ useEffect(() => {
 }, []);
 
 const handlePublicar = async () => {
-  if (!user) {
-    Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
-    router.push("/");
+
+    if (!user) {
+    router.push('/login');
     return;
   }
 
-  // Validaciones
-  if (titulo.trim().length < 3 || titulo.length > 100) {
-    Alert.alert('Error', 'El título debe tener entre 3 y 100 caracteres.');
-    return;
-  }
+  const errores = validarFormulario();
+  setErrors(errores);
 
-  if (descripcion.length > 500) {
-    Alert.alert('Error', 'La descripción no debe superar los 500 caracteres.');
-    return;
-  }
-
-  const precioNumerico = parseFloat(precio);
-  if (isNaN(precioNumerico) || precioNumerico < 0) {
-    Alert.alert('Error', 'El precio debe ser un número válido mayor o igual a 0.');
-    return;
-  }
-
-  const cantidadNumerica = parseInt(cantidad);
-  if (isNaN(cantidadNumerica) || cantidadNumerica <= 0) {
-    Alert.alert('Error', 'La cantidad debe ser un número válido mayor que 0.');
-    return;
-  }
-
-  if (!categoria || categoria === "") {
-    Alert.alert('Error', 'Debes seleccionar una categoría válida.');
-    return;
-  }
-
-  if (images.length === 0) {
-    Alert.alert('Error', 'Debes seleccionar al menos una imagen.');
-    return;
-  }
+  if (Object.keys(errores).length > 0) return;
 
   try {
     // 1. Subir imágenes a Supabase
@@ -134,8 +140,8 @@ const handlePublicar = async () => {
     const nuevaPublicacion = {
       titulo,
       descripcion,
-      precio: precioNumerico,
-      cantidad: cantidadNumerica.toString(),
+      precio: parseFloat(precio),
+      cantidad: parseInt(cantidad),
       estado,
       lugarEntrega,
       metodoPago,
@@ -236,6 +242,7 @@ const pickImageAndStore = async () => {
           ))}
         </ScrollView>
       )}
+      {errors.imagenes && <Text style={styles.errorText}>{errors.imagenes}</Text>}
 
 
       <Text style={styles.label}>Título *</Text>
@@ -246,6 +253,7 @@ const pickImageAndStore = async () => {
         value={titulo}
         onChangeText={setTitulo}
       />
+      {errors.titulo && <Text style={styles.errorText}>{errors.titulo}</Text>}
 
       <Text style={styles.label}>Descripción</Text>
       <TextInput
@@ -256,6 +264,7 @@ const pickImageAndStore = async () => {
         value={descripcion}
         onChangeText={setDescripcion}
       />
+      {errors.descripcion && <Text style={styles.errorText}>{errors.descripcion}</Text>}
 
       <Text style={styles.label}>Precio *</Text>
       <TextInput
@@ -264,6 +273,7 @@ const pickImageAndStore = async () => {
         value={precio}
         onChangeText={setPrecio}
       />
+      {errors.precio && <Text style={styles.errorText}>{errors.precio}</Text>}
 
       <Text style={styles.label}>Cantidad *</Text>
       <TextInput
@@ -272,6 +282,7 @@ const pickImageAndStore = async () => {
         value={cantidad}
         onChangeText={setCantidad}
       />
+      {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}
 
       <Text style={styles.label}>Estado</Text>
       <View style={styles.chipsContainer}>
@@ -286,7 +297,7 @@ const pickImageAndStore = async () => {
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </View>   
 
       <Text style={styles.label}>Lugar de entrega</Text>
       <TextInput
@@ -317,6 +328,7 @@ const pickImageAndStore = async () => {
         ))}
       </Picker>
     </View>
+    {errors.categoria && <Text style={styles.errorText}>{errors.categoria}</Text>}
 
       <TouchableOpacity style={styles.botonPublicar} onPress={handlePublicar}>
         <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
@@ -422,4 +434,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 8,
   },
+  errorText: {
+  color: 'red',
+  fontSize: 12,
+  marginTop: 4,
+},
+
 });

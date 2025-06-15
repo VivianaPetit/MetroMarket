@@ -1,10 +1,18 @@
 import { Ionicons, Octicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router/tabs';
-import { View } from 'react-native';
+import { useRouter, useSegments } from 'expo-router';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function Layout() {
+
+    const segments = useSegments() as string[];
+    const router = useRouter();
+
+  // Ocultar botón si estamos en la pantalla 'publicar'
+  const isOnPublicarScreen = segments.includes('publicar');
   return (
-    <Tabs
+      <>
+          <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#fff',
@@ -33,37 +41,27 @@ export default function Layout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="publicar"
+        <Tabs.Screen
+        name="favoritos"
         options={{
-          tabBarLabel: () => null,
-          tabBarStyle: {display:'none'},
-          tabBarIcon: ({ size }) => (
-            <View
-              style={{
-                backgroundColor: 'white',
-                width: size + 30,    
-                height: size + 30,
-                borderRadius: (size + 30) / 2,
-                justifyContent: 'center',
-                marginTop: 0, 
-                alignItems: 'center',
-                marginBottom: 7,    
-                elevation: 5, 
-                borderWidth: 3,
-                borderColor: '#F68628',   
-                shadowColor: '#F68628',
-                shadowOffset: { width: 0, height: 2 },  
-                shadowOpacity: 0.3,
-                shadowRadius: 3,  
-              }}
-            >
-              <Ionicons name="add" size={30} color="#00318D" />
-            </View>
+          tabBarShowLabel: false,
+          title: 'Favoritos',
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name="heart-outline" size={32} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
+            <Tabs.Screen
+        name="publicaciones"
+        options={{
+          tabBarShowLabel: false,
+          title: 'Publicaciones',
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name="grid-outline" size={30} color={color} />
+          ),
+        }}
+      />
+            <Tabs.Screen
         name="menu"
         options={{
           tabBarShowLabel: false,
@@ -73,6 +71,45 @@ export default function Layout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="publicar"
+        options={{
+          href: null,
+          tabBarStyle: { display: 'none' }, // Oculta la tab bar en esta pantalla
+        }}
+      />
+      
     </Tabs>
+    {!isOnPublicarScreen && (
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => router.push('/publicar')}
+        >
+          <Ionicons name="add" size={30} color="white" />
+        </TouchableOpacity>
+      )}
+      </>
+
   );
 }
+
+const styles = StyleSheet.create({
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 30, // ajusta según el tamaño de la tab bar
+    backgroundColor: '#F68628',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    zIndex: 999,
+    marginBottom: 60, // espacio adicional para evitar superposición con la tab bar
+  },
+});
