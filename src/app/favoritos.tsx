@@ -1,0 +1,168 @@
+import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'expo-router';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../context/userContext'; 
+import ProductCard from '../components/ProductCard';
+import { Categoria, Publicacion } from '../interfaces/types';
+import { fetchCategorias } from '../services/categoriaService';
+import { fetchPublicaciones } from '../services/publicacionService';
+import { useFocusEffect } from '@react-navigation/native';
+
+export default function Home() {
+    const router = useRouter();
+    const { user } = useAuth(); 
+    const [categorias, setCategorias] = useState<Categoria[]>([]);
+    const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
+    const [search, setSearch] = useState("");
+
+    useEffect(() => {
+        fetchCategorias()
+        .then(data => setCategorias(data))
+        .catch(console.error);
+    }, []);
+    
+    
+    useFocusEffect(
+        useCallback(() => {
+        if (!user) {
+        setPublicaciones([]);
+        return;
+        }
+        fetchPublicaciones()
+        .then(data => setPublicaciones(data))
+        .catch(console.error);
+    }, [user?._id]) 
+    );
+
+    const favoritosDelUsuario = publicaciones.filter(pub =>
+    user?.favoritos?.includes(pub._id)
+    );
+
+    const filteredPublications = favoritosDelUsuario.filter((pub) => {
+    if (!search) return true;
+    const searchTerm = search.toLowerCase();
+    const titleMatch = pub.titulo.toLowerCase().includes(searchTerm);
+    const categoryMatch = pub.categoria.toLowerCase().includes(searchTerm);
+    return titleMatch || categoryMatch;
+  });
+
+    return (
+        <View style={styles.container}>
+        <SafeAreaView style={styles.header}>
+            <TouchableOpacity 
+                onPress={() => router.push('/menu')}
+                style={styles.backButton}
+            >
+                <Ionicons name="arrow-back" size={24} color="#00318D" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>
+            <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Mis Favoritos</Text>
+            </Text>
+            <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/perfil')}>
+            <Ionicons name="person-outline" size={24} color="#00318D" />
+            </TouchableOpacity>
+        </SafeAreaView>
+
+        {/* Productos */}
+        <ScrollView contentContainerStyle={styles.productsGrid}>
+            <View style={styles.productsGrid}>
+            {filteredPublications.length > 0 ? (
+                filteredPublications.map((pub) => (
+                    <TouchableOpacity
+                    key={pub._id}
+                    onPress={() => router.push({
+                        pathname: "/productDetails",
+                        params: { productId: pub._id }
+                    })}
+                    activeOpacity={0.7}
+                    >
+                    <ProductCard
+                        name={pub.titulo}
+                        price={pub.precio}
+                        category={pub.categoria}
+                        image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}
+                    />
+                    </TouchableOpacity>
+                ))
+            ) : (
+            <Text style={styles.errorMensaje}>No tienes productos en favoritos </Text>
+            )}
+            </View>
+        </ScrollView>
+        </View>
+  );
+}  
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f8f8',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  headerIcon: {
+    paddingLeft: 10,
+    paddingBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+   backButton: {
+    marginRight: 10,
+    paddingBottom: 20,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    marginHorizontal: 16,
+    marginTop: 10,
+    paddingHorizontal: 15,
+    height: 45,
+    elevation: 4,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#333',
+  },
+  categoriesWrapper: {
+    marginTop: 12,
+    paddingBottom: 10,
+    backgroundColor: '#f8f8f8',
+  },
+  categoriesContainer: {
+    paddingHorizontal: 16,
+  },
+  productsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 80,
+    paddingTop: 10, 
+  },
+  errorMensaje: {
+    fontSize: 20,
+    flexDirection: 'row', 
+    flexWrap: 'wrap',
+    textAlign: 'center', 
+    width: '100%', 
+    marginTop: 20,
+  },
+});

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -9,6 +10,7 @@ import {
   Switch,
   Alert,
   Platform,
+  Image, // <-- Agrega Image aquí
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -19,10 +21,12 @@ import { crearPublicacion } from '../../services/publicacionService';
 import { agregarPublicacionAUsuario } from '../../services/usuarioService'; // <-- IMPORTA ESTO
 import { useAuth } from '../../context/userContext';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import { supabase } from '../../../supabase'; // ajusta el path si es necesario
-import uuid from 'react-native-uuid'; // 
-import { Image } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import { v4 as uuid } from 'uuid'; // asegúrate de tener uuid instalado
+import { supabase } from '../../../supabase';
+
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 
@@ -49,55 +53,42 @@ useEffect(() => {
     .catch(console.error);
 }, []);
 
-const pickImageAndUpload = async () => {
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    aspect: [4, 3],
-    quality: 0.7,
-  });
-
-  if (!result.canceled) {
-    const file = result.assets[0];
-    setImageUri(file.uri);
-
-    const response = await fetch(file.uri);
-    const blob = await response.blob();
-    const filename = `${uuid.v4()}.jpg`;
-
-    const { data, error } = await supabase.storage
-      .from('publicaciones') // asegúrate de haber creado este bucket en Supabase
-      .upload(filename, blob, {
-        contentType: 'image/jpeg',
-      });
-
-    if (error) {
-      Alert.alert('Error', 'No se pudo subir la imagen');
-      console.error(error);
-    } else {
-      const publicUrl = supabase.storage
-        .from('publicaciones')
-        .getPublicUrl(filename).data.publicUrl;
-      setImageUrl(publicUrl);
-      Alert.alert('Imagen subida', 'Se subió correctamente la imagen.');
-    }
-  }
-};
-
-
 const handlePublicar = async () => {
   if (!user) {
     Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
+    router.push("/");
     return;
   }
 
-  if (!titulo || !precio || !cantidad || !categoria) {
-    Alert.alert('Error', 'Título, precio, cantidad y categoría son obligatorios.');
+  // Validaciones
+  if (titulo.trim().length < 3 || titulo.length > 100) {
+    Alert.alert('Error', 'El título debe tener entre 3 y 100 caracteres.');
     return;
   }
 
-  console.log(user);
+  if (descripcion.length > 500) {
+    Alert.alert('Error', 'La descripción no debe superar los 500 caracteres.');
+    return;
+  }
 
+  const precioNumerico = parseFloat(precio);
+  if (isNaN(precioNumerico) || precioNumerico < 0) {
+    Alert.alert('Error', 'El precio debe ser un número válido mayor o igual a 0.');
+    return;
+  }
+
+  const cantidadNumerica = parseInt(cantidad);
+  if (isNaN(cantidadNumerica) || cantidadNumerica <= 0) {
+    Alert.alert('Error', 'La cantidad debe ser un número válido mayor que 0.');
+    return;
+  }
+
+  if (!categoria || categoria === "") {
+    Alert.alert('Error', 'Debes seleccionar una categoría válida.');
+    return;
+  }
+
+  // Si pasa todas las validaciones, continúa con la creación
   const resetForm = () => {
     setTitulo('');
     setDescripcion('');
@@ -114,28 +105,19 @@ const handlePublicar = async () => {
   const nuevaPublicacion = {
     titulo,
     descripcion,
-    precio: parseInt(precio),
-    cantidad,
+    precio: precioNumerico,
+    cantidad: cantidadNumerica.toString(),
     estado,
     lugarEntrega,
     metodoPago,
-    fotos: [imageUrl ?? "https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg"] as [string],
     categoria: categoriaSeleccionada?.nombre,
     usuario: user._id,
   };
 
   try {
-    // Crear la publicación y obtener el objeto creado con _id
     const publicacionCreada = await crearPublicacion(nuevaPublicacion);
-
-    console.log('aca esta la pub id', publicacionCreada._id);
-
-    // Agregar el ID de la publicación creada al usuario
     await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
-
-    // Refrescar usuario en contexto para obtener datos actualizados
     await refrescarUsuario();
-
     Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
     resetForm();
     navigation.goBack();
@@ -145,19 +127,66 @@ const handlePublicar = async () => {
   }
 };
 
+const pickImageAndUpload = async () => {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [4, 3],
+    quality: 0.7,
+  });
+
+  if (!result.canceled) {
+    const file = result.assets[0];
+    const uri = file.uri;
+    setImageUri(uri);
+
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(uri);
+      if (!fileInfo.exists) {
+        throw new Error('El archivo no existe');
+      }
+
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      // Convertimos base64 a Uint8Array
+      const binaryString = atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      // Generar nombre de archivo único
+      const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.jpg`;
+
+      const { data, error } = await supabase.storage
+        .from('publicaciones')
+        .upload(filename, bytes, {
+          contentType: 'image/jpeg',
+        });
+
+      if (error) {
+        console.error('Error al subir imagen:', error);
+        Alert.alert('Error', 'No se pudo subir la imagen');
+      } else {
+        const publicUrl = supabase.storage
+          .from('publicaciones')
+          .getPublicUrl(filename).data.publicUrl;
+
+        setImageUrl(publicUrl);
+        Alert.alert('Imagen subida', 'Se subió correctamente la imagen.');
+      }
+    } catch (err) {
+      console.error('Error al preparar la imagen:', err);
+      Alert.alert('Error', 'No se pudo preparar la imagen.');
+    }
+  }
+};
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.label}>Foto del producto</Text>
-      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndUpload}>
-        <Ionicons name="image-outline" size={20} color="#fff" />
-        <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
-      </TouchableOpacity>
-
-  {imageUri && (
-    <Image source={{ uri: imageUri }} style={{ width: '100%', height: 200, marginTop: 10, borderRadius: 10 }} />
-  )}
-
-
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="#00318D" />
       </TouchableOpacity>
