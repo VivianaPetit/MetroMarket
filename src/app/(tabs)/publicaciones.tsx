@@ -1,19 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../context/userContext'; 
-import ProductCard from '../components/ProductCard';
-import { Categoria, Publicacion } from '../interfaces/types';
-import { fetchCategorias } from '../services/categoriaService';
-import { fetchPublicaciones } from '../services/publicacionService';
+import { useAuth } from '../../context/userContext'; 
+import ProductCard from '../../components/ProductCard';
+import { Categoria, Publicacion } from '../../interfaces/types';
+import { fetchCategorias } from '../../services/categoriaService';
+import { fetchPublicaciones } from '../../services/publicacionService';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function Home() {

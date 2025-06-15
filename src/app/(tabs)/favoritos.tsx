@@ -3,11 +3,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
 import {ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../context/userContext'; 
-import ProductCard from '../components/ProductCard';
-import { Categoria, Publicacion } from '../interfaces/types';
-import { fetchCategorias } from '../services/categoriaService';
-import { fetchPublicaciones } from '../services/publicacionService';
+import { useAuth } from '../../context/userContext'; 
+import ProductCard from '../../components/ProductCard';
+import { Categoria, Publicacion } from '../../interfaces/types';
+import { fetchCategorias } from '../../services/categoriaService';
+import { fetchPublicaciones } from '../../services/publicacionService';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function Home() {
@@ -16,6 +16,7 @@ export default function Home() {
     const [categorias, setCategorias] = useState<Categoria[]>([]);
     const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
     const [search, setSearch] = useState("");
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         fetchCategorias()
@@ -28,6 +29,7 @@ export default function Home() {
         useCallback(() => {
         if (!user) {
         setPublicaciones([]);
+        setMessage("Por favor, inicia sesión para ver tus favoritos.");
         return;
         }
         fetchPublicaciones()
@@ -66,7 +68,7 @@ export default function Home() {
         </SafeAreaView>
 
         {/* Productos */}
-        <ScrollView contentContainerStyle={styles.productsGrid}>
+        { user ? (<ScrollView contentContainerStyle={styles.productsGrid}>
             <View style={styles.productsGrid}>
             {filteredPublications.length > 0 ? (
                 filteredPublications.map((pub) => (
@@ -87,10 +89,13 @@ export default function Home() {
                     </TouchableOpacity>
                 ))
             ) : (
-            <Text style={styles.errorMensaje}>No tienes productos en favoritos </Text>
+            <Text style={styles.errorMensaje}>No tienes productos en favoritos</Text>
             )}
             </View>
-        </ScrollView>
+        </ScrollView>) : (
+          <Text style={styles.errorMensaje}>{message}</Text>
+          
+        )}
         </View>
   );
 }  
@@ -158,7 +163,9 @@ const styles = StyleSheet.create({
     paddingTop: 10, 
   },
   errorMensaje: {
-    fontSize: 20,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#888',
     flexDirection: 'row', 
     flexWrap: 'wrap',
     textAlign: 'center', 

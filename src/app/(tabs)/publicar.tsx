@@ -7,7 +7,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Switch,
   Alert,
   Platform,
   Image, // <-- Agrega Image aquí
@@ -21,10 +20,8 @@ import { crearPublicacion } from '../../services/publicacionService';
 import { agregarPublicacionAUsuario } from '../../services/usuarioService'; // <-- IMPORTA ESTO
 import { useAuth } from '../../context/userContext';
 import { useRouter } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import { v4 as uuid } from 'uuid'; // asegúrate de tener uuid instalado
 import { supabase } from '../../../supabase';
 
 
@@ -43,9 +40,48 @@ const CreatePublication = () => {
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<{ uri: string; base64: string }[]>([]); // guarda [{ uri, base64 }]
+  interface FormErrors {
+  titulo?: string;
+  descripcion?: string;
+  precio?: string;
+  cantidad?: string;
+  categoria?: string;
+  imagenes?: string;
+}
+const [errors, setErrors] = useState<FormErrors>({});
 
+const validarFormulario = (): FormErrors => {
+  const errores: FormErrors = {};
+
+  if (titulo.trim().length < 3 || titulo.length > 100) {
+    errores.titulo = 'El título debe tener entre 3 y 100 caracteres.';
+  }
+
+  if (descripcion.length > 500) {
+    errores.descripcion = 'La descripción no debe superar los 500 caracteres.';
+  }
+
+  const precioNumerico = parseFloat(precio);
+  if (isNaN(precioNumerico) || precioNumerico < 0) {
+    errores.precio = 'El precio debe ser un número válido mayor o igual a 0.';
+  }
+
+  const cantidadNumerica = parseInt(cantidad);
+  if (isNaN(cantidadNumerica) || cantidadNumerica <= 0) {
+    errores.cantidad = 'La cantidad debe ser un número válido mayor que 0.';
+  }
+
+  if (!categoria || categoria === '' || categoria === 'Selecciona una categoría') {
+    errores.categoria = 'Debes seleccionar una categoría válida.';
+  }
+
+  if (images.length === 0) {
+    errores.imagenes = 'Debes seleccionar al menos una imagen.';
+  }
+
+  return errores;
+};
 
 useEffect(() => {
   fetchCategorias()
@@ -54,42 +90,73 @@ useEffect(() => {
 }, []);
 
 const handlePublicar = async () => {
-  if (!user) {
-    Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
-    router.push("/");
+
+    if (!user) {
+    router.push('/login');
     return;
   }
 
-  // Validaciones
-  if (titulo.trim().length < 3 || titulo.length > 100) {
-    Alert.alert('Error', 'El título debe tener entre 3 y 100 caracteres.');
-    return;
-  }
+  const errores = validarFormulario();
+  setErrors(errores);
 
-  if (descripcion.length > 500) {
-    Alert.alert('Error', 'La descripción no debe superar los 500 caracteres.');
-    return;
-  }
+  if (Object.keys(errores).length > 0) return;
 
-  const precioNumerico = parseFloat(precio);
-  if (isNaN(precioNumerico) || precioNumerico < 0) {
-    Alert.alert('Error', 'El precio debe ser un número válido mayor o igual a 0.');
-    return;
-  }
+  try {
+    // 1. Subir imágenes a Supabase
+    const urls = [];
 
-  const cantidadNumerica = parseInt(cantidad);
-  if (isNaN(cantidadNumerica) || cantidadNumerica <= 0) {
-    Alert.alert('Error', 'La cantidad debe ser un número válido mayor que 0.');
-    return;
-  }
+    for (const image of images) {
+      const binaryString = atob(image.base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
 
-  if (!categoria || categoria === "") {
-    Alert.alert('Error', 'Debes seleccionar una categoría válida.');
-    return;
-  }
+      const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.jpg`;
 
-  // Si pasa todas las validaciones, continúa con la creación
-  const resetForm = () => {
+      const { error } = await supabase.storage
+        .from('publicaciones')
+        .upload(filename, bytes, {
+          contentType: 'image/jpeg',
+        });
+
+      if (error) {
+        console.error('Error al subir imagen:', error);
+        Alert.alert('Error', 'No se pudo subir una imagen.');
+        return;
+      }
+
+      const publicUrl = supabase.storage
+        .from('publicaciones')
+        .getPublicUrl(filename).data.publicUrl;
+
+      urls.push(publicUrl);
+    }
+
+    // 2. Crear publicación en Mongo con links de las imágenes
+    const categoriaSeleccionada = categorias.find(c => c._id === categoria);
+
+    const nuevaPublicacion = {
+      titulo,
+      descripcion,
+      precio: parseFloat(precio),
+      cantidad: parseInt(cantidad),
+      estado,
+      lugarEntrega,
+      metodoPago,
+      categoria: categoriaSeleccionada?.nombre,
+      usuario: user._id,
+      fotos: urls, // Aquí se guarda la lista de URLs de las imágenes
+    };
+
+    const publicacionCreada = await crearPublicacion(nuevaPublicacion);
+    await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
+    await refrescarUsuario();
+
+    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
+
+    // 3. Resetear formulario
     setTitulo('');
     setDescripcion('');
     setPrecio('');
@@ -98,36 +165,22 @@ const handlePublicar = async () => {
     setLugarEntrega('');
     setMetodoPago('');
     setCategoria('');
-  };
+    setImages([]);
 
-  const categoriaSeleccionada = categorias.find(c => c._id === categoria);
-
-  const nuevaPublicacion = {
-    titulo,
-    descripcion,
-    precio: precioNumerico,
-    cantidad: cantidadNumerica.toString(),
-    estado,
-    lugarEntrega,
-    metodoPago,
-    categoria: categoriaSeleccionada?.nombre,
-    usuario: user._id,
-  };
-
-  try {
-    const publicacionCreada = await crearPublicacion(nuevaPublicacion);
-    await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
-    await refrescarUsuario();
-    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
-    resetForm();
     navigation.goBack();
+
   } catch (error) {
-    Alert.alert('Error', 'No se pudo crear la publicación.');
-    console.error(error);
+    console.error('Error al publicar:', error);
+    Alert.alert('Error', 'Ocurrió un error al publicar.');
   }
 };
 
-const pickImageAndUpload = async () => {
+const pickImageAndStore = async () => {
+  if (images.length >= 5) {
+    Alert.alert('Límite de imágenes', 'Solo puedes subir hasta 5 imágenes por publicación.');
+    return;
+  }
+
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsEditing: true,
@@ -138,7 +191,6 @@ const pickImageAndUpload = async () => {
   if (!result.canceled) {
     const file = result.assets[0];
     const uri = file.uri;
-    setImageUri(uri);
 
     try {
       const fileInfo = await FileSystem.getInfoAsync(uri);
@@ -150,34 +202,8 @@ const pickImageAndUpload = async () => {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      // Convertimos base64 a Uint8Array
-      const binaryString = atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-
-      // Generar nombre de archivo único
-      const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.jpg`;
-
-      const { data, error } = await supabase.storage
-        .from('publicaciones')
-        .upload(filename, bytes, {
-          contentType: 'image/jpeg',
-        });
-
-      if (error) {
-        console.error('Error al subir imagen:', error);
-        Alert.alert('Error', 'No se pudo subir la imagen');
-      } else {
-        const publicUrl = supabase.storage
-          .from('publicaciones')
-          .getPublicUrl(filename).data.publicUrl;
-
-        setImageUrl(publicUrl);
-        Alert.alert('Imagen subida', 'Se subió correctamente la imagen.');
-      }
+      const newImage = { uri, base64 };
+      setImages((prev) => [...prev, newImage]);
     } catch (err) {
       console.error('Error al preparar la imagen:', err);
       Alert.alert('Error', 'No se pudo preparar la imagen.');
@@ -185,23 +211,39 @@ const pickImageAndUpload = async () => {
   }
 };
 
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="#00318D" />
       </TouchableOpacity>
 
-      <Text style={styles.label}>Foto del producto</Text>
-      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndUpload}>
+      <Text style={styles.titulo}>Crear Publicación</Text>
+
+      <Text style={styles.label}>Fotos del producto</Text>
+      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndStore}>
         <Ionicons name="image-outline" size={20} color="#fff" />
         <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
       </TouchableOpacity>
 
-      {imageUri && (
-        <Image source={{ uri: imageUri }} style={{ width: '100%', height: 200, marginTop: 10, borderRadius: 10 }} />
+      {images.length > 0 && (
+        <ScrollView horizontal style={{ marginTop: 10 }} showsHorizontalScrollIndicator={false}>
+          {images.map((img, index) => (
+            <Image
+              key={index}
+              source={{ uri: img.uri }}
+              style={{
+                width: 150,
+                height: 150,
+                marginRight: 10,
+                borderRadius: 10,
+              }}
+            />
+          ))}
+        </ScrollView>
       )}
+      {errors.imagenes && <Text style={styles.errorText}>{errors.imagenes}</Text>}
 
-      <Text style={styles.titulo}>Crear Publicación</Text>
 
       <Text style={styles.label}>Título *</Text>
       <TextInput
@@ -211,6 +253,7 @@ const pickImageAndUpload = async () => {
         value={titulo}
         onChangeText={setTitulo}
       />
+      {errors.titulo && <Text style={styles.errorText}>{errors.titulo}</Text>}
 
       <Text style={styles.label}>Descripción</Text>
       <TextInput
@@ -221,6 +264,7 @@ const pickImageAndUpload = async () => {
         value={descripcion}
         onChangeText={setDescripcion}
       />
+      {errors.descripcion && <Text style={styles.errorText}>{errors.descripcion}</Text>}
 
       <Text style={styles.label}>Precio *</Text>
       <TextInput
@@ -229,6 +273,7 @@ const pickImageAndUpload = async () => {
         value={precio}
         onChangeText={setPrecio}
       />
+      {errors.precio && <Text style={styles.errorText}>{errors.precio}</Text>}
 
       <Text style={styles.label}>Cantidad *</Text>
       <TextInput
@@ -237,6 +282,7 @@ const pickImageAndUpload = async () => {
         value={cantidad}
         onChangeText={setCantidad}
       />
+      {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}
 
       <Text style={styles.label}>Estado</Text>
       <View style={styles.chipsContainer}>
@@ -251,7 +297,7 @@ const pickImageAndUpload = async () => {
             </Text>
           </TouchableOpacity>
         ))}
-      </View>
+      </View>   
 
       <Text style={styles.label}>Lugar de entrega</Text>
       <TextInput
@@ -282,6 +328,7 @@ const pickImageAndUpload = async () => {
         ))}
       </Picker>
     </View>
+    {errors.categoria && <Text style={styles.errorText}>{errors.categoria}</Text>}
 
       <TouchableOpacity style={styles.botonPublicar} onPress={handlePublicar}>
         <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
@@ -292,8 +339,6 @@ const pickImageAndUpload = async () => {
 };
 
 export default CreatePublication;
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -389,4 +434,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 8,
   },
+  errorText: {
+  color: 'red',
+  fontSize: 12,
+  marginTop: 4,
+},
+
 });

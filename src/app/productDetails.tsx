@@ -101,6 +101,17 @@ export default function ProductDetails() {
     setNuevaPregunta('');
   };
 
+  const Verificacion_Usuario = () => {
+    if (!user){
+       router.push("/login")
+      }else{
+          router.push({
+          pathname: "/comprar",
+          params: { productId: productId } // 🔄 Envías el mismo ID a la pantalla de compra
+        })
+      }
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -190,7 +201,7 @@ export default function ProductDetails() {
         <Text style={styles.sectionLabel}>Vendedor</Text>
         <Text style={styles.detailText}>{vendedor ? `${vendedor.nombre} - ${vendedor.telefono}` : 'Cargando...'}</Text>
 
-        <TouchableOpacity style={styles.buyButton} onPress={handleComprar}>
+        <TouchableOpacity style={styles.buyButton} onPress={Verificacion_Usuario} >
           <Text style={styles.buyButtonText}>Comprar</Text>
         </TouchableOpacity>
 
