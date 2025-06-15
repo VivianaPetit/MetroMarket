@@ -26,8 +26,8 @@ export interface Publicacion {
   titulo: string;
   precio: number;
   metodoPago: string,
-  fotos: string[];  
-  preguntas: string[];
+  fotos: [string];  
+  preguntas: [string];
 }
 
 export interface Resena {

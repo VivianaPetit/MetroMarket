@@ -19,9 +19,10 @@ import { crearPublicacion } from '../../services/publicacionService';
 import { agregarPublicacionAUsuario } from '../../services/usuarioService'; // <-- IMPORTA ESTO
 import { useAuth } from '../../context/userContext';
 import { useRouter } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
-
-
+import * as ImagePicker from 'expo-image-picker';
+import { supabase } from '../../../supabase'; // ajusta el path si es necesario
+import uuid from 'react-native-uuid'; // 
+import { Image } from 'react-native';
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 
@@ -38,6 +39,8 @@ const CreatePublication = () => {
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
 
 useEffect(() => {
@@ -46,10 +49,45 @@ useEffect(() => {
     .catch(console.error);
 }, []);
 
+const pickImageAndUpload = async () => {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [4, 3],
+    quality: 0.7,
+  });
+
+  if (!result.canceled) {
+    const file = result.assets[0];
+    setImageUri(file.uri);
+
+    const response = await fetch(file.uri);
+    const blob = await response.blob();
+    const filename = `${uuid.v4()}.jpg`;
+
+    const { data, error } = await supabase.storage
+      .from('publicaciones') // asegúrate de haber creado este bucket en Supabase
+      .upload(filename, blob, {
+        contentType: 'image/jpeg',
+      });
+
+    if (error) {
+      Alert.alert('Error', 'No se pudo subir la imagen');
+      console.error(error);
+    } else {
+      const publicUrl = supabase.storage
+        .from('publicaciones')
+        .getPublicUrl(filename).data.publicUrl;
+      setImageUrl(publicUrl);
+      Alert.alert('Imagen subida', 'Se subió correctamente la imagen.');
+    }
+  }
+};
+
+
 const handlePublicar = async () => {
   if (!user) {
     Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
-    router.push("./");
     return;
   }
 
@@ -81,6 +119,7 @@ const handlePublicar = async () => {
     estado,
     lugarEntrega,
     metodoPago,
+    fotos: [imageUrl ?? "https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg"] as [string],
     categoria: categoriaSeleccionada?.nombre,
     usuario: user._id,
   };
@@ -106,9 +145,19 @@ const handlePublicar = async () => {
   }
 };
 
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.label}>Foto del producto</Text>
+      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndUpload}>
+        <Ionicons name="image-outline" size={20} color="#fff" />
+        <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
+      </TouchableOpacity>
+
+  {imageUri && (
+    <Image source={{ uri: imageUri }} style={{ width: '100%', height: 200, marginTop: 10, borderRadius: 10 }} />
+  )}
+
+
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="#00318D" />
       </TouchableOpacity>
