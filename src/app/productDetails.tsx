@@ -190,7 +190,10 @@ export default function ProductDetails() {
           {vendedor ? `${vendedor.nombre} - ${vendedor.telefono}` : 'Cargando...'}
         </Text>
 
-        <TouchableOpacity style={styles.buyButton} onPress={() => router.push('/comprar')}>
+        <TouchableOpacity style={styles.buyButton} onPress={() => router.push({
+          pathname: "/comprar",
+          params: { productId: productId } // 🔄 Envías el mismo ID a la pantalla de compra
+        })} >
           <Text style={styles.buyButtonText}>Comprar</Text>
         </TouchableOpacity>
 
