@@ -191,6 +191,16 @@ const pickImageAndUpload = async () => {
         <Ionicons name="arrow-back" size={24} color="#00318D" />
       </TouchableOpacity>
 
+      <Text style={styles.label}>Foto del producto</Text>
+      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndUpload}>
+        <Ionicons name="image-outline" size={20} color="#fff" />
+        <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
+      </TouchableOpacity>
+
+  {imageUri && (
+    <Image source={{ uri: imageUri }} style={{ width: '100%', height: 200, marginTop: 10, borderRadius: 10 }} />
+  )}
+
       <Text style={styles.titulo}>Crear Publicación</Text>
 
       <Text style={styles.label}>Título *</Text>
