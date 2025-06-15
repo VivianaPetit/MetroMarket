@@ -26,7 +26,7 @@ export interface Publicacion {
   titulo: string;
   precio: number;
   metodoPago: string,
-  fotos: [string];  
+  fotos: string[];  
   preguntas: [string];
 }
 

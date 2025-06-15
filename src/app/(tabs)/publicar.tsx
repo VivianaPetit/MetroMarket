@@ -45,6 +45,8 @@ const CreatePublication = () => {
   const [categoria, setCategoria] = useState('');
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<{ uri: string; base64: string }[]>([]); // guarda [{ uri, base64 }]
+
 
 
 useEffect(() => {
@@ -88,8 +90,67 @@ const handlePublicar = async () => {
     return;
   }
 
-  // Si pasa todas las validaciones, continúa con la creación
-  const resetForm = () => {
+  if (images.length === 0) {
+    Alert.alert('Error', 'Debes seleccionar al menos una imagen.');
+    return;
+  }
+
+  try {
+    // 1. Subir imágenes a Supabase
+    const urls = [];
+
+    for (const image of images) {
+      const binaryString = atob(image.base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.jpg`;
+
+      const { error } = await supabase.storage
+        .from('publicaciones')
+        .upload(filename, bytes, {
+          contentType: 'image/jpeg',
+        });
+
+      if (error) {
+        console.error('Error al subir imagen:', error);
+        Alert.alert('Error', 'No se pudo subir una imagen.');
+        return;
+      }
+
+      const publicUrl = supabase.storage
+        .from('publicaciones')
+        .getPublicUrl(filename).data.publicUrl;
+
+      urls.push(publicUrl);
+    }
+
+    // 2. Crear publicación en Mongo con links de las imágenes
+    const categoriaSeleccionada = categorias.find(c => c._id === categoria);
+
+    const nuevaPublicacion = {
+      titulo,
+      descripcion,
+      precio: precioNumerico,
+      cantidad: cantidadNumerica.toString(),
+      estado,
+      lugarEntrega,
+      metodoPago,
+      categoria: categoriaSeleccionada?.nombre,
+      usuario: user._id,
+      fotos: urls, // Aquí se guarda la lista de URLs de las imágenes
+    };
+
+    const publicacionCreada = await crearPublicacion(nuevaPublicacion);
+    await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
+    await refrescarUsuario();
+
+    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
+
+    // 3. Resetear formulario
     setTitulo('');
     setDescripcion('');
     setPrecio('');
@@ -98,36 +159,22 @@ const handlePublicar = async () => {
     setLugarEntrega('');
     setMetodoPago('');
     setCategoria('');
-  };
+    setImages([]);
 
-  const categoriaSeleccionada = categorias.find(c => c._id === categoria);
-
-  const nuevaPublicacion = {
-    titulo,
-    descripcion,
-    precio: precioNumerico,
-    cantidad: cantidadNumerica.toString(),
-    estado,
-    lugarEntrega,
-    metodoPago,
-    categoria: categoriaSeleccionada?.nombre,
-    usuario: user._id,
-  };
-
-  try {
-    const publicacionCreada = await crearPublicacion(nuevaPublicacion);
-    await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
-    await refrescarUsuario();
-    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
-    resetForm();
     navigation.goBack();
+
   } catch (error) {
-    Alert.alert('Error', 'No se pudo crear la publicación.');
-    console.error(error);
+    console.error('Error al publicar:', error);
+    Alert.alert('Error', 'Ocurrió un error al publicar.');
   }
 };
 
-const pickImageAndUpload = async () => {
+const pickImageAndStore = async () => {
+  if (images.length >= 5) {
+    Alert.alert('Límite de imágenes', 'Solo puedes subir hasta 5 imágenes por publicación.');
+    return;
+  }
+
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsEditing: true,
@@ -138,7 +185,6 @@ const pickImageAndUpload = async () => {
   if (!result.canceled) {
     const file = result.assets[0];
     const uri = file.uri;
-    setImageUri(uri);
 
     try {
       const fileInfo = await FileSystem.getInfoAsync(uri);
@@ -150,34 +196,8 @@ const pickImageAndUpload = async () => {
         encoding: FileSystem.EncodingType.Base64,
       });
 
-      // Convertimos base64 a Uint8Array
-      const binaryString = atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-
-      // Generar nombre de archivo único
-      const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 10)}.jpg`;
-
-      const { data, error } = await supabase.storage
-        .from('publicaciones')
-        .upload(filename, bytes, {
-          contentType: 'image/jpeg',
-        });
-
-      if (error) {
-        console.error('Error al subir imagen:', error);
-        Alert.alert('Error', 'No se pudo subir la imagen');
-      } else {
-        const publicUrl = supabase.storage
-          .from('publicaciones')
-          .getPublicUrl(filename).data.publicUrl;
-
-        setImageUrl(publicUrl);
-        Alert.alert('Imagen subida', 'Se subió correctamente la imagen.');
-      }
+      const newImage = { uri, base64 };
+      setImages((prev) => [...prev, newImage]);
     } catch (err) {
       console.error('Error al preparar la imagen:', err);
       Alert.alert('Error', 'No se pudo preparar la imagen.');
@@ -185,23 +205,38 @@ const pickImageAndUpload = async () => {
   }
 };
 
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="#00318D" />
       </TouchableOpacity>
 
-      <Text style={styles.label}>Foto del producto</Text>
-      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndUpload}>
+      <Text style={styles.titulo}>Crear Publicación</Text>
+
+      <Text style={styles.label}>Fotos del producto</Text>
+      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndStore}>
         <Ionicons name="image-outline" size={20} color="#fff" />
         <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
       </TouchableOpacity>
 
-      {imageUri && (
-        <Image source={{ uri: imageUri }} style={{ width: '100%', height: 200, marginTop: 10, borderRadius: 10 }} />
+      {images.length > 0 && (
+        <ScrollView horizontal style={{ marginTop: 10 }} showsHorizontalScrollIndicator={false}>
+          {images.map((img, index) => (
+            <Image
+              key={index}
+              source={{ uri: img.uri }}
+              style={{
+                width: 150,
+                height: 150,
+                marginRight: 10,
+                borderRadius: 10,
+              }}
+            />
+          ))}
+        </ScrollView>
       )}
 
-      <Text style={styles.titulo}>Crear Publicación</Text>
 
       <Text style={styles.label}>Título *</Text>
       <TextInput
@@ -292,8 +327,6 @@ const pickImageAndUpload = async () => {
 };
 
 export default CreatePublication;
-
-
 
 const styles = StyleSheet.create({
   container: {
