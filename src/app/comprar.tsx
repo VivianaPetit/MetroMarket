@@ -110,9 +110,9 @@ const textoVendedor = (vendedor?.nombre && vendedor?.telefono)
         <Text style={styles.sectionLabel}>Vendedor</Text>
         <Text style={styles.detailText}>{textoVendedor}</Text>
         <TouchableOpacity 
-          style={[styles.buyButton, parseInt(publicacion.cantidad) <= 0 ? styles.buyButtonDisabled : null]}
+          style={[styles.buyButton, publicacion.cantidad <= 0 ? styles.buyButtonDisabled : null]}
           onPress={() => {
-            if ((publicacion && vendedor) && typeof productId === 'string' && parseInt(publicacion.cantidad) > 0) { // <-- Verificación adicional
+            if ((publicacion && vendedor) && typeof productId === 'string' && publicacion.cantidad > 0) { // <-- Verificación adicional
               router.push({
                 pathname: '/Review_PostShoping',
                 params: {
@@ -126,7 +126,7 @@ const textoVendedor = (vendedor?.nombre && vendedor?.telefono)
               });
             }
           }}
-          disabled={parseInt(publicacion.cantidad) <= 0}
+          disabled={publicacion.cantidad <= 0}
         >
           <Text style={styles.buyButtonText}>
             {(parseInt(publicacion.cantidad ?? '0') > 0) ? 'Confirmar compra' : 'Agotado'}
