@@ -2,6 +2,7 @@ import axios from "axios";
 import { Usuario } from '../interfaces/types';
 import { API_BASE_URL } from '../../config';
 
+
 const usuariosURL = `${API_BASE_URL}/usuarios`;
 
 export const fetchUsuarios = async (): Promise<Usuario[]> => {
@@ -10,6 +11,21 @@ export const fetchUsuarios = async (): Promise<Usuario[]> => {
     return response.data;
   } catch (error) {
     console.error('Error fetching usuarios:', error);
+    throw error;
+  }
+};
+
+export const agregarTransaccionAUsuario = async (
+  userId: string,
+  transaccionId: string
+): Promise<Usuario> => {
+  try {
+    const response = await axios.patch(`${usuariosURL}/${userId}/transacciones`, {
+      transaccionId
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error agregando transacción al usuario:', error);
     throw error;
   }
 };

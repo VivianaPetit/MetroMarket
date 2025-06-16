@@ -82,6 +82,37 @@ router.patch('/:userId/publicaciones', async (req, res) => {
   }
 });
 
+router.patch('/:userId/transacciones', async (req, res) => {
+  const { userId } = req.params;
+  const { transaccionId } = req.body;
+
+  try {
+    const usuario = await Usuario.findById(userId);
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Inicializar el array si no existe
+    if (!usuario.transacciones) {
+      usuario.transacciones = [];
+    }
+
+    // Verificar si la transacción ya existe para evitar duplicados
+    if (!usuario.transacciones.includes(transaccionId)) {
+      usuario.transacciones.push(transaccionId);
+      await usuario.save();
+    }
+
+    res.status(200).json(usuario);
+  } catch (error) {
+    console.error('Error al agregar transacción al usuario:', error);
+    res.status(500).json({ 
+      error: 'Error al agregar la transacción al usuario.',
+      details: error.message 
+    });
+  }
+});
+
 // Agregar una publicación a un usuario en favoritos
 router.patch('/:userId/favoritos', async (req, res) => {
   const { userId } = req.params;

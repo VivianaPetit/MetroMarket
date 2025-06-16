@@ -1,10 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View,ScrollView } from 'react-native';
 import ProfileCard from '../components/ProfileCard';
-import { useAuth } from '../context/userContext'; // Asegúrate de que la ruta sea correcta
+import { useAuth } from '../context/userContext'; 
 import { editarUsuario } from '../services/usuarioService';
 import React, { useState } from 'react';
+import CommentCard from '../components/CommentCard';
+
+
 
 
 export default function Perfil() {
@@ -15,6 +18,19 @@ export default function Perfil() {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(user?.nombre ?? '');
   const [telefono, setTelefono] = useState(user?.telefono ?? '');
+
+  const [showReviews, setShowReviews] = useState(false);
+  // Ejemplo de datos para las resenas, sacar esto del backend
+ const comentarios = [
+    { UserName: "Juan", commentText: "Excelente servicio!rxdcfvgbhnjmnhibgvfyrdcsxasedrtfvgyubhnjmkjhugfvcdtxszasxdcfyvgubhhjnn" },
+    { UserName: "María", commentText: "zasrtdfyvgubihnjgvfycdxrsezxdtcf" },
+    { UserName: "Juan", commentText: "Excelente servicio!" },
+    { UserName: "María", commentText: "Muy buena atención" },
+    { UserName: "Juan", commentText: "Excelente servicio!" },
+    
+    
+    
+  ];
 
   const handleLogout = () => {
     logout?.(); 
@@ -66,7 +82,38 @@ export default function Perfil() {
           </View>
         </TouchableOpacity>
       )}
+      
+    {!modoEdicion && (
+        <TouchableOpacity style={styles.resena} onPress={() => setShowReviews(prevState =>  !prevState)}>
+          <Ionicons name="chatbubbles" color="black" size={24} />
+          <View >
+            <Text style={{ color: 'black', fontSize: 16,marginRight:15 }}>Reseñas</Text>
+          </View>
+        </TouchableOpacity>
+        
+      )}
 
+      {showReviews && (
+            <View style={styles.commentsContainer}>
+              <ScrollView 
+                style={{ maxHeight: 300 }} 
+                nestedScrollEnabled={true} 
+              >
+                {comentarios.map((comentario, index) => (
+                  
+                  <CommentCard
+                    key={index}
+                    UserName={comentario.UserName}
+                    commentText={comentario.commentText}
+                  />
+                  
+                ))}
+              </ScrollView>
+            </View>
+          )}
+        
+
+      
       {!modoEdicion && (
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out" color="gray" size={24} />
@@ -80,6 +127,40 @@ export default function Perfil() {
 }
 
 const styles = StyleSheet.create({
+
+  CommentBox:{
+    flexDirection:'row',
+    alignSelf:'center',
+    alignContent:'flex-start',
+    padding:5,
+    marginLeft:30,
+  },
+  comment:{marginTop:7,marginRight:5,width:'90%',backgroundColor:'#F6F6F6',padding:3,borderRadius:5},
+  
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  commentsContainer: {
+    flex: 1,
+    paddingHorizontal: 15,
+    
+   
+  },
+   closeButton: {
+    padding: 5,
+  },
+  resena: {
+    
+    padding: 12,
+    backgroundColor: '#F68628',
+    flexDirection: 'row',
+    gap: 7,
+    alignItems: 'center',
+    justifyContent:'center',
+    marginBottom: 5,
+    
+  },
   container: {
     padding: 40,
     backgroundColor: '#fff',

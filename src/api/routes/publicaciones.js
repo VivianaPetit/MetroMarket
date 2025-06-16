@@ -8,6 +8,21 @@ router.get('/', async (req, res) => {
   res.json(publicaciones);
 });
 
+router.get('/:id', async (req, res) => {
+  try {
+    const publicacion = await Publicacion.findById(req.params.id);
+    
+    if (!publicacion) {
+      return res.status(404).json({ mensaje: 'Publicación no encontrada' });
+    }
+
+    res.json(publicacion);
+  } catch (error) {
+    console.error(`Error obteniendo publicación con id ${req.params.id}:`, error);
+    res.status(500).json({ mensaje: 'Error del servidor al obtener la publicación' });
+  }
+});
+
 router.post('/', async (req, res) => {
   const nuevaPublicacion = new Publicacion(req.body);
   await nuevaPublicacion.save();

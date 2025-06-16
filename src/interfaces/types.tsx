@@ -12,6 +12,7 @@ export interface Usuario {
   contrasena: string;
   publicaciones: string[];  
   favoritos: string[];
+  transacciones: string[];
 }
 
 export interface Publicacion {
@@ -36,4 +37,17 @@ export interface Resena {
   comentario: string;
   fecha: Date;
   calificacion: number; 
+}
+
+export interface Transaccion {
+  _id: string,
+  comprador: string;
+  vendedor: string;
+  publicacion: string;
+  fecha: Date;
+  monto: number; 
+  estado: string;
+  metodoPago: string;
+  entregado: boolean[];
+
 }
