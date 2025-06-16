@@ -88,6 +88,21 @@ export default function Home() {
               returnKeyType="search"
             />
       </View>
+      /...............................................................
+
+<TouchableOpacity
+    style={{alignSelf:'center',marginTop:30,borderColor:'black'}}
+    activeOpacity={0.7}
+    onPress={() => {
+        if (!user) {                  
+            
+            router.push('../Perfil');
+        } 
+    }}
+>
+    <View><Text>perfil</Text></View>
+</TouchableOpacity>
+/..............................................................................
 
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesWrapper}>
