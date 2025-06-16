@@ -10,6 +10,8 @@ const transaccionSchema = new mongoose.Schema({
   metodoPago: String,
   resenaComprador: { type: mongoose.Schema.Types.ObjectId, ref: 'Resena' }, 
   resenaVendedor: { type: mongoose.Schema.Types.ObjectId, ref: 'Resena' },
+  entregado: { type: [Boolean], default: [false, false] },
+
 });
 
 module.exports = mongoose.model('Transaccion', transaccionSchema);
