@@ -62,7 +62,7 @@ export default function Home() {
             <Text style={styles.headerTitle}>
             <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Mis Favoritos</Text>
             </Text>
-            <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/perfil')}>
+            <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/Perfil')}>
             <Ionicons name="person-outline" size={24} color="#00318D" />
             </TouchableOpacity>
         </SafeAreaView>
