@@ -65,12 +65,12 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.header}>
-        <TouchableOpacity 
+        {/* <TouchableOpacity 
             onPress={() => router.push('/menu')}
             style={styles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color="#00318D" />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         <Text style={styles.headerTitle}>
           <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Mis Publicaciones</Text>
         </Text>
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     paddingHorizontal: 16,
     backgroundColor: '#fff',
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
   headerIcon: {
     paddingLeft: 10,
     paddingBottom: 20,
+    marginLeft: 55,
   },
   headerTitle: {
     fontSize: 20,

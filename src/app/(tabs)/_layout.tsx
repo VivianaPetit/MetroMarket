@@ -83,7 +83,7 @@ export default function Layout() {
     {!isOnPublicarScreen && (
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => router.push('/publicar')}
+          onPress={() => router.push('/formularioPublicar')}
         >
           <Ionicons name="add" size={30} color="white" />
         </TouchableOpacity>
