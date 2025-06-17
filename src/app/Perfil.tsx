@@ -1,35 +1,27 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View,ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import ProfileCard from '../components/ProfileCard';
 import { useAuth } from '../context/userContext'; 
 import { editarUsuario } from '../services/usuarioService';
 import React, { useState } from 'react';
 import CommentCard from '../components/CommentCard';
 
-
-
-
 export default function Perfil() {
-
   const router = useRouter();
   const { user, logout, setUser } = useAuth();
-
+  const [mensaje, setMensaje] = useState('');
+  const [colorMensaje, setColorMensaje] = useState('green');
   const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(user?.nombre ?? '');
   const [telefono, setTelefono] = useState(user?.telefono ?? '');
-
   const [showReviews, setShowReviews] = useState(false);
-  // Ejemplo de datos para las resenas, sacar esto del backend
+
+ // Ejemplo de datos para las resenas, sacar esto del backend
  const comentarios = [
-    { UserName: "Juan", commentText: "Excelente servicio!rxdcfvgbhnjmnhibgvfyrdcsxasedrtfvgyubhnjmkjhugfvcdtxszasxdcfyvgubhhjnn" },
+    { UserName: "Juan", commentText: "Excelente servicio!" },
     { UserName: "María", commentText: "zasrtdfyvgubihnjgvfycdxrsezxdtcf" },
     { UserName: "Juan", commentText: "Excelente servicio!" },
-    { UserName: "María", commentText: "Muy buena atención" },
-    { UserName: "Juan", commentText: "Excelente servicio!" },
-    
-    
-    
   ];
 
   const handleLogout = () => {
@@ -37,199 +29,151 @@ export default function Perfil() {
     router.push('./');
   };
 
-  const handleGuardar = async () => {
-    if(!user){
-      return
-    }
-    try {
-      const usuarioActualizado = await editarUsuario(user._id, { nombre, telefono });
-      setUser(usuarioActualizado); // Actualizar en el contexto
-      setModoEdicion(false);
-    } catch (error) {
-      alert('Hubo un error actualizando el perfil');
-    }
-  };
-  
-  return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={styles.containerAcc}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push("./")}>
-            <Ionicons name="arrow-back" size={28} color="white" />
-          </TouchableOpacity>
-          <View style={{ width: 30 }} />
-          <Text style={styles.title}>Mi Perfil</Text>
-          <TouchableOpacity onPress={() => setModoEdicion(!modoEdicion)}>
-            <Ionicons name={modoEdicion ? "close" : "create"} color="white" size={30} />
-          </TouchableOpacity>
-        </View>
+const handleGuardar = async () => {
+  if (!user) return;
+  try {
+    const usuarioActualizado = await editarUsuario(user._id, { nombre, telefono });
+    setUser(usuarioActualizado);
+    setModoEdicion(false);
+    setMensaje('Perfil actualizado exitosamente');
+    setColorMensaje('green');
+  } catch (error) {
+    setMensaje('Error al actualizar el perfil');
+    setColorMensaje('red');
+  }
 
-        <ProfileCard
-          UserName={user?.correo ?? 'Usuario'}
-          nombreyA={modoEdicion ? nombre : user?.nombre ?? 'Nombre'}
-          tlf={modoEdicion ? telefono : user?.telefono ?? ''}
-          editable={modoEdicion}
-          onNombreChange={setNombre}
-          onTelefonoChange={setTelefono}
-        />
+  // Ocultar mensaje después de 3 segundos
+  setTimeout(() => setMensaje(''), 3000);
+};
+
+
+  return (
+    <ScrollView style={styles.wrapper}>
+      <View style={styles.headerContainer}>
+        <TouchableOpacity onPress={() => router.push("./")}>
+          <Ionicons name="arrow-back" size={24} color="#00318D" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Mi Perfil</Text>
+        <TouchableOpacity onPress={() => setModoEdicion(!modoEdicion)}>
+          <Ionicons name={modoEdicion ? "close" : "create"} color="#00318D" size={24} />
+        </TouchableOpacity>
       </View>
 
+
+      <ProfileCard
+        UserName={user?.correo ?? 'Usuario'}
+        nombreyA={modoEdicion ? nombre : user?.nombre ?? 'Nombre'}
+        tlf={modoEdicion ? telefono : user?.telefono ?? ''}
+        editable={modoEdicion}
+        onNombreChange={setNombre}
+        onTelefonoChange={setTelefono}
+      />
+      {mensaje !== '' && (
+        <View style={{ padding: 10, borderRadius: 8, marginTop: 8, marginHorizontal: 20 }}>
+          <Text style={{ color: colorMensaje, textAlign: 'center' }}>{mensaje}</Text>
+        </View>
+      )}
+
       {modoEdicion && (
-        <TouchableOpacity style={styles.logoutButton} onPress={handleGuardar}>
-          <Ionicons name="save" color="green" size={24} />
-          <View style={{ marginLeft: 10 }}>
-            <Text style={{ color: 'green', fontSize: 16 }}>Guardar Cambios</Text>
-          </View>
+        <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleGuardar}>
+          <Ionicons name="save" color="white" size={20} />
+          <Text style={styles.buttonText}>Guardar Cambios</Text>
         </TouchableOpacity>
       )}
-      
-    {!modoEdicion && (
-        <TouchableOpacity style={styles.resena} onPress={() => setShowReviews(prevState =>  !prevState)}>
-          <Ionicons name="chatbubbles" color="black" size={24} />
-          <View >
-            <Text style={{ color: 'black', fontSize: 16,marginRight:15 }}>Reseñas</Text>
-          </View>
-        </TouchableOpacity>
-        
-      )}
 
-      {showReviews && (
-            <View style={styles.commentsContainer}>
-              <ScrollView 
-                style={{ maxHeight: 300 }} 
-                nestedScrollEnabled={true} 
-              >
-                {comentarios.map((comentario, index) => (
-                  
-                  <CommentCard
-                    key={index}
-                    UserName={comentario.UserName}
-                    commentText={comentario.commentText}
-                  />
-                  
-                ))}
-              </ScrollView>
-            </View>
-          )}
-        
-
-      
       {!modoEdicion && (
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out" color="gray" size={24} />
-          <View style={{ marginLeft: 10 }}>
-            <Text style={{ color: 'gray', fontSize: 16 }}>Cerrar Sesión</Text>
-          </View>
+        <TouchableOpacity style={styles.button} onPress={() => setShowReviews(prev => !prev)}>
+          <Ionicons name="chatbubbles-outline" color="#F68628" size={20} />
+          <Text style={styles.buttonTextAlt}>Ver las reseñas de este usuario</Text>
         </TouchableOpacity>
       )}
-    </View>
+
+      {!modoEdicion && showReviews && (
+        <View style={styles.commentsContainer}>
+          {comentarios.map((comentario, index) => (
+            <CommentCard
+              key={index}
+              UserName={comentario.UserName}
+              commentText={comentario.commentText}
+            />
+          ))}
+        </View>
+      )}
+
+      {!modoEdicion && (
+        <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+          <Ionicons name="log-out" color="#F68628" size={20} />
+          <Text style={styles.logoutText}>Cerrar Sesión</Text>
+        </TouchableOpacity>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-
-  CommentBox:{
-    flexDirection:'row',
-    alignSelf:'center',
-    alignContent:'flex-start',
-    padding:5,
-    marginLeft:30,
-  },
-  comment:{marginTop:7,marginRight:5,width:'90%',backgroundColor:'#F6F6F6',padding:3,borderRadius:5},
-  
-  modalContainer: {
+  wrapper: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: '#FAFAFA',
+    padding: 15,
   },
-  commentsContainer: {
-    flex: 1,
-    paddingHorizontal: 15,
-    
-   
-  },
-   closeButton: {
-    padding: 5,
-  },
-  resena: {
-    
-    padding: 12,
-    backgroundColor: '#F68628',
+  headerContainer: {
     flexDirection: 'row',
-    gap: 7,
     alignItems: 'center',
-    justifyContent:'center',
-    marginBottom: 5,
-    
-  },
-  container: {
-    padding: 40,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  containerAcc: {
-    backgroundColor: '#00318D',
-    padding: 10,
-    paddingTop: 25,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  header: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '90%',
-    marginBottom: 10
+    marginBottom: 20,
+    paddingVertical: 5,
   },
-  title: {
-    fontSize: 24,
+  headerTitle: {
+    fontSize: 22,
     fontWeight: 'bold',
-    color: 'white',
-    marginRight: 62
+    color: '#00318D',
   },
-  subtitle: {
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    padding: 12,
+    borderRadius: 10,
+    marginVertical: 10,
+    justifyContent: 'center',
+    elevation: 1,
+    shadowColor: '#ccc',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 1, height: 1 },
+  },
+  saveButton: {
+    backgroundColor: '#28A745',
+  },
+  buttonText: {
+    color: 'white',
     fontSize: 16,
-    fontWeight: '300',
-    color: 'white'
+    marginLeft: 10,
+  },
+  buttonTextAlt: {
+    color: '#F68628',
+    fontSize: 16,
+    marginLeft: 10,
+    fontWeight: 'bold',
   },
   logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F6F6F6',
-    padding: 12,
-    margin: 20,
-    borderRadius: 10
+    borderWidth: 1,
+    borderColor: '#DDD',
+    backgroundColor: '#FFF',
   },
-  circleContainer: {
-    margin: 10,
-    width: 150,
-    height: 150,
-    borderRadius: 80,
-    borderWidth: 3,
-    borderColor: 'white',
-    overflow: 'hidden'
+  logoutText: {
+    color: '#F68628',
+    fontSize: 16,
+    marginLeft: 10,
+    fontWeight: 'bold',
   },
-  circleImage: {
-    width: '100%',
-    height: '100%'
-  },
-  DatosContainer: {
-    alignSelf: 'flex-start',
-    borderRadius: 15,
-    padding: 12,
-    backgroundColor: '#00256B',
-    flexDirection: 'row',
-    gap: 7,
-    alignItems: 'center',
-    marginBottom: 5
-  },
-    backButton: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    zIndex: 10,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 5
+  commentsContainer: {
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 10,
+    elevation: 1,
+    shadowColor: '#ccc',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 1, height: 1 },
+    marginBottom: 20,
   },
 });

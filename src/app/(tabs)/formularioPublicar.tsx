@@ -3,7 +3,7 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import {ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../context/userContext'; 
+import { useAuth } from '../../context/userContext'; 
 
 
 export default function Formulario(){
