@@ -2,15 +2,7 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const ProfileCard = ({
-  UserName = "Usuario",
-  nombreyA = "Nombre Apellido",
-  tlf = "0000000000",
-  imagen = require('../../assets/images/user.png'),
-  editable = false,
-  onNombreChange = () => {},
-  onTelefonoChange = () => {},
-}: {
+type ProfileCardProps = {
   UserName?: string;
   nombreyA?: string;
   tlf?: string;
@@ -18,42 +10,54 @@ const ProfileCard = ({
   editable?: boolean;
   onNombreChange?: (text: string) => void;
   onTelefonoChange?: (text: string) => void;
-}) => {
+};
+
+const ProfileCard = ({
+  UserName = "Usuario",
+  nombreyA = "Nombre Apellido",
+  tlf = "0000000000",
+  imagen,
+  editable = false,
+  onNombreChange,
+  onTelefonoChange,
+}: ProfileCardProps) => {
   return (
-    <View style={{ alignItems: 'center', marginTop: 5, justifyContent: 'center' }}>
-      <View style={styles.circleContainer}>
-        <Image source={imagen} style={styles.circleImage} />
+    <View style={styles.container}>
+      <View style={styles.imageContainer}>
+        <Image source={imagen} style={styles.image} />
       </View>
 
-      <View style={[styles.containerAcc, { paddingTop: 15 }]}>
-        <Text style={[styles.subtitle, { textAlign: 'center' }]}>{UserName}</Text>
-      </View>
+      <Text style={styles.email}>{UserName}</Text>
 
-      <View style={styles.containerAcc}>
-        <View style={[styles.DatosContainer, { justifyContent: 'center' }]}>
-          <Ionicons name='person' size={25} />
+      <View style={styles.infoCard}>
+        <View style={styles.infoRow}>
+          <Ionicons name='person-outline' size={24} color="#F68628" style={styles.icon} />
           {editable ? (
             <TextInput
-              style={[styles.input, { textAlign: 'center' }]}
+              style={styles.input}
               value={nombreyA}
               onChangeText={onNombreChange}
+              placeholder="Nombre completo"
+              placeholderTextColor="#888"
             />
           ) : (
-            <Text style={[styles.subtitle, { textAlign: 'center', flex: 1 }]}>{nombreyA}</Text>
+            <Text style={styles.infoText}>{nombreyA}</Text>
           )}
         </View>
 
-        <View style={[styles.DatosContainer, { justifyContent: 'center' }]}>
-          <Ionicons name='call' size={25} />
+        <View style={styles.infoRow}>
+          <Ionicons name='call-outline' size={24} color="#F68628" style={styles.icon} />
           {editable ? (
             <TextInput
-              style={[styles.input, { textAlign: 'center' }]}
+              style={styles.input}
               value={tlf}
               onChangeText={onTelefonoChange}
               keyboardType="phone-pad"
+              placeholder="Teléfono"
+              placeholderTextColor="#888"
             />
           ) : (
-            <Text style={[styles.subtitle, { textAlign: 'center', flex: 1 }]}>{tlf}</Text>
+            <Text style={styles.infoText}>{tlf}</Text>
           )}
         </View>
       </View>
@@ -64,47 +68,58 @@ const ProfileCard = ({
 export default ProfileCard;
 
 const styles = StyleSheet.create({
-  containerAcc: {
-    backgroundColor: '#00318D',
-    padding: 10,
-    paddingTop: 25,
+  container: {
     alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
+    marginVertical: 20,
   },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '300',
-    color: 'white',
-  },
-  circleContainer: {
-    margin: 10,
-    width: 150,
-    height: 150,
-    borderRadius: 80,
-    borderWidth: 3,
-    borderColor: 'white',
+  imageContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#F68628',
+    marginBottom: 10,
   },
-  circleImage: {
+  image: {
     width: '100%',
     height: '100%',
   },
-  DatosContainer: {
-    borderRadius: 15,
-    padding: 12,
-    backgroundColor: '#00256B',
+  email: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 20,
+  },
+  infoCard: {
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    elevation: 4, // Android sombra
+    shadowColor: '#000', // iOS sombra
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+  },
+  infoRow: {
     flexDirection: 'row',
-    gap: 7,
     alignItems: 'center',
-    marginBottom: 5,
-    width: '100%',
+    marginBottom: 15,
+  },
+  icon: {
+    marginRight: 10,
+  },
+  infoText: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
   },
   input: {
-    flex: 1,
-    color: 'white',
+    fontSize: 16,
+    color: '#333',
     borderBottomWidth: 1,
-    borderBottomColor: 'white',
-    paddingVertical: 5,
+    borderBottomColor: '#ccc',
+    flex: 1,
+    paddingVertical: 2,
   },
 });

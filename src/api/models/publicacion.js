@@ -46,6 +46,31 @@ const publicacionSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+
+  modalidad:{
+    type: String
+  },
+
+  horario: {
+    type: {
+      lunes: [String], // Array de horarios para lunes
+      martes: [String],
+      miercoles: [String],
+      jueves: [String],
+      viernes: [String],
+      sabado: [String],
+      domingo: [String]
+    },
+    default: {
+      lunes: [],
+      martes: [],
+      miercoles: [],
+      jueves: [],
+      viernes: [],
+      sabado: [],
+      domingo: []
+    }
+  }
 });
 
 module.exports = mongoose.model('publicacion', publicacionSchema);

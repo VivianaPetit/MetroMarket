@@ -1,15 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-  Platform,
-  Image, // <-- Agrega Image aquí
+import React, { useEffect, useState, } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, Image// <-- Agrega Image aquí
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -23,9 +14,17 @@ import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '../../../supabase';
+import { useLocalSearchParams } from 'expo-router';
 
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
+const modalidades = ['Presencial', 'Asincrono', 'Híbrido'];
+const metodoPagos = ['Efectivo', 'PagoMovil', 'Transferencia bancaria', 'Zelle', 'Paypal'];
+//--------------------------------------------------------------------------------------------------------
+//necesario para la seleccion de horario
+const semanas = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+
+//--------------------------------------------------------------------------------------------------------------
 
 const CreatePublication = () => {
   const navigation = useNavigation();
@@ -34,12 +33,29 @@ const CreatePublication = () => {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
+  const [tipo, setTipo] = useState('');
   const [precio, setPrecio] = useState('');
   const [cantidad, setCantidad] = useState('');
   const [estado, setEstado] = useState('');
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [modalidad, setModalidad] = useState('');
+
+  const HORARIO_INICIAL = {
+    lunes: ['false'],
+    martes: ['false'],
+    miercoles: ['false'],
+    jueves: ['false'],
+    viernes: ['false'],
+    sabado: ['false'],
+    domingo: ['false']
+  };
+
+  
+  const [horario, setHorario] = useState<Record<string, string[]>>(HORARIO_INICIAL);
+  const [diasSeleccionados, setDiasSeleccionados] = useState<string[]>([]);
+
   const [images, setImages] = useState<{ uri: string; base64: string }[]>([]); // guarda [{ uri, base64 }]
   interface FormErrors {
   titulo?: string;
@@ -47,6 +63,7 @@ const CreatePublication = () => {
   precio?: string;
   cantidad?: string;
   categoria?: string;
+  metodoPago?: string;
   imagenes?: string;
 }
 const [errors, setErrors] = useState<FormErrors>({});
@@ -74,6 +91,10 @@ const validarFormulario = (): FormErrors => {
 
   if (!categoria || categoria === '' || categoria === 'Selecciona una categoría') {
     errores.categoria = 'Debes seleccionar una categoría válida.';
+  }
+
+  if (!metodoPago || metodoPago === '' || metodoPago === 'Selecciona un método de pago') {
+    errores.metodoPago = 'Debes seleccionar un método de pago válido.';
   }
 
   if (images.length === 0) {
@@ -145,6 +166,9 @@ const handlePublicar = async () => {
       estado,
       lugarEntrega,
       metodoPago,
+      tipo: tipoPublicacion,
+      modalidad,
+      horario,
       categoria: categoriaSeleccionada?.nombre,
       usuario: user._id,
       fotos: urls, // Aquí se guarda la lista de URLs de las imágenes
@@ -162,10 +186,12 @@ const handlePublicar = async () => {
     setPrecio('');
     setCantidad('');
     setEstado('');
+    setModalidad('');
     setLugarEntrega('');
     setMetodoPago('');
     setCategoria('');
     setImages([]);
+    setHorario(HORARIO_INICIAL);
 
     navigation.goBack();
 
@@ -211,16 +237,22 @@ const pickImageAndStore = async () => {
   }
 };
 
-
+  const params = useLocalSearchParams();
+  const tipoPublicacion = params.tipoPublicacion; // 'producto' o 'servicio'
+  
   return (
+
     <ScrollView contentContainerStyle={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+      {/* parte para salir del formulario */}
+      <TouchableOpacity onPress={() => router.push('/formularioPublicar')} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="#00318D" />
       </TouchableOpacity>
-
+      {/* titulo de la pagina */}
       <Text style={styles.titulo}>Crear Publicación</Text>
-
-      <Text style={styles.label}>Fotos del producto</Text>
+      {/* para cargar imagenes */}
+      <Text style={styles.label}>
+        {tipoPublicacion === 'producto' ? 'Fotos del producto' : 'Fotos del servicio'}
+      </Text>
       <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndStore}>
         <Ionicons name="image-outline" size={20} color="#fff" />
         <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
@@ -244,17 +276,31 @@ const pickImageAndStore = async () => {
       )}
       {errors.imagenes && <Text style={styles.errorText}>{errors.imagenes}</Text>}
 
-
+      {/* titulo */}
       <Text style={styles.label}>Título *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ej. Bicicleta montañera"
-        placeholderTextColor="#888"
-        value={titulo}
-        onChangeText={setTitulo}
-      />
-      {errors.titulo && <Text style={styles.errorText}>{errors.titulo}</Text>}
+        {tipoPublicacion == 'producto' ? (
+          // formulario de titulo para producto
+          <TextInput 
+            style={styles.input}
+            placeholder="Ej. Bicicleta montañera"
+            placeholderTextColor="#888"
+            value={titulo}
+            onChangeText={setTitulo}
+          />
+        ) : (
+          // formulario de titulo para servicio
+          <TextInput 
+            style={styles.input}
+            placeholder="Ej. Clases de Python"
+            placeholderTextColor="#888"
+            value={titulo}
+            onChangeText={setTitulo}
+          />
+        )}
 
+      {errors.titulo && <Text style={styles.errorText}>{errors.titulo}</Text>}
+      
+      {/* descripcion */}
       <Text style={styles.label}>Descripción</Text>
       <TextInput
         style={[styles.input, { height: 80 }]}
@@ -266,7 +312,10 @@ const pickImageAndStore = async () => {
       />
       {errors.descripcion && <Text style={styles.errorText}>{errors.descripcion}</Text>}
 
-      <Text style={styles.label}>Precio *</Text>
+      {/* Precio */}
+      <Text style={styles.label}>
+        {tipoPublicacion === 'producto' ? 'Precio *' : 'Precio por hora *'}
+      </Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
@@ -275,44 +324,125 @@ const pickImageAndStore = async () => {
       />
       {errors.precio && <Text style={styles.errorText}>{errors.precio}</Text>}
 
-      <Text style={styles.label}>Cantidad *</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        value={cantidad}
-        onChangeText={setCantidad}
-      />
+      {/* Cantidad*/}
+      <Text style={styles.label}>
+        {tipoPublicacion === 'producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
+      </Text>
+        <TextInput
+          style={styles.input}
+          keyboardType="numeric"
+          value={cantidad}
+          onChangeText={setCantidad}
+        />
       {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}
 
-      <Text style={styles.label}>Estado</Text>
-      <View style={styles.chipsContainer}>
-        {estados.map((op) => (
-          <TouchableOpacity
-            key={op}
-            style={[styles.chip, estado === op && styles.chipSelected]}
-            onPress={() => setEstado(op)}
-          >
-            <Text style={[styles.chipText, estado === op && styles.chipTextSelected]}>
-              {op}
-            </Text>
-          </TouchableOpacity>
+      {/* Estado del producto (no aplica para servicios) || Modalidad del servicio (no aplica para producto) */}
+      <Text style={styles.label}>
+        {tipoPublicacion === 'producto' ? 'Estado' : 'Medio del Servicio'}
+      </Text>
+      {tipoPublicacion == 'producto' ? (
+          // formulario de Estado para producto
+          <View style={styles.chipsContainer}>
+            {estados.map((op) => (
+              <TouchableOpacity
+                key={op}
+                style={[styles.chip, estado === op && styles.chipSelected]}
+                onPress={() => setEstado(op)}
+              >
+                <Text style={[styles.chipText, estado === op && styles.chipTextSelected]}>
+                  {op}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View> 
+        ) : (
+          // formulario de Modalidad para servicio
+          <View style={styles.chipsContainer}>
+            {modalidades.map((op) => (
+              <TouchableOpacity
+                key={op}
+                style={[styles.chip, modalidad === op && styles.chipSelected]}
+                onPress={() => setModalidad(op)}
+              >
+                <Text style={[styles.chipText, modalidad === op && styles.chipTextSelected]}>
+                  {op}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      
+      
+      {/* Lugar de entrega (no aplica para servicios) || horario (no aplica para producto) */}
+      <Text style={styles.label}>
+        {tipoPublicacion === 'producto' ? 'Lugar entrega' : 'Horario'}
+      </Text>
+      {tipoPublicacion == 'producto' ? (
+          // formulario de Lugar de entrega para producto
+          <TextInput
+            style={styles.input}
+            value={lugarEntrega}
+            onChangeText={setLugarEntrega}
+          />
+        ) : (
+          // formulario de horario para servicio
+          <View>
+            <Text style={{marginBottom:10,}}>Selecciona tus dias de disponibilidad:</Text>
+            <View style={styles.chipsContainer}>
+              {semanas.map((op) => (
+                <TouchableOpacity
+                  key={op}
+                  style={[
+                    styles.chip,
+                    diasSeleccionados.includes(op) && styles.chipSelected
+                  ]}
+                  onPress={() => {
+                    setDiasSeleccionados(prev => {
+                      const newSelection = prev.includes(op) 
+                        ? prev.filter(dia => dia !== op) 
+                        : [...prev, op];
+                      
+                      setHorario(prevHorario => ({
+                        ...prevHorario,
+                        [op]: prevHorario[op][0] === 'false' ? ['true'] : ['false'],
+                      }));
+                      
+                      return newSelection;
+                    });
+                  }}
+                >
+                  <Text style={[styles.chipText, diasSeleccionados.includes(op) && styles.chipTextSelected]}>
+                    {op}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {/* para una visualizacion en tiempo real */}
+            {/* <Text style={styles.subtitle}>Horario actual:</Text>
+            <Text>{JSON.stringify(horario, null, 2)}</Text> */}
+          </View>
+        )}
+
+      {/* Metodos de pago */}
+    <Text style={styles.label}>Método de pago *</Text>
+    <View style={styles.pickerWrapper}>
+      <Picker
+        selectedValue={metodoPago}
+        onValueChange={(itemValue) => setMetodoPago(itemValue)}
+        style={[
+          Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
+        ]}
+      >
+        <Picker.Item key="pick" label="Selecciona un método de pago" value="" />
+        {/*Muestra una lista de metodos de pago para seleccionar*/}
+        {metodoPagos.map((met) => (
+          <Picker.Item key={met} label={met} value={met}/>
         ))}
-      </View>   
+        </Picker>
+    </View>
+    {errors.metodoPago && <Text style={styles.errorText}>{errors.metodoPago}</Text>}
 
-      <Text style={styles.label}>Lugar de entrega</Text>
-      <TextInput
-        style={styles.input}
-        value={lugarEntrega}
-        onChangeText={setLugarEntrega}
-      />
-
-      <Text style={styles.label}>Método de pago</Text>
-      <TextInput
-        style={styles.input}
-        value={metodoPago}
-        onChangeText={setMetodoPago}
-      />
-
+    {/* categorias */}
     <Text style={styles.label}>Categoría *</Text>
     <View style={styles.pickerWrapper}>
       <Picker
@@ -323,11 +453,24 @@ const pickImageAndStore = async () => {
         ]}
       >
         <Picker.Item key="pick" label="Selecciona una categoría" value="" />
-        {categorias.map((cat) => (
-          <Picker.Item key={cat._id} label={cat.nombre} value={cat._id} />
-        ))}
-      </Picker>
+        {/* filtrar las categorias que son de producto y las que son de servicio MODIFICAR A FUTURO*/}
+        {categorias
+          .filter(cat => {
+            //para producto
+            if (tipoPublicacion === 'producto') {
+              return !['Clases'].includes(cat.nombre);
+            }
+            //para servicio - Pd: por ahora solo se harcodea la categoria "Clase" para servicios, proximante mas
+            if (tipoPublicacion === 'servicio') {
+              return ['Clases'].includes(cat.nombre);
+            }
+          })
+          .map((cat) => (
+            <Picker.Item key={cat._id} label={cat.nombre} value={cat._id} />
+          ))}
+        </Picker>
     </View>
+    
     {errors.categoria && <Text style={styles.errorText}>{errors.categoria}</Text>}
 
       <TouchableOpacity style={styles.botonPublicar} onPress={handlePublicar}>
@@ -337,6 +480,7 @@ const pickImageAndStore = async () => {
     </ScrollView>
   );
 };
+
 
 export default CreatePublication;
 
@@ -439,5 +583,11 @@ const styles = StyleSheet.create({
   fontSize: 12,
   marginTop: 4,
 },
-
+  subtitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginTop: 20,
+      marginBottom: 8,
+    },
+  
 });

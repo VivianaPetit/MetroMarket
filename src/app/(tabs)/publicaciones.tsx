@@ -17,6 +17,7 @@ export default function Home() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [message, setMessage] = useState("");
 
  useEffect(() => {
      fetchCategorias()
@@ -29,6 +30,7 @@ export default function Home() {
   useCallback(() => {
     if (!user) {
       setPublicaciones([]);
+      setMessage("Por favor, inicia sesión para ver tus publicaciones.");
       return;
     }
     fetchPublicaciones()
@@ -72,7 +74,7 @@ export default function Home() {
             <Ionicons name="arrow-back" size={24} color="#00318D" />
           </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Mis Publicaciones</Text>
+          <Text style={{ color: '#00318D', fontWeight: 'bold'}}>Mis Publicaciones</Text>
         </Text>
         <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/perfil')}>
           <Ionicons name="person-outline" size={24} color="#00318D" />
@@ -80,7 +82,7 @@ export default function Home() {
       </SafeAreaView>
 
       {/* Productos */}
-      <ScrollView contentContainerStyle={styles.productsGrid}>
+      {user ? (<ScrollView contentContainerStyle={styles.productsGrid}>
         {filteredPublications.length > 0 ? (
           filteredPublications.map((pub) => (
             <ProductCard
@@ -97,9 +99,11 @@ export default function Home() {
             />
           ))
         ) : (
-          <Text style={styles.errorMensaje}>No se encontraron productos</Text>
+          <Text style={styles.errorMensaje}>No se encontraron publicaciones</Text>
         )}
-      </ScrollView>
+      </ScrollView>) : (
+        <Text style={styles.errorMensaje}>{message}</Text>
+      )}
     </View>
   );
 }
@@ -167,7 +171,9 @@ const styles = StyleSheet.create({
     paddingTop: 10, 
   },
   errorMensaje: {
-    fontSize: 20,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#888',
     flexDirection: 'row', 
     flexWrap: 'wrap',
     textAlign: 'center', 

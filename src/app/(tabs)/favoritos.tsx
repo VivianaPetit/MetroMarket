@@ -58,12 +58,12 @@ export default function Home() {
                 style={styles.backButton}
             >
                 <Ionicons name="arrow-back" size={24} color="#00318D" />
-            </TouchableOpacity>
+            </TouchableOpacity> 
             <Text style={styles.headerTitle}>
-            <Text style={{ color: '#00318D', fontWeight: 'bold' }}>Mis Favoritos</Text>
+              <Text style={{ color: '#00318D', fontWeight: 'bold'}}>Mis Favoritos</Text>
             </Text>
             <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/perfil')}>
-            <Ionicons name="person-outline" size={24} color="#00318D" />
+              <Ionicons name="person-outline" size={24} color="#00318D" />
             </TouchableOpacity>
         </SafeAreaView>
 
