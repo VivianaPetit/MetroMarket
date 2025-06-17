@@ -11,13 +11,16 @@ type ProductCardProps = {
   price: number;
   category: string;
   image: string;
+  tipo: string | string[];
   onEdit?: () => void; // Optional function for edit action
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, price, category, image, onEdit }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ name, price, category, image, tipo, onEdit }) => {
   return (
     <View style={styles.productCard}>
-      <Image source={{ uri: image }} style={styles.productImage} />
+      
+      <Text style={styles.productCategory2}>{tipo}</Text>
+      <Image source={{ uri: image }} style={styles.productImage}/>
 
       {/* <-- NEW: Edit Icon */}
       {onEdit &&  ( 
@@ -96,6 +99,22 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     fontSize: 12,
+    color: '#333',
+    fontWeight: '500',
+  },
+  productCategory2: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 6,
+    margin: 10,
+    height: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'flex-end',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    fontSize: 8,
     color: '#333',
     fontWeight: '500',
   },
