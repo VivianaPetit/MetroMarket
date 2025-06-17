@@ -4,8 +4,10 @@ import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-nati
 import ProfileCard from '../components/ProfileCard';
 import { useAuth } from '../context/userContext'; 
 import { editarUsuario } from '../services/usuarioService';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CommentCard from '../components/CommentCard';
+import { Resena } from '../interfaces/types';
+import { fetchResena } from '../services/ResenaServices';
 
 export default function Perfil() {
   const router = useRouter();
@@ -16,13 +18,18 @@ export default function Perfil() {
   const [nombre, setNombre] = useState(user?.nombre ?? '');
   const [telefono, setTelefono] = useState(user?.telefono ?? '');
   const [showReviews, setShowReviews] = useState(false);
+    const [Resenas, setResenas] = useState<Resena[]>([]);
+     const [Resenas2, setResenas2] = useState<Resena[]>([]);
 
- // Ejemplo de datos para las resenas, sacar esto del backend
- const comentarios = [
-    { UserName: "Juan", commentText: "Excelente servicio!" },
-    { UserName: "María", commentText: "zasrtdfyvgubihnjgvfycdxrsezxdtcf" },
-    { UserName: "Juan", commentText: "Excelente servicio!" },
-  ];
+ useEffect(() => {
+    fetchResena()
+      .then(data => setResenas(data))
+      .catch(console.error);
+      //console.log("reseñas sin filtrar"+Resenas)
+      setResenas2 (Resenas.filter(pub => pub.usuario && pub.resenado === user?._id));
+      //console.log("reseñas filtrar"+Resenas2)
+  },);
+
 
   const handleLogout = () => {
     logout?.(); 
@@ -90,11 +97,10 @@ const handleGuardar = async () => {
 
       {!modoEdicion && showReviews && (
         <View style={styles.commentsContainer}>
-          {comentarios.map((comentario, index) => (
+          {Resenas2.map((comentario) => (
             <CommentCard
-              key={index}
-              UserName={comentario.UserName}
-              commentText={comentario.commentText}
+              key={comentario._id}
+              commentText={comentario.comentario}
             />
           ))}
         </View>

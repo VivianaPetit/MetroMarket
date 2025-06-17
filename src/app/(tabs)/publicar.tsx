@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, Image// <-- Agrega Image aquí
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, Image, ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -41,6 +41,7 @@ const CreatePublication = () => {
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
   const [modalidad, setModalidad] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const HORARIO_INICIAL = {
     lunes: ['false'],
@@ -121,6 +122,8 @@ const handlePublicar = async () => {
     return;
   }
 
+  setLoading(true);
+
   const errores = validarFormulario();
   setErrors(errores);
 
@@ -182,7 +185,7 @@ const handlePublicar = async () => {
     await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
     await refrescarUsuario();
 
-    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
+    
 
     // 3. Resetear formulario
     setTitulo('');
@@ -197,12 +200,15 @@ const handlePublicar = async () => {
     setImages([]);
     setHorario(HORARIO_INICIAL);
 
+    setLoading(false);
+    Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
     navigation.goBack();
 
   } catch (error) {
     console.error('Error al publicar:', error);
     Alert.alert('Error', 'Ocurrió un error al publicar.');
   }
+
 };
 
 const pickImageAndStore = async () => {
@@ -243,6 +249,15 @@ const pickImageAndStore = async () => {
 
   const params = useLocalSearchParams();
   const tipoPublicacion = params.tipoPublicacion; // 'producto' o 'servicio'
+
+    if (loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#00318D" />
+          <Text style={{ marginTop: 10, color: '#555' }}>Subiendo publicación...</Text>
+        </View>
+      );
+    }
   
   return (
 
@@ -593,5 +608,10 @@ const styles = StyleSheet.create({
       marginTop: 20,
       marginBottom: 8,
     },
+    loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   
 });
