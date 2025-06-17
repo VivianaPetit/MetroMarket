@@ -164,7 +164,10 @@ export default function ProductDetails() {
         <Ionicons name="arrow-back" size={26} color="#F68628" />
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={() => router.push({
+                        pathname: "/",
+                        params: { categoria: product.categoria }
+                    })}>
         <Text style={styles.linkText}>Ver más productos de la categoría "{product.categoria}"</Text>
       </TouchableOpacity>
     {/* visualizacion imagen */}
@@ -186,7 +189,6 @@ export default function ProductDetails() {
         </ScrollView>
       </View>
 
-
       <View style={styles.detailsContainer}>
         <View style={styles.header}>
           <Text style={styles.titleText}>{product.titulo}</Text>
@@ -194,20 +196,64 @@ export default function ProductDetails() {
             <Ionicons name={isLiked ? "heart" : "heart-outline"} size={28} color="#F68628" />
           </TouchableOpacity>
         </View>
-        {/* precio */}
+
+        {/* visualizacion precio */}
         <Text style={styles.priceText}>
-          {(Array.isArray(product.tipo) ? product.tipo[0] : product.tipo) === 'servicio' ? 'US$' : 'US$/hora'}
+          {product.tipo === 'producto' ? 'US$' : 'US$/hora  '}
           {product.precio}
         </Text>
+
+        {/* visualizacion descripcion */}
         <Text style={styles.sectionLabel}>Descripción</Text>
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
 
-        <Text style={styles.sectionLabel}>Cantidad disponible</Text>
+        {/* visualizacion cantidad */}
+        <Text style={styles.sectionLabel}>
+          {product.tipo === 'producto' ? 'Cantidad disponible' : 'Cupos disponibles'}
+        </Text>
         <Text style={styles.detailText}>{product.cantidad}</Text>
 
-        <Text style={styles.sectionLabel}>Estado</Text>
-        <Text style={styles.badge}>{product.estado}</Text>
+        {/* visualizacion Estado(para producto) || modalidad(para servicio) */}
+        {product.tipo == 'producto' ? (
+          // visualizacion de Estado(para producto)
+          <View>
+            <Text style={styles.sectionLabel}>Estado</Text>
+            <Text style={styles.badge}>{product.estado}</Text>
+          </View>
+        ) : (
+          // visualizacion de modalidad(para servicio)
+          <View>
+            <Text style={styles.sectionLabel}>Modalidad del servicio</Text>
+            <Text style={styles.badge}>{product.modalidad}</Text>
+          </View>        
+        )}
 
+        {/* visualizacion nada(para producto) || horario(para servicio) */}
+        {product.tipo == 'producto' ? (
+          // visualizacion de Estado(para producto)
+          <View>
+            <Text style={styles.sectionLabel}>Estado</Text>
+          </View>
+        ) : (
+          // visualizacion de modalidad(para servicio)
+          <View>
+            <Text style={styles.sectionLabel}>Horario de disponibilidad</Text>
+            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+              {Object.entries(product.horario).map(([dia, valor]) => {
+                if (valor.includes('true')) {
+                  return (
+                    <Text key={dia} style={styles.badge}>
+                      {dia} 
+                    </Text>
+                  );
+                }
+                return null;
+              })}
+            </View>
+          </View>        
+        )}
+
+        
         <Text style={styles.sectionLabel}>Método de pago</Text>
         <Text style={styles.detailText}>{product.metodoPago}</Text>
 
@@ -341,6 +387,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     alignSelf: 'flex-start',
+    marginRight: 5,
   },
   linkText: {
     color: '#00318D',
