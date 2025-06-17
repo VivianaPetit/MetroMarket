@@ -10,6 +10,29 @@ router.get('/', async (req, res) => {
   res.json(transacciones);
 });
 
+router.patch('/:id/confirmar-entrega', async (req, res) => {
+  const { id } = req.params;
+  const { esVendedor } = req.body;
+
+  try {
+    const transaccion = await Transaccion.findById(id);
+    if (!transaccion) {
+      return res.status(404).json({ mensaje: 'Transacción no encontrada' });
+    }
+
+    // Actualiza el campo entregado: [comprador, vendedor]
+    const index = esVendedor ? 1 : 0;
+    transaccion.entregado[index] = true;
+
+    await transaccion.save();
+
+    res.json(transaccion);
+  } catch (error) {
+    console.error('Error confirmando entrega:', error);
+    res.status(500).json({ mensaje: 'Error al confirmar entrega' });
+  }
+});
+
 router.post('/', async (req, res) => {
   const nuevaTransaccion = new Transaccion(req.body);
   await nuevaTransaccion.save();
