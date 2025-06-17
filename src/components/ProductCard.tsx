@@ -11,13 +11,14 @@ type ProductCardProps = {
   price: number;
   category: string;
   image: string;
+  tipo: string;
   onEdit?: () => void; // Optional function for edit action
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, price, category, image, onEdit }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ name, price, category, image, tipo, onEdit }) => {
   return (
     <View style={styles.productCard}>
-      <Image source={{ uri: image }} style={styles.productImage} />
+      <Image source={{ uri: image }} style={styles.productImage}/>
 
       {/* <-- NEW: Edit Icon */}
       {onEdit &&  ( 
