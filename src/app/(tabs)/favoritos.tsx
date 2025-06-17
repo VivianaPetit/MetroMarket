@@ -62,37 +62,35 @@ export default function Home() {
             <Text style={styles.headerTitle}>
               <Text style={{ color: '#00318D', fontWeight: 'bold'}}>Mis Favoritos</Text>
             </Text>
-            <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/perfil')}>
-              <Ionicons name="person-outline" size={24} color="#00318D" />
+            <TouchableOpacity>
+              <Ionicons name="person-outline" size={24} color="#fff" />
             </TouchableOpacity>
         </SafeAreaView>
 
         {/* Productos */}
         { user ? (<ScrollView contentContainerStyle={styles.productsGrid}>
-            <View style={styles.productsGrid}>
-            {filteredPublications.length > 0 ? (
-                filteredPublications.map((pub) => (
-                    <TouchableOpacity
-                    key={pub._id}
-                    onPress={() => router.push({
-                        pathname: "/productDetails",
-                        params: { productId: pub._id }
-                    })}
-                    activeOpacity={0.7}
-                    >
-                    <ProductCard
-                        name={pub.titulo}
-                        price={pub.precio}
-                        category={pub.categoria}
-                        image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}
-                    />
-                    </TouchableOpacity>
-                ))
-            ) : (
-            <Text style={styles.errorMensaje}>No tienes productos en favoritos</Text>
-            )}
-            </View>
-        </ScrollView>) : (
+  {filteredPublications.length > 0 ? (
+    filteredPublications.map((pub) => (
+      <TouchableOpacity
+        key={pub._id}
+        onPress={() => router.push({
+          pathname: "/productDetails",
+          params: { productId: pub._id }
+        })}
+      >
+        <ProductCard
+          name={pub.titulo}
+          price={pub.precio}
+          category={pub.categoria}
+          image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}
+        />
+      </TouchableOpacity>
+    ))
+  ) : (
+    <Text style={styles.errorMensaje}>No tienes productos en favoritos</Text>
+  )}
+</ScrollView>
+) : (
           <Text style={styles.errorMensaje}>{message}</Text>
           
         )}
@@ -172,4 +170,5 @@ const styles = StyleSheet.create({
     width: '100%', 
     marginTop: 20,
   },
+
 });

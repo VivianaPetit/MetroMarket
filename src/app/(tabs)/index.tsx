@@ -19,6 +19,8 @@ export default function Home() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   
   const { user } = useAuth();
 

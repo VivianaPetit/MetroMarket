@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Button, Modal, TextInput, TouchableOpacity,
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Button, Modal, TextInput, TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/userContext';
@@ -159,14 +158,16 @@ const MisComprasScreen = () => {
                       <Text style={styles.fecha}>
                         {new Date(trans.fecha).toLocaleDateString()}
                       </Text>
-                      {trans.estado !== 'completado' && (
-                        <TouchableOpacity
-                          style={styles.button}
-                          onPress={() => handleCompletarCompra(trans)}
-                        >
-                          <Text style={styles.buttonText}>Marcar como completada</Text>
-                        </TouchableOpacity>
-                      )}
+                      {trans.entregado[0] ? (
+                      <Text style={styles.entregadoText}>Producto entregado ✅</Text>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => handleCompletarCompra(trans)}
+                      >
+                        <Text style={styles.buttonText}>Marcar como completada</Text>
+                      </TouchableOpacity>
+                    )}
                     </View>
                   </View>
                 </View>
@@ -245,6 +246,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  entregadoText: {
+  marginTop: 6,
+  color: 'green',
+  fontWeight: 'bold',
+  fontSize: 14,
+},
 
   // Card horizontal
   card: {
