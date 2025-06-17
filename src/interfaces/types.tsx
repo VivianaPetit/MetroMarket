@@ -17,7 +17,8 @@ export interface Usuario {
 
 export interface Publicacion {
   _id: string;
-  usuario : string,
+  usuario : string;
+  tipo: string | string[];
   categoria: string;
   descripcion: string;
   cantidad: number;
@@ -29,6 +30,8 @@ export interface Publicacion {
   metodoPago: string;
   fotos: string[];
   preguntas: [string];
+  modalidad: string;
+  horario:Record<string, string[]>;
 }
 
 export interface Resena {
