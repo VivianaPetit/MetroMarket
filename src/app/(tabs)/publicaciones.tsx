@@ -76,9 +76,9 @@ export default function Home() {
         <Text style={styles.headerTitle}>
           <Text style={{ color: '#00318D', fontWeight: 'bold'}}>Mis Publicaciones</Text>
         </Text>
-        <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/perfil')}>
-          <Ionicons name="person-outline" size={24} color="#00318D" />
-        </TouchableOpacity>
+            <TouchableOpacity>
+              <Ionicons name="person-outline" size={24} color="#fff" />
+            </TouchableOpacity>
       </SafeAreaView>
 
       {/* Productos */}

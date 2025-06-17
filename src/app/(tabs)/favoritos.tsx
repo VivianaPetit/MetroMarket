@@ -62,8 +62,8 @@ export default function Home() {
             <Text style={styles.headerTitle}>
               <Text style={{ color: '#00318D', fontWeight: 'bold'}}>Mis Favoritos</Text>
             </Text>
-            <TouchableOpacity style={styles.headerIcon} onPress={() => router.push('/perfil')}>
-              <Ionicons name="person-outline" size={24} color="#00318D" />
+            <TouchableOpacity>
+              <Ionicons name="person-outline" size={24} color="#fff" />
             </TouchableOpacity>
         </SafeAreaView>
 
@@ -78,7 +78,6 @@ export default function Home() {
                         pathname: "/productDetails",
                         params: { productId: pub._id }
                     })}
-                    activeOpacity={0.7}
                     >
                     <ProductCard
                         name={pub.titulo}
@@ -172,4 +171,5 @@ const styles = StyleSheet.create({
     width: '100%', 
     marginTop: 20,
   },
+
 });

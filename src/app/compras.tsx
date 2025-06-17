@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Button, Modal, TextInput, TouchableOpacity,
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Button, Modal, TextInput, TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/userContext';
