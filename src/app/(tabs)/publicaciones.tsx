@@ -95,6 +95,7 @@ export default function Home() {
                   ? pub.fotos[0]
                   : 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'
               }
+              tipo={pub.tipo}
               onEdit={() => handleEditProduct(pub)}
             />
           ))
