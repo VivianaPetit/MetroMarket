@@ -21,14 +21,20 @@ export default function Perfil() {
     const [Resenas, setResenas] = useState<Resena[]>([]);
      const [Resenas2, setResenas2] = useState<Resena[]>([]);
 
- useEffect(() => {
-    fetchResena()
-      .then(data => setResenas(data))
-      .catch(console.error);
-      //console.log("reseñas sin filtrar"+Resenas)
-      setResenas2 (Resenas.filter(pub => pub.usuario && pub.resenado === user?._id));
-      //console.log("reseñas filtrar"+Resenas2)
-  },);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const data = await fetchResena();
+      setResenas(data);
+      // Filtrar solo después de que Resenas se haya actualizado
+      setResenas2(data.filter(pub => pub.usuario && pub.resenado === user?._id));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  fetchData();
+}, [user?._id]); // Dependencia: solo se ejecuta cuando user._id cambie
 
 
   const handleLogout = () => {

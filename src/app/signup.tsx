@@ -81,16 +81,19 @@ const SignUp = () => {
 
     try {
       // Verificar si el correo ya existe
-      try {
-        await buscarUsuarioPorCorreo(formData.email.trim());
-        Alert.alert('Error', 'Este correo ya está registrado');
-        return;
-      } catch (error) {
-        if (
-          !(typeof error === 'object' && error !== null && 'response' in error && typeof (error as any).response === 'object') ||
-          (error as any).response?.status !== 404
-        ) throw error;
-      }
+      // En la función handleRegister, simplifica la verificación del error 404:
+try {
+  await buscarUsuarioPorCorreo(formData.email.trim());
+  Alert.alert('Error', 'Este correo ya está registrado');
+  return;
+} catch (error: any) {
+  // Verificar directamente si es un error 404
+  if (error.response?.status !== 404) {
+    console.error('Error al verificar correo:', error);
+    throw error;
+  }
+  // Si es 404, continuamos con el registro
+}
 
       // Hashear la contraseña
       const hashedPassword = await Crypto.digestStringAsync(
@@ -104,11 +107,11 @@ const SignUp = () => {
         correo: formData.email.trim(),
         contrasena: hashedPassword,
         publicaciones: [],
-        favoritos:[],
+        favoritos: [],
+        transacciones: [],
       };
 
       const createdUser = await createUsuario(newUser);
-      console.log('Usuario creado exitosamente');
 
       setUser(createdUser);
       router.push('/perfil');
