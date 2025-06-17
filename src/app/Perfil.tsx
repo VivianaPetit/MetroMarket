@@ -86,7 +86,7 @@ export default function Perfil() {
       </View>
 
       <ProfileCard
-        UserName={usuarioPerfil.correo}
+        UserName={usuarioPerfil?.username ?? 'Usuario'}
         nombreyA={modoEdicion ? nombre : usuarioPerfil.nombre}
         tlf={modoEdicion ? telefono : usuarioPerfil.telefono}
         editable={!!modoEdicion && !!esMiPerfil}
