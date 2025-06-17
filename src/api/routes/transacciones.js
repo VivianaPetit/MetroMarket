@@ -16,13 +16,23 @@ router.patch('/:id/confirmar-entrega', async (req, res) => {
 
   try {
     const transaccion = await Transaccion.findById(id);
+
     if (!transaccion) {
       return res.status(404).json({ mensaje: 'Transacción no encontrada' });
     }
 
-    // Actualiza el campo entregado: [comprador, vendedor]
+    // Aseguramos que entregado está correctamente definido
+    if (!Array.isArray(transaccion.entregado) || transaccion.entregado.length < 2) {
+      transaccion.entregado = [false, false];
+    }
+
     const index = esVendedor ? 1 : 0;
     transaccion.entregado[index] = true;
+
+    // Si ambos confirmaron, marcamos como 'Completada' (exactamente como en el enum)
+    if (transaccion.entregado[0] && transaccion.entregado[1]) {
+      transaccion.estado = 'Completada';
+    }
 
     await transaccion.save();
 

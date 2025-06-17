@@ -7,14 +7,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/userContext';
 import { fetchTransaccionById, confirmarEntrega } from '../services/transaccionService';
 import { fetchPublicacionById } from '../services/publicacionService';
-import { Transaccions, Publicacion } from '../interfaces/types';
+import { fetchUsuarioById } from '../services/usuarioService';
+import { createResena } from '../services/ResenaServices';
+import { Transaccions, Publicacion, Resena } from '../interfaces/types';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Resena } from '../interfaces/types';
-import { createResena } from '../services/ResenaServices';
 
 interface TransaccionConPublicacion extends Transaccions {
   publicacionDetalle?: Publicacion;
+  compradorDetalle?: {
+    nombre: string;
+    telefono: string;
+  };
 }
 
 const MisVentasScreen = () => {
@@ -25,9 +29,8 @@ const MisVentasScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [Rating, setRating] = useState(0);
   const [selectedTransaccion, setSelectedTransaccion] = useState<TransaccionConPublicacion | null>(null);
-  const [Finalizado, setFinalizado] = useState(false);
   const [comentario, setComentario] = useState('');
-  const fecha = new Date()
+  const fecha = new Date();
 
   useEffect(() => {
     if (!user?.transacciones?.length) {
@@ -46,7 +49,14 @@ const MisVentasScreen = () => {
         const transaccionesConPublicacion = await Promise.all(
           soloVentas.map(async (trans) => {
             const publicacionDetalle = await fetchPublicacionById(trans.publicacion);
-            return { ...trans, publicacionDetalle };
+            const compradorUsuario = await fetchUsuarioById(trans.comprador);
+
+            const compradorDetalle = {
+              nombre: compradorUsuario.nombre,
+              telefono: compradorUsuario.telefono,
+            };
+
+            return { ...trans, publicacionDetalle, compradorDetalle };
           })
         );
 
@@ -60,6 +70,47 @@ const MisVentasScreen = () => {
 
     cargarDetalles();
   }, [user]);
+
+  const handleCompletarCompra = (trans: TransaccionConPublicacion) => {
+    setSelectedTransaccion(trans);
+    setModalVisible(true);
+  };
+
+  const handleRatingChange = (newRating: number) => {
+    setRating(newRating);
+  };
+
+  const enviarReseñaYConfirmar = async () => {
+    if (!selectedTransaccion || !user) return;
+    try {
+      const newResena: Omit<Resena, '_id'> = {
+        usuario: user._id,
+        resenado: selectedTransaccion.comprador || 'comprador desconocido',
+        comentario,
+        fecha,
+        calificacion: Rating,
+      };
+
+      await createResena(newResena);
+      await confirmarEntrega(selectedTransaccion._id, true);
+
+      let actualizada = await fetchTransaccionById(selectedTransaccion._id);
+      if (actualizada.entregado[0] && actualizada.entregado[1] && actualizada.estado !== 'completado') {
+        actualizada = { ...actualizada, estado: 'completado' };
+      }
+
+      const nuevaLista = transacciones.map(t =>
+        t._id === actualizada._id ? { ...actualizada, publicacionDetalle: selectedTransaccion.publicacionDetalle } : t
+      );
+
+      setTransacciones(nuevaLista);
+    } catch (error) {
+      console.error('Error al confirmar entrega:', error);
+    } finally {
+      setModalVisible(false);
+      setComentario('');
+    }
+  };
 
   if (!user) {
     return (
@@ -78,55 +129,15 @@ const MisVentasScreen = () => {
     );
   }
 
-  const handleCompletarCompra = (trans: TransaccionConPublicacion) => {
-    setSelectedTransaccion(trans);
-    setModalVisible(true);
-  };
-
-   const handleRatingChange = (newRating: number) => {
-      setRating(newRating);
-      setFinalizado(false)
-      };
-
-const enviarReseñaYConfirmar = async () => {
-    if (!selectedTransaccion) return;
-    try {
-     const newResena: Omit<Resena, '_id'> = {
-         usuario: user ? user._id : '',
-         resenado: selectedTransaccion.comprador || 'comprador desconocido',
-         comentario: comentario,
-         fecha: fecha,
-         calificacion: Rating, 
-      };
-       //console.log("llegamos")
-       const createdUser = await createResena(newResena);
-       //console.log(createdUser);
-      // Aquí podrías enviar la reseña también
-      await confirmarEntrega(selectedTransaccion._id, false);
-      const actualizada = await fetchTransaccionById(selectedTransaccion._id);
-      const nuevaLista = transacciones.map(t =>
-        t._id === actualizada._id ? { ...actualizada, publicacionDetalle: selectedTransaccion.publicacionDetalle } : t
-      );
-      setTransacciones(nuevaLista);
-    } catch (error) {
-      console.error('Error al confirmar entrega:', error);
-    } finally {
-      setModalVisible(false);
-      setComentario('');
-    }
-  };
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SafeAreaView style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => router.push('/menu')}
-          style={styles.backButton}
-        >
+        <TouchableOpacity onPress={() => router.push('/menu')} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#00318D" />
-        </TouchableOpacity> 
+        </TouchableOpacity>
         <Text style={styles.title}>Mis Ventas</Text>
       </SafeAreaView>
+
       <Ionicons name="cash-outline" size={64} color="#28A745" style={styles.icon} />
 
       {transacciones.length === 0 ? (
@@ -138,7 +149,7 @@ const enviarReseñaYConfirmar = async () => {
             <View key={trans._id} style={styles.card}>
               <View style={styles.cardContent}>
                 <Image
-                  source={{ uri: trans.publicacionDetalle.fotos[0] }}
+                  source={{ uri: trans.publicacionDetalle.fotos?.[0] || 'https://via.placeholder.com/110' }}
                   style={styles.image}
                   resizeMode="cover"
                 />
@@ -147,17 +158,16 @@ const enviarReseñaYConfirmar = async () => {
                   <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
                   <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
                   <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
-                  <Text style={styles.fecha}>
-                    {new Date(trans.fecha).toLocaleDateString()}
-                  </Text>
-                  {trans.estado !== 'completado' && (
-                                          <TouchableOpacity
-                                            style={styles.button}
-                                            onPress={() => handleCompletarCompra(trans)}
-                                          >
-                                            <Text style={styles.buttonText}>Marcar como completada</Text>
-                                          </TouchableOpacity>
-                                        )}
+                  <Text style={styles.descripcion}>Comprador: {trans.compradorDetalle?.nombre}</Text>
+                  <Text style={styles.descripcion}>Teléfono: {trans.compradorDetalle?.telefono}</Text>
+
+                  {trans.entregado[1] ? (
+                    <Text style={styles.entregadoText}>Producto entregado ✅</Text>
+                  ) : (
+                    <TouchableOpacity style={styles.button} onPress={() => handleCompletarCompra(trans)}>
+                      <Text style={styles.buttonText}>Marcar como completada</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
             </View>
@@ -167,35 +177,29 @@ const enviarReseñaYConfirmar = async () => {
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-          <Text>Comentarios</Text>
-          <Text>Por favor clasifique el vendedor de este producto</Text>
-          <View style={styles.modalContent}>
-                        {[...Array(5)].map((_, i) => (
-            <TouchableOpacity 
-              key={i} 
-              onPress={() => handleRatingChange(i + 1)}
-            >
-              <Ionicons 
-                name={i < Rating ? 'star' : 'star-outline'} 
-                size={28} 
-                color='#F68628' 
-              />
-            </TouchableOpacity>
-          ))}
-        </View>
+            <View style={styles.ratingSection}>
+              <Text style={styles.ratingTitle}>Califica tu experiencia</Text>
+              <Text style={styles.ratingSubtitle}>¿Cómo fue la experiencia con el comprador?</Text>
+              <View style={styles.starsRow}>
+                {[...Array(5)].map((_, i) => (
+                  <TouchableOpacity key={i} onPress={() => handleRatingChange(i + 1)} style={styles.starButton}>
+                    <Ionicons name={i < Rating ? 'star' : 'star-outline'} size={32} color="#F68628" />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
 
-    <Text>Deje un comentario</Text>
-    <View style={styles.modalContent}>
-        <TextInput
-          editable
-          multiline
-          numberOfLines={10}
-          maxLength={400}
-          onChangeText={text => setComentario(text)}
-          value={comentario}
-          style={styles.textInput}
-        />
-        </View>
+            <Text style={styles.commentLabel}>Deja un comentario:</Text>
+            <TextInput
+              editable
+              multiline
+              numberOfLines={10}
+              maxLength={400}
+              onChangeText={text => setComentario(text)}
+              value={comentario}
+              style={styles.textInput}
+            />
+
             <View style={styles.modalButtons}>
               <Button title="Cancelar" color="#888" onPress={() => setModalVisible(false)} />
               <Button title="Confirmar entrega" onPress={enviarReseñaYConfirmar} color="#F68628" />
@@ -203,12 +207,12 @@ const enviarReseñaYConfirmar = async () => {
           </View>
         </View>
       </Modal>
-
     </ScrollView>
   );
 };
 
 export default MisVentasScreen;
+
 
 const styles = StyleSheet.create({
   container: {
@@ -231,6 +235,43 @@ const styles = StyleSheet.create({
     color: '#aaa',
     marginTop: 20,
   },
+  ratingSection: {
+  marginBottom: 20,
+  alignItems: 'center',
+},
+ratingTitle: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: '#333',
+  marginBottom: 4,
+},
+ratingSubtitle: {
+  fontSize: 14,
+  color: '#666',
+  marginBottom: 12,
+  textAlign: 'center',
+},
+starsRow: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  gap: 4,
+},
+starButton: {
+  paddingHorizontal: 4,
+},
+commentLabel: {
+  fontSize: 15,
+  fontWeight: '500',
+  color: '#444',
+  marginBottom: 6,
+  marginTop: 10,
+},
+  entregadoText: {
+  marginTop: 6,
+  color: 'green',
+  fontWeight: 'bold',
+  fontSize: 14,
+},
   centered: {
     flex: 1,
     justifyContent: 'center',
