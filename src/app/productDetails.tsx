@@ -164,7 +164,10 @@ export default function ProductDetails() {
         <Ionicons name="arrow-back" size={26} color="#F68628" />
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.back()}>
+      <TouchableOpacity onPress={() => router.push({
+                        pathname: "/",
+                        params: { categoria: product.categoria }
+                    })}>
         <Text style={styles.linkText}>Ver más productos de la categoría "{product.categoria}"</Text>
       </TouchableOpacity>
     {/* visualizacion imagen */}

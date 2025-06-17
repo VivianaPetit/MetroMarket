@@ -1,8 +1,8 @@
 // app/index.tsx
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { CategoryBadge } from '../../components/Category';
@@ -15,51 +15,31 @@ import { useAuth } from '../../context/userContext';
 
 export default function Home() {
   const router = useRouter();
+  const params = useLocalSearchParams(); // ← Obtiene params de la navegación
+  const categoriaParam = typeof params.categoria === 'string' ? params.categoria : null;
+
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
-  
   const { user } = useAuth();
 
-  // Función que combina ambos filtros
-  const getFilteredPublications = () => {
-    let filtered = [...publicaciones];
-
-    if (selectedCategory) {
-      filtered = filtered.filter(pub => pub.categoria === selectedCategory);
-    }
-
-    // Filtro por búsqueda si hay texto
-    if (search) {
-      const searchTerm = search.toLowerCase();
-      filtered = filtered.filter(pub => 
-        pub.titulo.toLowerCase().includes(searchTerm) || 
-        pub.categoria.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    return filtered;
-  };
-
-  const filteredPublications = getFilteredPublications();
-
-  const resetFilters = () => {
-    setSelectedCategory(null);
-    setSearch("");
-  };
-
+  // Cargar categorías y publicaciones al montar
   useEffect(() => {
     fetchCategorias()
       .then(data => setCategorias(data))
       .catch(console.error);
 
     fetchPublicaciones()
-      .then(data => setPublicaciones(data))
+      .then(data => {
+        setPublicaciones(data);
+        if (categoriaParam) {
+          setSelectedCategory(categoriaParam); // ← Filtra automáticamente si viene param
+        }
+      })
       .catch(console.error);
-  }, []);
+  }, [categoriaParam]);
 
   useFocusEffect(
     useCallback(() => {
@@ -75,21 +55,46 @@ export default function Home() {
     );
   };
 
+  const resetFilters = () => {
+    setSelectedCategory(null);
+    setSearch("");
+  };
+
+  // Filtro combinado
+  const getFilteredPublications = () => {
+    let filtered = [...publicaciones];
+
+    if (selectedCategory) {
+      filtered = filtered.filter(pub => pub.categoria === selectedCategory);
+    }
+
+    if (search) {
+      const searchTerm = search.toLowerCase();
+      filtered = filtered.filter(pub => 
+        pub.titulo.toLowerCase().includes(searchTerm) || 
+        pub.categoria.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    return filtered;
+  };
+
+  const filteredPublications = getFilteredPublications();
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1 }}>
-
-      <View style={styles.searchContainer}>
-            <FontAwesome name="search" size={18} color="#bbb" style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Buscar producto..."
-              placeholderTextColor="#bbb"
-              value={search}
-              onChangeText={setSearch}
-              returnKeyType="search"
-            />
-      </View>
+        <View style={styles.searchContainer}>
+          <FontAwesome name="search" size={18} color="#bbb" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar producto..."
+            placeholderTextColor="#bbb"
+            value={search}
+            onChangeText={setSearch}
+            returnKeyType="search"
+          />
+        </View>
 
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesWrapper}>
@@ -103,7 +108,7 @@ export default function Home() {
               />
             ))}
           </ScrollView>
-         {/* Crea la visualizacion de todas las publicaciones */}
+
           <View style={styles.productsGrid}>
             {filteredPublications.length > 0 ? (
               filteredPublications.map((pub) => (
@@ -124,18 +129,20 @@ export default function Home() {
                 </TouchableOpacity>
               ))
             ) : (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="sad-outline" size={48} color="#888" />
-
-            { search.length > 0 && selectedCategory != null ? (
-            <Text style={styles.emptyText}>
-              No hay resultados para <Text style={styles.searchText}>"{search}"</Text> en la categoria{' '}
-              <Text style={styles.selectedCategoryText}>{selectedCategory}</Text>
-            </Text>
-            ) : (
-              <Text style={styles.emptyText}> No hay resultados para <Text style={styles.selectedCategoryText}>{selectedCategory || search}</Text> </Text>
-            )}
-          </View>
+              <View style={styles.emptyContainer}>
+                <Ionicons name="sad-outline" size={48} color="#888" />
+                {search.length > 0 && selectedCategory != null ? (
+                  <Text style={styles.emptyText}>
+                    No hay resultados para <Text style={styles.searchText}>"{search}"</Text> en la categoría{' '}
+                    <Text style={styles.selectedCategoryText}>{selectedCategory}</Text>
+                  </Text>
+                ) : (
+                  <Text style={styles.emptyText}>
+                    No hay resultados para{' '}
+                    <Text style={styles.selectedCategoryText}>{selectedCategory || search}</Text>
+                  </Text>
+                )}
+              </View>
             )}
           </View>
         </ScrollView>
@@ -146,15 +153,7 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scrollContainer: {
-    paddingBottom: 80,
-  },
-  header: {
-    paddingHorizontal: 16,
-    paddingBottom: 10,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
+  scrollContainer: { paddingBottom: 80 },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
