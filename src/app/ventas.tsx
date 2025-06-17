@@ -1,3 +1,4 @@
+// archivo: MisVentasScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Button, Modal, TextInput, TouchableOpacity,
@@ -16,16 +17,16 @@ interface TransaccionConPublicacion extends Transaccions {
   publicacionDetalle?: Publicacion;
 }
 
-const MisComprasScreen = () => {
+const MisVentasScreen = () => {
   const { user } = useAuth();
   const [transacciones, setTransacciones] = useState<TransaccionConPublicacion[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedTransaccion, setSelectedTransaccion] = useState<TransaccionConPublicacion | null>(null);
-  const [comentario, setComentario] = useState('');
   const router = useRouter();
-  const [Rating, setRating] = useState(0)
+  const [modalVisible, setModalVisible] = useState(false);
+  const [Rating, setRating] = useState(0);
+  const [selectedTransaccion, setSelectedTransaccion] = useState<TransaccionConPublicacion | null>(null);
   const [Finalizado, setFinalizado] = useState(false);
+  const [comentario, setComentario] = useState('');
   const fecha = new Date()
 
   useEffect(() => {
@@ -40,10 +41,10 @@ const MisComprasScreen = () => {
           user.transacciones.map((id) => fetchTransaccionById(id))
         );
 
-        const soloCompras = detalles.filter(t => t.vendedor === user._id);
+        const soloVentas = detalles.filter(t => t.vendedor === user._id);
 
         const transaccionesConPublicacion = await Promise.all(
-          soloCompras.map(async (trans) => {
+          soloVentas.map(async (trans) => {
             const publicacionDetalle = await fetchPublicacionById(trans.publicacion);
             return { ...trans, publicacionDetalle };
           })
@@ -60,17 +61,39 @@ const MisComprasScreen = () => {
     cargarDetalles();
   }, [user]);
 
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Ionicons name="person-circle-outline" size={64} color="#ccc" />
+        <Text style={styles.title}>No has iniciado sesión</Text>
+      </View>
+    );
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#F68628" />
+      </View>
+    );
+  }
+
   const handleCompletarCompra = (trans: TransaccionConPublicacion) => {
     setSelectedTransaccion(trans);
     setModalVisible(true);
   };
 
-  const enviarReseñaYConfirmar = async () => {
+   const handleRatingChange = (newRating: number) => {
+      setRating(newRating);
+      setFinalizado(false)
+      };
+
+const enviarReseñaYConfirmar = async () => {
     if (!selectedTransaccion) return;
     try {
      const newResena: Omit<Resena, '_id'> = {
          usuario: user ? user._id : '',
-         resenado: selectedTransaccion.vendedor || 'Vendedor desconocido',
+         resenado: selectedTransaccion.comprador || 'comprador desconocido',
          comentario: comentario,
          fecha: fecha,
          calificacion: Rating, 
@@ -93,87 +116,54 @@ const MisComprasScreen = () => {
     }
   };
 
-  if (!user) {
-    return (
-      <View style={styles.container}>
-        <Ionicons name="person-circle-outline" size={64} color="#ccc" />
-        <Text style={styles.title}>No has iniciado sesión</Text>
-      </View>
-    );
-  }
-
-  if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#F68628" />
-      </View>
-    );
-  }
-
-    const handleRatingChange = (newRating: number) => {
-      setRating(newRating);
-      setFinalizado(false)
-      };
-
-
-  if (!user) {
-    return;
-  }
-
-
-
-
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SafeAreaView style={styles.header}>
-      <TouchableOpacity 
+        <TouchableOpacity 
           onPress={() => router.push('/menu')}
           style={styles.backButton}
-      >
+        >
           <Ionicons name="arrow-back" size={24} color="#00318D" />
-      </TouchableOpacity> 
-      <Text style={styles.title}>Mis Ventas</Text>
+        </TouchableOpacity> 
+        <Text style={styles.title}>Mis Ventas</Text>
       </SafeAreaView>
-      <Ionicons name="cash-outline" size={64} color="#F68628" style={styles.icon} />
-      
+      <Ionicons name="cash-outline" size={64} color="#28A745" style={styles.icon} />
 
       {transacciones.length === 0 ? (
-            <Text style={styles.emptyMessage}>No tienes transacciones aún.</Text>
-          ) : (
-            transacciones
-              .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
-              .map((trans) => (
-                <View key={trans._id} style={styles.card}>
-                  <View style={styles.cardContent}>
-                    <Image
-                      source={{ uri: trans.publicacionDetalle.fotos[0] }}
-                      style={styles.image}
-                      resizeMode="cover"
-                    />
-                    <View style={styles.cardInfo}>
-                      <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
-                      <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
-                      <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
-                      <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
-                      <Text style={styles.fecha}>
-                        {new Date(trans.fecha).toLocaleDateString()}
-                      </Text>
-                      {trans.estado !== 'completado' && (
-                        <TouchableOpacity
-                          style={styles.button}
-                          onPress={() => handleCompletarCompra(trans)}
-                        >
-                          <Text style={styles.buttonText}>Marcar como completada</Text>
-                        </TouchableOpacity>
-                      )}
-                    </View>
-                  </View>
+        <Text style={styles.emptyMessage}>No tienes ventas aún.</Text>
+      ) : (
+        transacciones
+          .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
+          .map((trans) => (
+            <View key={trans._id} style={styles.card}>
+              <View style={styles.cardContent}>
+                <Image
+                  source={{ uri: trans.publicacionDetalle.fotos[0] }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+                <View style={styles.cardInfo}>
+                  <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
+                  <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
+                  <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
+                  <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
+                  <Text style={styles.fecha}>
+                    {new Date(trans.fecha).toLocaleDateString()}
+                  </Text>
+                  {trans.estado !== 'completado' && (
+                                          <TouchableOpacity
+                                            style={styles.button}
+                                            onPress={() => handleCompletarCompra(trans)}
+                                          >
+                                            <Text style={styles.buttonText}>Marcar como completada</Text>
+                                          </TouchableOpacity>
+                                        )}
                 </View>
-              ))
-          )}
-        
-      {/* Modal para reseña */}
+              </View>
+            </View>
+          ))
+      )}
+
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -213,12 +203,13 @@ const MisComprasScreen = () => {
           </View>
         </View>
       </Modal>
-    </ScrollView>
 
+    </ScrollView>
   );
 };
 
-export default MisComprasScreen;
+export default MisVentasScreen;
+
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
