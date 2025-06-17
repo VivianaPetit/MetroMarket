@@ -18,6 +18,9 @@ import { fetchCategorias } from '../services/categoriaService';
 import { updatePublicacion, deletePublicacion } from '../services/actualizarService'; // Asegúrate de importar deletePublicacion
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
+const modalidades = ['Presencial', 'Asincrono', 'Híbrido'];
+const metodoPagos = ['Efectivo', 'PagoMovil', 'Transferencia bancaria', 'Zelle', 'Paypal'];
+const semanas = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
 
 const EditarProducto = () => {
   const router = useRouter();
@@ -34,7 +37,22 @@ const EditarProducto = () => {
   const [lugarEntrega, setLugarEntrega] = useState(parsedProducto?.lugarEntrega || '');
   const [metodoPago, setMetodoPago] = useState(parsedProducto?.metodoPago || '');
   const [categoria, setCategoria] = useState(parsedProducto?.categoria || '');
-
+  const [modalidad, setModalidad] = useState(parsedProducto?.modalidad || '');
+  
+  const HORARIO_INICIAL = {
+      lunes: ['false'],
+      martes: ['false'],
+      miercoles: ['false'],
+      jueves: ['false'],
+      viernes: ['false'],
+      sabado: ['false'],
+      domingo: ['false']
+    };
+  
+    
+  const [horario, setHorario] = useState<Record<string, string[]>>(HORARIO_INICIAL);
+  const [diasSeleccionados, setDiasSeleccionados] = useState<string[]>([]);
+  
   useEffect(() => {
     fetchCategorias()
       .then(data => setCategorias(data))
@@ -44,6 +62,11 @@ const EditarProducto = () => {
   const handleActualizar = async () => {
   if (!titulo || !precio || !cantidad) {
     Alert.alert('Error', 'Título, precio y cantidad son obligatorios.');
+    return;
+  }
+  const isHorarioInitial = JSON.stringify(horario) === JSON.stringify(HORARIO_INICIAL);
+  if (isHorarioInitial && parsedProducto?.tipo === 'servicio') {
+    Alert.alert('Error', 'Debes seleccionar al menos un día de disponibilidad.');
     return;
   }
 
@@ -58,6 +81,8 @@ const EditarProducto = () => {
       lugarEntrega,
       metodoPago,
       categoria,
+      horario,
+      modalidad,
     });
 
     Alert.alert('Éxito', `Producto "${updated.titulo}" actualizado correctamente.`);
@@ -101,15 +126,29 @@ const EditarProducto = () => {
 
       <Text style={styles.titulo}>Editar Publicación</Text>
 
+      {/* titulo */}
       <Text style={styles.label}>Título *</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ej. Bicicleta montañera"
-        placeholderTextColor="#888"
-        value={titulo}
-        onChangeText={setTitulo}
-      />
-
+        {parsedProducto?.tipo == 'producto' ? (
+          // formulario de titulo para producto
+          <TextInput 
+            style={styles.input}
+            placeholder="Ej. Bicicleta montañera"
+            placeholderTextColor="#888"
+            value={titulo}
+            onChangeText={setTitulo}
+          />
+        ) : (
+          // formulario de titulo para servicio
+          <TextInput 
+            style={styles.input}
+            placeholder="Ej. Clases de Python"
+            placeholderTextColor="#888"
+            value={titulo}
+            onChangeText={setTitulo}
+          />
+        )}      
+      
+      {/* descripcion */}
       <Text style={styles.label}>Descripción</Text>
       <TextInput
         style={[styles.input, { height: 80 }]}
@@ -119,8 +158,10 @@ const EditarProducto = () => {
         value={descripcion}
         onChangeText={setDescripcion}
       />
-
-      <Text style={styles.label}>Precio *</Text>
+      {/* precio */}
+      <Text style={styles.label}>
+        {parsedProducto?.tipo === 'producto' ? 'Precio *' : 'Precio por hora *'}
+      </Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
@@ -128,7 +169,10 @@ const EditarProducto = () => {
         onChangeText={setPrecio}
       />
 
-      <Text style={styles.label}>Cantidad *</Text>
+      {/* Cantidad */}
+      <Text style={styles.label}>
+        {parsedProducto?.tipo === 'producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
+      </Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
@@ -136,21 +180,43 @@ const EditarProducto = () => {
         onChangeText={setCantidad}
       />
 
-      <Text style={styles.label}>Estado</Text>
-      <View style={styles.chipsContainer}>
-        {estados.map((op) => (
-          <TouchableOpacity
-            key={op}
-            style={[styles.chip, estado === op && styles.chipSelected]}
-            onPress={() => setEstado(op)}
-          >
-            <Text style={[styles.chipText, estado === op && styles.chipTextSelected]}>
-              {op}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
+      {/* Estado del producto (no aplica para servicios) || Modalidad del servicio (no aplica para producto) */}
+      <Text style={styles.label}>
+        {parsedProducto?.tipo === 'producto' ? 'Estado' : 'Modalidad del Servicio'}
+      </Text>
+        {parsedProducto?.tipo == 'producto' ? (
+          // formulario de Estado para producto
+          <View style={styles.chipsContainer}>
+            {estados.map((op) => (
+              <TouchableOpacity
+                key={op}
+                style={[styles.chip, estado === op && styles.chipSelected]}
+                onPress={() => setEstado(op)}
+              >
+                <Text style={[styles.chipText, estado === op && styles.chipTextSelected]}>
+                  {op}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View> 
+        ) : (
+          // formulario de Modalidad para servicio
+          <View style={styles.chipsContainer}>
+            {modalidades.map((op) => (
+              <TouchableOpacity
+                key={op}
+                style={[styles.chip, modalidad === op && styles.chipSelected]}
+                onPress={() => setModalidad(op)}
+              >
+                <Text style={[styles.chipText, modalidad === op && styles.chipTextSelected]}>
+                  {op}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      
+      {/* disponibilidad */}
       <View style={styles.switchContainer}>
         <Text style={styles.label}>¿Disponible?</Text>
         <Switch
@@ -160,35 +226,102 @@ const EditarProducto = () => {
           trackColor={{ true: '#00318D', false: '#999' }}
         />
       </View>
-
-      <Text style={styles.label}>Lugar de entrega</Text>
-      <TextInput
-        style={styles.input}
-        value={lugarEntrega}
-        onChangeText={setLugarEntrega}
-      />
+      
+      {/* Lugar de entrega (no aplica para servicios) || horario (no aplica para producto) */}
+      <Text style={styles.label}>
+        {parsedProducto?.tipo === 'producto' ? 'Lugar entrega' : 'Horario'}
+      </Text>      
+        {parsedProducto?.tipo == 'producto' ? (
+          // formulario de Lugar de entrega para producto
+          <TextInput
+            style={styles.input}
+            value={lugarEntrega}
+            onChangeText={setLugarEntrega}
+          />
+        ) : (
+          // formulario de horario para servicio
+          <View>
+            <Text style={{marginBottom:10,}}>Selecciona tus dias de disponibilidad nuevamente:</Text>
+            <View style={styles.chipsContainer}>
+              {semanas.map((op) => (
+                <TouchableOpacity
+                  key={op}
+                  style={[
+                    styles.chip,
+                    diasSeleccionados.includes(op) && styles.chipSelected
+                  ]}
+                  onPress={() => {
+                    setDiasSeleccionados(prev => {
+                      const newSelection = prev.includes(op) 
+                        ? prev.filter(dia => dia !== op) 
+                        : [...prev, op];
+                      
+                      setHorario(prevHorario => ({
+                        ...prevHorario,
+                        [op]: prevHorario[op][0] === 'false' ? ['true'] : ['false'],
+                      }));
+                      
+                      return newSelection;
+                    });
+                  }}
+                >
+                  <Text style={[styles.chipText, diasSeleccionados.includes(op) && styles.chipTextSelected]}>
+                    {op}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {/* para una visualizacion en tiempo real */}
+            {/* <Text>Horario actual:</Text>
+            <Text>{JSON.stringify(horario, null, 2)}</Text> */}
+          </View>
+        )}
 
       <Text style={styles.label}>Método de pago</Text>
-      <TextInput
-        style={styles.input}
-        value={metodoPago}
-        onChangeText={setMetodoPago}
-      />
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={metodoPago}
+              onValueChange={(itemValue) => setMetodoPago(itemValue)}
+              style={[
+                Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
+              ]}
+            >
+              <Picker.Item key="pick" label="Selecciona un método de pago" value="" />
+              {/*Muestra una lista de metodos de pago para seleccionar*/}
+              {metodoPagos.map((met) => (
+                <Picker.Item key={met} label={met} value={met}/>
+              ))}
+              </Picker>
+          </View>
 
-      <Text style={styles.label}>Categoría</Text>
-      <View style={styles.pickerWrapper}>
-        <Picker
-          selectedValue={categoria}
-          onValueChange={(itemValue) => setCategoria(itemValue)}
-          style={[
-            Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
-          ]}
-        >
-          {categorias.map((cat) => (
-            <Picker.Item key={cat._id} label={cat.nombre} value={cat.nombre} />
+    {/* categorias */}
+    <Text style={styles.label}>Categoría *</Text>
+    <View style={styles.pickerWrapper}>
+      <Picker
+        selectedValue={categoria}
+        onValueChange={(itemValue) => setCategoria(itemValue)}
+        style={[
+          Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
+        ]}
+      >
+        
+        {/* filtrar las categorias que son de producto y las que son de servicio MODIFICAR A FUTURO*/}
+        {categorias
+          .filter(cat => {
+            //para producto
+            if (parsedProducto?.tipo === 'producto') {
+              return !['Clases'].includes(cat.nombre);
+            }
+            //para servicio - Pd: por ahora solo se harcodea la categoria "Clase" para servicios, proximante mas
+            if (parsedProducto?.tipo === 'servicio') {
+              return ['Clases'].includes(cat.nombre);
+            }
+          })
+          .map((cat) => (
+            <Picker.Item key={cat._id} label={cat.nombre} value={cat._id} />
           ))}
         </Picker>
-      </View>
+    </View>      
 
       <TouchableOpacity style={styles.botonPublicar} onPress={handleActualizar}>
         <Ionicons name="create-outline" size={20} color="#fff" />
