@@ -10,7 +10,7 @@ import { useAuth } from '../context/userContext';
 import { Publicacion, Usuario } from '../interfaces/types';
 
 const Comprar: React.FC = () => {
-  const { user } = useAuth();
+  const { user, refrescarUsuario } = useAuth();
   const { productId } = useLocalSearchParams();
   const router = useRouter();
   const [publicacion, setPublicacion] = useState<Publicacion | null>(null);
@@ -66,11 +66,13 @@ const Comprar: React.FC = () => {
         entregado : [false, false],
       });
 
-      // 2. Actualizar ambos usuarios
       await Promise.all([
         agregarTransaccionAUsuario(user._id, nuevaTransaccion._id),
         agregarTransaccionAUsuario(vendedor._id, nuevaTransaccion._id)
       ]);
+
+      // 3. Refrescar el usuario en el contexto
+      await refrescarUsuario(); // ✅ Esto actualiza la info del usuario
 
       // 3. Navegar a la pantalla de confirmación
       router.push({
