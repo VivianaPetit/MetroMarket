@@ -88,7 +88,7 @@ export default function Layout() {
           <Ionicons name="add" size={30} color="white" />
         </TouchableOpacity>
       )}
-      </>
+    </>
 
   );
 }

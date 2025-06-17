@@ -67,7 +67,7 @@ export default function ProductDetails() {
 
     loadProductAndRecomendadas();
   }, [productId]);
-
+  //Verifica si el profucto ha sido marcado como favorito anteriormente para mostrarlo activando el icono de corazon
   useEffect(() => {
     const checkFavorite = async () => {
       if (product?._id && user?._id) {
@@ -132,14 +132,13 @@ export default function ProductDetails() {
       </View>
     );
   }
-
+  //para favoritos
   const handleFavorito = async () => {
     if (!user) {
       Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
       return;
     }
     
-
     try {
       if (!isLiked) {
         await agregarPublicacionAFavorito(user._id, product._id);

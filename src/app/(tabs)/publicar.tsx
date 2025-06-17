@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, Image, Button // <-- Agrega Image aquí
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, Image// <-- Agrega Image aquí
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -18,28 +18,11 @@ import { useLocalSearchParams } from 'expo-router';
 
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
-const formaServicios = ['Presencial', 'Asincrono', 'Hibrido'];
+const modalidades = ['Presencial', 'Asincrono', 'Híbrido'];
 const metodoPagos = ['Efectivo', 'PagoMovil', 'Transferencia bancaria', 'Zelle', 'Paypal'];
-
-
 //--------------------------------------------------------------------------------------------------------
 //necesario para la seleccion de horario
-
-// 1. Define un tipo para los días de la semana
-type DiasSemana = 'lunes' | 'martes' | 'miercoles' | 'jueves' | 'viernes' | 'sabado' | 'domingo';
-
-const dias: DiasSemana[] = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
-const HORARIO_INICIAL = {
-  lunes: [],
-  martes: [],
-  miercoles: [],
-  jueves: [],
-  viernes: [],
-  sabado: [],
-  domingo: []
-};
-
-const [horario, setHorario] = useState<Record<DiasSemana, string[]>>(HORARIO_INICIAL);
+const semanas = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
 
 //--------------------------------------------------------------------------------------------------------------
 
@@ -57,7 +40,21 @@ const CreatePublication = () => {
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
-  const [formaServicio, setFormaServicio] = useState('');
+  const [modalidad, setModalidad] = useState('');
+
+  const HORARIO_INICIAL = {
+    lunes: ['false'],
+    martes: ['false'],
+    miercoles: ['false'],
+    jueves: ['false'],
+    viernes: ['false'],
+    sabado: ['false'],
+    domingo: ['false']
+  };
+
+  
+  const [horario, setHorario] = useState<Record<string, string[]>>(HORARIO_INICIAL);
+  const [diasSeleccionados, setDiasSeleccionados] = useState<string[]>([]);
 
   const [images, setImages] = useState<{ uri: string; base64: string }[]>([]); // guarda [{ uri, base64 }]
   interface FormErrors {
@@ -170,7 +167,7 @@ const handlePublicar = async () => {
       lugarEntrega,
       metodoPago,
       tipo: tipoPublicacion,
-      formaServicio,
+      modalidad,
       horario,
       categoria: categoriaSeleccionada?.nombre,
       usuario: user._id,
@@ -189,7 +186,7 @@ const handlePublicar = async () => {
     setPrecio('');
     setCantidad('');
     setEstado('');
-    setFormaServicio('');
+    setModalidad('');
     setLugarEntrega('');
     setMetodoPago('');
     setCategoria('');
@@ -253,7 +250,9 @@ const pickImageAndStore = async () => {
       {/* titulo de la pagina */}
       <Text style={styles.titulo}>Crear Publicación</Text>
       {/* para cargar imagenes */}
-      <Text style={styles.label}>Fotos del producto</Text>
+      <Text style={styles.label}>
+        {tipoPublicacion === 'producto' ? 'Fotos del producto' : 'Fotos del servicio'}
+      </Text>
       <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndStore}>
         <Ionicons name="image-outline" size={20} color="#fff" />
         <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
@@ -337,7 +336,7 @@ const pickImageAndStore = async () => {
         />
       {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}
 
-      {/* Estado del producto (no aplica para servicios) || FormaServicio  del servicio (no aplica para producto) */}
+      {/* Estado del producto (no aplica para servicios) || Modalidad del servicio (no aplica para producto) */}
       <Text style={styles.label}>
         {tipoPublicacion === 'producto' ? 'Estado' : 'Medio del Servicio'}
       </Text>
@@ -357,15 +356,15 @@ const pickImageAndStore = async () => {
             ))}
           </View> 
         ) : (
-          // formulario de FormaServicio para servicio
+          // formulario de Modalidad para servicio
           <View style={styles.chipsContainer}>
-            {formaServicios.map((op) => (
+            {modalidades.map((op) => (
               <TouchableOpacity
                 key={op}
-                style={[styles.chip, formaServicio === op && styles.chipSelected]}
-                onPress={() => setFormaServicio(op)}
+                style={[styles.chip, modalidad === op && styles.chipSelected]}
+                onPress={() => setModalidad(op)}
               >
-                <Text style={[styles.chipText, formaServicio === op && styles.chipTextSelected]}>
+                <Text style={[styles.chipText, modalidad === op && styles.chipTextSelected]}>
                   {op}
                 </Text>
               </TouchableOpacity>
@@ -376,7 +375,7 @@ const pickImageAndStore = async () => {
       
       {/* Lugar de entrega (no aplica para servicios) || horario (no aplica para producto) */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Lugar entrega' : 'horario'}
+        {tipoPublicacion === 'producto' ? 'Lugar entrega' : 'Horario'}
       </Text>
       {tipoPublicacion == 'producto' ? (
           // formulario de Lugar de entrega para producto
@@ -386,9 +385,41 @@ const pickImageAndStore = async () => {
             onChangeText={setLugarEntrega}
           />
         ) : (
-          // formulario de FormaServicio para servicio
+          // formulario de horario para servicio
           <View>
-            <Text>En progreso actualmente</Text>
+            <Text style={{marginBottom:10,}}>Selecciona tus dias de disponibilidad:</Text>
+            <View style={styles.chipsContainer}>
+              {semanas.map((op) => (
+                <TouchableOpacity
+                  key={op}
+                  style={[
+                    styles.chip,
+                    diasSeleccionados.includes(op) && styles.chipSelected
+                  ]}
+                  onPress={() => {
+                    setDiasSeleccionados(prev => {
+                      const newSelection = prev.includes(op) 
+                        ? prev.filter(dia => dia !== op) 
+                        : [...prev, op];
+                      
+                      setHorario(prevHorario => ({
+                        ...prevHorario,
+                        [op]: prevHorario[op][0] === 'false' ? ['true'] : ['false'],
+                      }));
+                      
+                      return newSelection;
+                    });
+                  }}
+                >
+                  <Text style={[styles.chipText, diasSeleccionados.includes(op) && styles.chipTextSelected]}>
+                    {op}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {/* para una visualizacion en tiempo real */}
+            {/* <Text style={styles.subtitle}>Horario actual:</Text>
+            <Text>{JSON.stringify(horario, null, 2)}</Text> */}
           </View>
         )}
 
@@ -449,6 +480,7 @@ const pickImageAndStore = async () => {
     </ScrollView>
   );
 };
+
 
 export default CreatePublication;
 
@@ -551,30 +583,11 @@ const styles = StyleSheet.create({
   fontSize: 12,
   marginTop: 4,
 },
-  diasContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 20,
-  },
-  botonDia: {
-    padding: 10,
-    margin: 5,
-    backgroundColor: '#eee',
-    borderRadius: 5,
-  },
-  botonDiaActivo: {
-    backgroundColor: '#4CAF50',
-  },
-  horarioItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  eliminarText: {
-    color: 'red',
-    fontSize: 16,
-  },
+  subtitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginTop: 20,
+      marginBottom: 8,
+    },
+  
 });

@@ -47,7 +47,7 @@ const publicacionSchema = new mongoose.Schema({
     default: [],
   },
 
-  formaservicio:{
+  modalidad:{
     type: String
   },
 
