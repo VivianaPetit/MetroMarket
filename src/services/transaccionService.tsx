@@ -16,6 +16,8 @@ export const fetchTransacciones = async (): Promise<Transaccions[]> => {
   }
 };
 
+
+
 // Crear una nueva transaccións
 export const createTransaccion = async (
   nuevaTransaccion: Omit<Transaccions, '_id'>
@@ -40,6 +42,8 @@ export const fetchTransaccionById = async (transaccionsId: string): Promise<Tran
     throw error;
   }
 };
+
+
 
 // Confirmar entrega (vendedor o comprador)
 export const confirmarEntrega = async (

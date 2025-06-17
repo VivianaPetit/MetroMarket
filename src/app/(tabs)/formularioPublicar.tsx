@@ -105,13 +105,18 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
     },
-    headerInstruccion:{
-        fontSize:15,
-        fontFamily: 'Bold',
-        flexDirection: 'row',
-        marginTop: 30,
-        marginBottom:30,
-    },
+    headerInstruccion: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#888',
+    flexDirection: 'row', 
+    flexWrap: 'wrap',
+    textAlign: 'center', 
+    width: '100%', 
+    marginTop: 20,
+    marginBottom: 20,
+    
+  },
     backButton: {
         marginRight: 10,
         paddingBottom: 20,
