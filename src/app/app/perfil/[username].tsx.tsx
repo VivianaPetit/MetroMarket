@@ -88,11 +88,11 @@ export default function Perfil() {
         )}
       </View>
 
-      <ProfileCard
-        UserName={usuarioPerfil?.username ?? 'Usuario'}
-        nombreyA={modoEdicion ? nombre : usuarioPerfil.nombre}
-        tlf={modoEdicion ? telefono : usuarioPerfil.telefono}
-        editable={!!modoEdicion && !!esMiPerfil}
+       <ProfileCard
+        UserName={user?.correo ?? 'Usuario'}
+        nombreyA={modoEdicion ? nombre : user?.nombre ?? 'Nombre'}
+        tlf={modoEdicion ? telefono : user?.telefono ?? ''}
+        editable={modoEdicion}
         onNombreChange={setNombre}
         onTelefonoChange={setTelefono}
       />
