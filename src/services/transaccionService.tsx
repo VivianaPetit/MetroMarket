@@ -1,14 +1,14 @@
 // services/transaccionService.ts
 import axios from "axios";
-import { Transaccion } from '../interfaces/types';
+import { Transaccions } from '../interfaces/types';
 import { API_BASE_URL } from '../../config';
 
 const transaccionesURL = `${API_BASE_URL}/transacciones`;
 
 // Obtener todas las transacciones
-export const fetchTransacciones = async (): Promise<Transaccion[]> => {
+export const fetchTransacciones = async (): Promise<Transaccions[]> => {
   try {
-    const response = await axios.get<Transaccion[]>(transaccionesURL);
+    const response = await axios.get<Transaccions[]>(transaccionesURL);
     return response.data;
   } catch (error) {
     console.error('Error fetching transacciones:', error);
@@ -16,12 +16,12 @@ export const fetchTransacciones = async (): Promise<Transaccion[]> => {
   }
 };
 
-// Crear una nueva transacción
+// Crear una nueva transaccións
 export const createTransaccion = async (
-  nuevaTransaccion: Omit<Transaccion, '_id'>
-): Promise<Transaccion> => {
+  nuevaTransaccion: Omit<Transaccions, '_id'>
+): Promise<Transaccions> => {
   try {
-    const response = await axios.post<Transaccion>(transaccionesURL, nuevaTransaccion);
+    const response = await axios.post<Transaccions>(transaccionesURL, nuevaTransaccion);
     if (!response.data._id) throw new Error('El backend no devolvió el _id de la transacción');
     return response.data;
   } catch (error) {
@@ -31,9 +31,9 @@ export const createTransaccion = async (
 };
 
 // Obtener transacción por ID
-export const fetchTransaccionById = async (transaccionId: string): Promise<Transaccion> => {
+export const fetchTransaccionById = async (transaccionsId: string): Promise<Transaccions> => {
   try {
-    const response = await axios.get<Transaccion>(`${transaccionesURL}/${transaccionId}`);
+    const response = await axios.get<Transaccions>(`${transaccionesURL}/${transaccionsId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching transacción by ID:', error);
@@ -45,9 +45,9 @@ export const fetchTransaccionById = async (transaccionId: string): Promise<Trans
 export const confirmarEntrega = async (
   transaccionId: string,
   esVendedor: boolean
-): Promise<Transaccion> => {
+): Promise<Transaccions> => {
   try {
-    const response = await axios.patch<Transaccion>(
+    const response = await axios.patch<Transaccions>(
       `${transaccionesURL}/${transaccionId}/confirmar-entrega`,
       { esVendedor }
     );
@@ -59,9 +59,9 @@ export const confirmarEntrega = async (
 };
 
 // Obtener transacciones por usuario (comprador o vendedor)
-export const fetchTransaccionesByUsuario = async (usuarioId: string): Promise<Transaccion[]> => {
+export const fetchTransaccionesByUsuario = async (usuarioId: string): Promise<Transaccions[]> => {
   try {
-    const response = await axios.get<Transaccion[]>(`${transaccionesURL}/usuario/${usuarioId}`);
+    const response = await axios.get<Transaccions[]>(`${transaccionesURL}/usuario/${usuarioId}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching transacciones del usuario:', error);

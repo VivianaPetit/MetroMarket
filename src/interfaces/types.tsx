@@ -39,7 +39,7 @@ export interface Resena {
   calificacion: number; 
 }
 
-export interface Transaccion {
+export interface Transaccions {
   _id: string,
   comprador: string;
   vendedor: string;
