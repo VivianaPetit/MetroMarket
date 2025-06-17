@@ -145,8 +145,14 @@ const Comprar: React.FC = () => {
 
         <Text style={styles.priceText}>
           {`$${typeof publicacion.precio === 'number' ? publicacion.precio.toFixed(2) : '0.00'}`}
+          {publicacion.tipo === 'producto' ? '' : ' por hora'}
         </Text>
-        <Text style={styles.stock}>Cantidad disponible: {publicacion.cantidad}</Text>
+        
+        
+        <Text style={styles.stock}>
+          {publicacion.tipo === 'producto' ? 'Cantidad disponible: ' : 'Cupos disponibles: '}
+          {publicacion.cantidad}          
+        </Text>
 
         <View style={styles.separador} />
 
