@@ -186,7 +186,6 @@ export default function ProductDetails() {
         </ScrollView>
       </View>
 
-
       <View style={styles.detailsContainer}>
         <View style={styles.header}>
           <Text style={styles.titleText}>{product.titulo}</Text>

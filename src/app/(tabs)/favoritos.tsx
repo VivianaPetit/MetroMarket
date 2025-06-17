@@ -69,29 +69,28 @@ export default function Home() {
 
         {/* Productos */}
         { user ? (<ScrollView contentContainerStyle={styles.productsGrid}>
-            <View style={styles.productsGrid}>
-            {filteredPublications.length > 0 ? (
-                filteredPublications.map((pub) => (
-                    <TouchableOpacity
-                    key={pub._id}
-                    onPress={() => router.push({
-                        pathname: "/productDetails",
-                        params: { productId: pub._id }
-                    })}
-                    >
-                    <ProductCard
-                        name={pub.titulo}
-                        price={pub.precio}
-                        category={pub.categoria}
-                        image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}
-                    />
-                    </TouchableOpacity>
-                ))
-            ) : (
-            <Text style={styles.errorMensaje}>No tienes productos en favoritos</Text>
-            )}
-            </View>
-        </ScrollView>) : (
+  {filteredPublications.length > 0 ? (
+    filteredPublications.map((pub) => (
+      <TouchableOpacity
+        key={pub._id}
+        onPress={() => router.push({
+          pathname: "/productDetails",
+          params: { productId: pub._id }
+        })}
+      >
+        <ProductCard
+          name={pub.titulo}
+          price={pub.precio}
+          category={pub.categoria}
+          image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}
+        />
+      </TouchableOpacity>
+    ))
+  ) : (
+    <Text style={styles.errorMensaje}>No tienes productos en favoritos</Text>
+  )}
+</ScrollView>
+) : (
           <Text style={styles.errorMensaje}>{message}</Text>
           
         )}
