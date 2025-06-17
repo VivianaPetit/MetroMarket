@@ -93,6 +93,10 @@ const validarFormulario = (): FormErrors => {
     errores.categoria = 'Debes seleccionar una categoría válida.';
   }
 
+  if (horario === HORARIO_INICIAL && tipoPublicacion === 'servicio') {
+    errores.metodoPago = 'Debes seleccionar al menos un dia de disponible.';
+  }
+
   if (!metodoPago || metodoPago === '' || metodoPago === 'Selecciona un método de pago') {
     errores.metodoPago = 'Debes seleccionar un método de pago válido.';
   }

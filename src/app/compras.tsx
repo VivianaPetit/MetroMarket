@@ -9,6 +9,8 @@ import { fetchPublicacionById } from '../services/publicacionService';
 import { Transaccions, Publicacion } from '../interfaces/types';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Resena } from '../interfaces/types';
+import { createResena } from '../services/ResenaServices';
 
 interface TransaccionConPublicacion extends Transaccions {
   publicacionDetalle?: Publicacion;
@@ -22,6 +24,9 @@ const MisComprasScreen = () => {
   const [selectedTransaccion, setSelectedTransaccion] = useState<TransaccionConPublicacion | null>(null);
   const [comentario, setComentario] = useState('');
   const router = useRouter();
+  const [Rating, setRating] = useState(0)
+  const [Finalizado, setFinalizado] = useState(false);
+  const fecha = new Date()
 
   useEffect(() => {
     if (!user?.transacciones?.length) {
@@ -63,6 +68,16 @@ const MisComprasScreen = () => {
   const enviarReseñaYConfirmar = async () => {
     if (!selectedTransaccion) return;
     try {
+     const newResena: Omit<Resena, '_id'> = {
+         usuario: user ? user._id : '',
+         resenado: selectedTransaccion.vendedor || 'Vendedor desconocido',
+         comentario: comentario,
+         fecha: fecha,
+         calificacion: Rating, 
+      };
+       //console.log("llegamos")
+       const createdUser = await createResena(newResena);
+       //console.log(createdUser);
       // Aquí podrías enviar la reseña también
       await confirmarEntrega(selectedTransaccion._id, false);
       const actualizada = await fetchTransaccionById(selectedTransaccion._id);
@@ -94,6 +109,20 @@ const MisComprasScreen = () => {
       </View>
     );
   }
+
+    const handleRatingChange = (newRating: number) => {
+      setRating(newRating);
+      setFinalizado(false)
+      };
+
+
+  if (!user) {
+    return;
+  }
+
+
+
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -148,14 +177,35 @@ const MisComprasScreen = () => {
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>¿Quieres dejar una reseña?</Text>
-            <TextInput
-              placeholder="Escribe tu comentario..."
-              style={styles.textInput}
-              multiline
-              value={comentario}
-              onChangeText={setComentario}
-            />
+          <Text>Comentarios</Text>
+          <Text>Por favor clasifique el vendedor de este producto</Text>
+          <View style={styles.modalContent}>
+                        {[...Array(5)].map((_, i) => (
+            <TouchableOpacity 
+              key={i} 
+              onPress={() => handleRatingChange(i + 1)}
+            >
+              <Ionicons 
+                name={i < Rating ? 'star' : 'star-outline'} 
+                size={28} 
+                color='#F68628' 
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+    <Text>Deje un comentario</Text>
+    <View style={styles.modalContent}>
+        <TextInput
+          editable
+          multiline
+          numberOfLines={10}
+          maxLength={400}
+          onChangeText={text => setComentario(text)}
+          value={comentario}
+          style={styles.textInput}
+        />
+        </View>
             <View style={styles.modalButtons}>
               <Button title="Cancelar" color="#888" onPress={() => setModalVisible(false)} />
               <Button title="Confirmar entrega" onPress={enviarReseñaYConfirmar} color="#F68628" />
