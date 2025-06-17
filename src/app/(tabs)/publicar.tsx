@@ -95,7 +95,7 @@ const validarFormulario = (): FormErrors => {
   }
 
   if (horario === HORARIO_INICIAL && tipoPublicacion === 'servicio') {
-    errores.metodoPago = 'Debes seleccionar al menos un dia de disponible.';
+    errores.metodoPago = 'Debes seleccionar al menos un dia de disponibilidad.';
   }
 
   if (!metodoPago || metodoPago === '' || metodoPago === 'Selecciona un método de pago') {
@@ -357,7 +357,7 @@ const pickImageAndStore = async () => {
 
       {/* Estado del producto (no aplica para servicios) || Modalidad del servicio (no aplica para producto) */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Estado' : 'Medio del Servicio'}
+        {tipoPublicacion === 'producto' ? 'Estado' : 'Modalidad del Servicio'}
       </Text>
       {tipoPublicacion == 'producto' ? (
           // formulario de Estado para producto

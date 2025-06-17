@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import {
   View,
   Text,
@@ -160,16 +162,28 @@ export default function ProductDetails() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+      <SafeAreaView>
+        <TouchableOpacity 
+          onPress={() => router.push('/')}
+          style={styles.backButton}
+        >
+        <Ionicons name="arrow-back" size={24} color="#00318D" />
+          </TouchableOpacity> 
+        </SafeAreaView>
+      {/* <View>
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Ionicons name="arrow-back" size={26} color="#F68628" />
       </TouchableOpacity>
-
+      </View>*/}
+      <View> 
       <TouchableOpacity onPress={() => router.push({
                         pathname: "/",
                         params: { categoria: product.categoria }
                     })}>
         <Text style={styles.linkText}>Ver más productos de la categoría "{product.categoria}"</Text>
       </TouchableOpacity>
+      </View>
+
     {/* visualizacion imagen */}
       <View style={styles.imageWrapper}>
         <ScrollView
@@ -261,7 +275,9 @@ export default function ProductDetails() {
         <Text style={styles.detailText}>{vendedor ? `${vendedor.nombre} - ${vendedor.telefono}` : 'Cargando...'}</Text>
 
         <TouchableOpacity style={styles.buyButton} onPress={Verificacion_Usuario} >
-          <Text style={styles.buyButtonText}>Comprar</Text>
+          <Text style={styles.buyButtonText}>
+            {product.tipo === 'producto' ? 'Comprar' : 'Reservar'}
+          </Text>
         </TouchableOpacity>
 
         {recomendadasCat.length > 0 ? (
