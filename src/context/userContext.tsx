@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
   };
 
-   const refrescarUsuario = async () => {
+  const refrescarUsuario = async () => {
   // console.log('refrescarUsuario, user:', user);
   if (user?._id) {
     //console.log('refrescarUsuario, user._id:', user,  user._id);
