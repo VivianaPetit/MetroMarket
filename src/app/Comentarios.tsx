@@ -32,7 +32,7 @@ const {
 
      const newResena: Omit<Resena, '_id'> = {
          usuario: user ? user._id : '',
-         vendedor: vendedor || 'Vendedor desconocido',
+         resenado: vendedor || 'Vendedor desconocido',
          comentario: value,
          fecha: fecha,
          calificacion: Rating, 

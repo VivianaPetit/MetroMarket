@@ -37,12 +37,13 @@ export interface Publicacion {
 export interface Resena {
   _id: string,
   usuario: string;
+   resenado: string;
   comentario: string;
   fecha: Date;
   calificacion: number; 
 }
 
-export interface Transaccion {
+export interface Transaccions {
   _id: string,
   comprador: string;
   vendedor: string;
