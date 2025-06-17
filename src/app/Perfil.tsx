@@ -22,6 +22,8 @@ export default function Perfil() {
     { UserName: "Juan", commentText: "Excelente servicio!" },
     { UserName: "María", commentText: "zasrtdfyvgubihnjgvfycdxrsezxdtcf" },
     { UserName: "Juan", commentText: "Excelente servicio!" },
+    { UserName: "María", commentText: "zasrtdfyvgubihnjgvfycdxrsezxdtcf" },
+   
   ];
 
   const handleLogout = () => {
@@ -88,17 +90,22 @@ const handleGuardar = async () => {
         </TouchableOpacity>
       )}
 
-      {!modoEdicion && showReviews && (
-        <View style={styles.commentsContainer}>
-          {comentarios.map((comentario, index) => (
-            <CommentCard
-              key={index}
-              UserName={comentario.UserName}
-              commentText={comentario.commentText}
-            />
-          ))}
-        </View>
-      )}
+      {showReviews && (
+            <View style={styles.commentsContainer}>
+              <ScrollView 
+                style={{ maxHeight: 200 }} 
+                nestedScrollEnabled={true} 
+              >
+                {comentarios.map((comentario, index) => (
+                  
+                  <CommentCard
+                    key={index}
+                    UserName={comentario.UserName}
+                    commentText={comentario.commentText}
+                  />
+                ))}</ScrollView>
+                </View>)} 
+
 
       {!modoEdicion && (
         <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
