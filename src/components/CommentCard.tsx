@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet,TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 
 
 const CommentCard = ({
@@ -13,12 +14,19 @@ const CommentCard = ({
   commentText?:string;
   
 }) => {
+  const router = useRouter();
   return (
   <View style={styles.CommentBox}>
           <View style={[styles.circleContainer,{borderColor:'black',width:60,height:60}]}><Image source={imagen} style={styles.avatarImage} /> </View> 
           
           <View>
-            <View style={{marginTop:10}}><Text style={{fontWeight:'bold'}}>{UserName}</Text></View>
+            <TouchableOpacity 
+          onPress={() => router.push({ 
+            pathname: '/Perfil', 
+            params: { username: UserName }
+          })}
+        >
+            <View style={{marginTop:10}}><Text style={{fontWeight:'bold'}}>{UserName}</Text></View></TouchableOpacity>
             <View style={styles.comment}><Text>{commentText}</Text></View>
           </View>
   

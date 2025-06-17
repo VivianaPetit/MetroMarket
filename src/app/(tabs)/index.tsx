@@ -89,6 +89,13 @@ export default function Home() {
             />
       </View>
 
+      <TouchableOpacity
+                  onPress={() => router.push('../Perfil')}
+                  activeOpacity={0.8}
+                ><View><Text>Perfil</Text></View>
+      </TouchableOpacity>
+      
+
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesWrapper}>
             {categorias.map((cat) => (

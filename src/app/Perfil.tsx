@@ -1,11 +1,11 @@
+import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import ProfileCard from '../components/ProfileCard';
-import { useAuth } from '../context/userContext'; 
-import { editarUsuario } from '../services/usuarioService';
-import React, { useState } from 'react';
 import CommentCard from '../components/CommentCard';
+import { useAuth } from '../context/userContext';
+import { editarUsuario, obtenerUsuarioPorCorreo } from '../services/UsuarioService';
 
 export default function Perfil() {
   const router = useRouter();
@@ -16,102 +16,152 @@ export default function Perfil() {
   const [nombre, setNombre] = useState(user?.nombre ?? '');
   const [telefono, setTelefono] = useState(user?.telefono ?? '');
   const [showReviews, setShowReviews] = useState(false);
+  const [usuarioPerfil, setUsuarioPerfil] = useState<any>(null);
+  const params = useLocalSearchParams();
+  const usernameParam = params.username as string;
 
- // Ejemplo de datos para las resenas, sacar esto del backend
- const comentarios = [
+  useEffect(() => {
+    const cargarPerfil = async () => {
+      try {
+        if (usernameParam) {
+          const usuario = await obtenerUsuarioPorCorreo(usernameParam);
+          setUsuarioPerfil(usuario);
+        } else if (user) {
+          setUsuarioPerfil(user);
+        }
+      } catch (error) {
+        console.error("Error cargando perfil:", error);
+      }
+    };
+
+    cargarPerfil();
+  }, [usernameParam, user]);
+
+  const esMiPerfil = !usernameParam || (user && user.correo === usernameParam);
+
+  if (!usuarioPerfil) {
+    return <Text style={{ padding: 20 }}>Cargando...</Text>;
+  }
+
+  const comentarios = [
     { UserName: "Juan", commentText: "Excelente servicio!" },
-    { UserName: "María", commentText: "zasrtdfyvgubihnjgvfycdxrsezxdtcf" },
-    { UserName: "Juan", commentText: "Excelente servicio!" },
-    { UserName: "María", commentText: "zasrtdfyvgubihnjgvfycdxrsezxdtcf" },
-   
+    { UserName: "María", commentText: "Muy atenta y rápida respuesta" },
   ];
 
   const handleLogout = () => {
-    logout?.(); 
+    logout?.();
     router.push('./');
   };
 
-const handleGuardar = async () => {
-  if (!user) return;
-  try {
-    const usuarioActualizado = await editarUsuario(user._id, { nombre, telefono });
-    setUser(usuarioActualizado);
-    setModoEdicion(false);
-    setMensaje('Perfil actualizado exitosamente');
-    setColorMensaje('green');
-  } catch (error) {
-    setMensaje('Error al actualizar el perfil');
-    setColorMensaje('red');
-  }
+  const handleGuardar = async () => {
+    if (!user) return;
 
-  // Ocultar mensaje después de 3 segundos
-  setTimeout(() => setMensaje(''), 3000);
-};
+    try {
+      const usuarioActualizado = await editarUsuario(user._id, { nombre, telefono });
+      setUser(usuarioActualizado);
+      setModoEdicion(false);
+      setMensaje('Perfil actualizado exitosamente');
+      setColorMensaje('green');
+    } catch (error) {
+      setMensaje('Error al actualizar el perfil');
+      setColorMensaje('red');
+    }
 
+    setTimeout(() => setMensaje(''), 3000);
+  };
 
   return (
     <ScrollView style={styles.wrapper}>
       <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.push("./")}>
+        <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#00318D" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Mi Perfil</Text>
-        <TouchableOpacity onPress={() => setModoEdicion(!modoEdicion)}>
-          <Ionicons name={modoEdicion ? "close" : "create"} color="#00318D" size={24} />
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{esMiPerfil ? "Mi perfil" : "Perfil de Usuario"}</Text>
+
+        {esMiPerfil && (
+          <TouchableOpacity onPress={() => setModoEdicion(!modoEdicion)}>
+            <Ionicons name={modoEdicion ? "close" : "create"} color="#00318D" size={24} />
+          </TouchableOpacity>
+        )}
       </View>
 
-
       <ProfileCard
-        UserName={user?.correo ?? 'Usuario'}
-        nombreyA={modoEdicion ? nombre : user?.nombre ?? 'Nombre'}
-        tlf={modoEdicion ? telefono : user?.telefono ?? ''}
-        editable={modoEdicion}
+        UserName={usuarioPerfil.correo}
+        nombreyA={modoEdicion ? nombre : usuarioPerfil.nombre}
+        tlf={modoEdicion ? telefono : usuarioPerfil.telefono}
+        editable={!!modoEdicion && !!esMiPerfil}
         onNombreChange={setNombre}
         onTelefonoChange={setTelefono}
       />
-      {mensaje !== '' && (
-        <View style={{ padding: 10, borderRadius: 8, marginTop: 8, marginHorizontal: 20 }}>
-          <Text style={{ color: colorMensaje, textAlign: 'center' }}>{mensaje}</Text>
-        </View>
-      )}
 
-      {modoEdicion && (
-        <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleGuardar}>
-          <Ionicons name="save" color="white" size={20} />
-          <Text style={styles.buttonText}>Guardar Cambios</Text>
-        </TouchableOpacity>
-      )}
+      {esMiPerfil ? (
+        <>
+          {mensaje !== '' && (
+            <View style={{ padding: 10, borderRadius: 8, marginTop: 8, marginHorizontal: 20 }}>
+              <Text style={{ color: colorMensaje, textAlign: 'center' }}>{mensaje}</Text>
+            </View>
+          )}
 
-      {!modoEdicion && (
-        <TouchableOpacity style={styles.button} onPress={() => setShowReviews(prev => !prev)}>
-          <Ionicons name="chatbubbles-outline" color="#F68628" size={20} />
-          <Text style={styles.buttonTextAlt}>Ver las reseñas de este usuario</Text>
-        </TouchableOpacity>
-      )}
+          {modoEdicion && (
+            <TouchableOpacity style={[styles.button, styles.saveButton]} onPress={handleGuardar}>
+              <Ionicons name="save" color="white" size={20} />
+              <Text style={styles.buttonText}>Guardar Cambios</Text>
+            </TouchableOpacity>
+          )}
 
-      {showReviews && (
+          {!modoEdicion && (
+            <>
+              <TouchableOpacity style={styles.button} onPress={() => setShowReviews(prev => !prev)}>
+                <Ionicons name="chatbubbles-outline" color="#F68628" size={20} />
+                <Text style={styles.buttonTextAlt}>
+                  {showReviews ? 'Ocultar reseñas' : 'Ver mis reseñas'}
+                </Text>
+              </TouchableOpacity>
+
+              {showReviews && (
+                <View style={styles.commentsContainer}>
+                  <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled={true}>
+                    {comentarios.map((comentario, index) => (
+                      <CommentCard
+                        key={index}
+                        UserName={comentario.UserName}
+                        commentText={comentario.commentText}
+                      />
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+
+              <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
+                <Ionicons name="log-out" color="#F68628" size={20} />
+                <Text style={styles.logoutText}>Cerrar Sesión</Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          <TouchableOpacity style={styles.button} onPress={() => setShowReviews(prev => !prev)}>
+            <Ionicons name="chatbubbles-outline" color="#F68628" size={20} />
+            <Text style={styles.buttonTextAlt}>
+              {showReviews ? 'Ocultar reseñas' : 'Ver reseñas'}
+            </Text>
+          </TouchableOpacity>
+
+          {showReviews && (
             <View style={styles.commentsContainer}>
-              <ScrollView 
-                style={{ maxHeight: 200 }} 
-                nestedScrollEnabled={true} 
-              >
+              <ScrollView style={{ maxHeight: 200 }} nestedScrollEnabled={true}>
                 {comentarios.map((comentario, index) => (
-                  
                   <CommentCard
                     key={index}
                     UserName={comentario.UserName}
                     commentText={comentario.commentText}
                   />
-                ))}</ScrollView>
-                </View>)} 
-
-
-      {!modoEdicion && (
-        <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
-          <Ionicons name="log-out" color="#F68628" size={20} />
-          <Text style={styles.logoutText}>Cerrar Sesión</Text>
-        </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+        </>
       )}
     </ScrollView>
   );
