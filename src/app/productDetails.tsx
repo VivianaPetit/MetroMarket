@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -108,7 +109,7 @@ export default function ProductDetails() {
       }else{
           router.push({
           pathname: "/comprar",
-          params: { productId: productId } // 🔄 Envías el mismo ID a la pantalla de compra
+          params: { productId: productId } 
         })
       }
   };
@@ -144,17 +145,14 @@ export default function ProductDetails() {
       if (!isLiked) {
         await agregarPublicacionAFavorito(user._id, product._id);
         await refrescarUsuario();
-        Alert.alert('¡Éxito!', 'Añadido a favoritos.');
         setIsLiked(true);
       } else {
         await eliminarPublicacionDeFavorito(user._id, product._id);
         await refrescarUsuario();
-        Alert.alert('¡Éxito!', 'Eliminado de favoritos.');
         setIsLiked(false);
       }
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'No se pudo actualizar favoritos.');
     }
   };
 
@@ -171,12 +169,24 @@ export default function ProductDetails() {
       </TouchableOpacity>
     {/* visualizacion imagen */}
       <View style={styles.imageWrapper}>
-        <Image
-          source={{ uri: product.fotos?.[0] || 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg' }}
-          style={styles.productImage}
-        />
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+        >
+          {(product.fotos?.length ? product.fotos : ['https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'])
+            .map((foto, index) => (
+              <Image
+                key={index}
+                source={{ uri: foto }}
+                style={styles.productImage}
+              />
+            ))
+          }
+        </ScrollView>
       </View>
-    {/* visualizacion titulo */}
+
+
       <View style={styles.detailsContainer}>
         <View style={styles.header}>
           <Text style={styles.titleText}>{product.titulo}</Text>
@@ -213,7 +223,10 @@ export default function ProductDetails() {
             <View style={styles.separador} />
             <Text style={[styles.sectionLabel, { marginTop: 6 }]}>Publicaciones recomendadas</Text>
             {recomendadasCat.map((rec) => (
-              <TouchableOpacity key={rec._id} style={styles.recomendadaItem} onPress={() => router.push(`/`)}>
+              <TouchableOpacity key={rec._id} style={styles.recomendadaItem} onPress={() => router.push({
+                        pathname: "/productDetails",
+                        params: { productId: rec._id }
+                    })}>
                 <Image source={{ uri: rec.fotos?.[0] || 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg' }} style={styles.recomendadaImage} />
                 <View style={styles.recomendadaInfo}>
                   <Text style={styles.recomendadaTitle} numberOfLines={1}>{rec.titulo}</Text>
@@ -229,7 +242,10 @@ export default function ProductDetails() {
             <View style={styles.separador} />
             <Text style={[styles.sectionLabel, { marginTop: 6 }]}>Más productos del vendedor</Text>
             {recomendadasVend.map((rec) => (
-              <TouchableOpacity key={rec._id} style={styles.recomendadaItem} onPress={() => router.push(`/`)}>
+              <TouchableOpacity key={rec._id} style={styles.recomendadaItem} onPress={() => router.push({
+                        pathname: "/productDetails",
+                        params: { productId: rec._id }
+                    })}>
                 <Image source={{ uri: rec.fotos?.[0] || 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg' }} style={styles.recomendadaImage} />
                 <View style={styles.recomendadaInfo}>
                   <Text style={styles.recomendadaTitle} numberOfLines={1}>{rec.titulo}</Text>
@@ -239,28 +255,6 @@ export default function ProductDetails() {
             ))}
           </>
         ) : null}
-
-        <View style={styles.separador} />
-        <Text style={styles.sectionLabel}>Preguntas</Text>
-        {product.preguntas?.length > 0 ? (
-          product.preguntas.map((p, index) => (
-            <Text key={index} style={styles.questionText}>• {p}</Text>
-          ))
-        ) : (
-          <Text style={styles.detailText}>No hay preguntas aún.</Text>
-        )}
-
-        <Text style={styles.sectionLabel}>Haz una pregunta</Text>
-        <TextInput
-          placeholder="Escribe tu pregunta..."
-          value={nuevaPregunta}
-          onChangeText={setNuevaPregunta}
-          style={styles.input}
-          multiline
-        />
-        <TouchableOpacity style={styles.sendButton} onPress={handlePreguntar}>
-          <Text style={styles.buyButtonText}>Enviar</Text>
-        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -277,7 +271,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageWrapper: {
-    position: 'relative',
+    width: '100%',
+    height: 450, // o el alto que desees para las imágenes
   },
     header: {
     flexDirection: 'row',
@@ -285,9 +280,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productImage: {
-    width: '100%',
+    width: Dimensions.get('window').width,
     height: 450,
+    resizeMode: 'cover',
   },
+
   backButton: {
     position: 'absolute',
     top: 15,
