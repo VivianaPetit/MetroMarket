@@ -7,6 +7,8 @@ import { useAuth } from '../context/userContext';
 import { fetchTransaccionById, confirmarEntrega } from '../services/transaccionService';
 import { fetchPublicacionById } from '../services/publicacionService';
 import { Transaccions, Publicacion } from '../interfaces/types';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface TransaccionConPublicacion extends Transaccions {
   publicacionDetalle?: Publicacion;
@@ -19,6 +21,7 @@ const MisComprasScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTransaccion, setSelectedTransaccion] = useState<TransaccionConPublicacion | null>(null);
   const [comentario, setComentario] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     if (!user?.transacciones?.length) {
@@ -94,40 +97,53 @@ const MisComprasScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Ionicons name="cart-outline" size={64} color="#F68628" style={styles.icon} />
+      <SafeAreaView style={styles.header}>
+      <TouchableOpacity 
+          onPress={() => router.push('/menu')}
+          style={styles.backButton}
+      >
+          <Ionicons name="arrow-back" size={24} color="#00318D" />
+      </TouchableOpacity> 
       <Text style={styles.title}>Mis Compras</Text>
+      </SafeAreaView>
+      <Ionicons name="cart-outline" size={64} color="#F68628" style={styles.icon} />
+      
 
       {transacciones.length === 0 ? (
-        <Text style={styles.emptyMessage}>No tienes transacciones aún.</Text>
-      ) : (
-        transacciones.map((trans) => (
-          <View key={trans._id} style={styles.card}>
-            <View style={styles.cardContent}>
-              <Image
-                source={{ uri: trans.publicacionDetalle.fotos[0] }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-              <View style={styles.cardInfo}>
-                <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
-                <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
-                <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
-                <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
-                <Text style={styles.fecha}>
-                  {new Date(trans.fecha).toLocaleDateString()}
-                </Text>
-                {trans.estado !== 'completado' && (
-                  <TouchableOpacity style={styles.button} onPress={() => handleCompletarCompra(trans)}>
-                    <Text style={styles.buttonText}>Marcar como completada</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          </View>
-
-        ))
-      )}
-
+            <Text style={styles.emptyMessage}>No tienes transacciones aún.</Text>
+          ) : (
+            transacciones
+              .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
+              .map((trans) => (
+                <View key={trans._id} style={styles.card}>
+                  <View style={styles.cardContent}>
+                    <Image
+                      source={{ uri: trans.publicacionDetalle.fotos[0] }}
+                      style={styles.image}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.cardInfo}>
+                      <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
+                      <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
+                      <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
+                      <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
+                      <Text style={styles.fecha}>
+                        {new Date(trans.fecha).toLocaleDateString()}
+                      </Text>
+                      {trans.estado !== 'completado' && (
+                        <TouchableOpacity
+                          style={styles.button}
+                          onPress={() => handleCompletarCompra(trans)}
+                        >
+                          <Text style={styles.buttonText}>Marcar como completada</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              ))
+          )}
+        
       {/* Modal para reseña */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
@@ -148,6 +164,7 @@ const MisComprasScreen = () => {
         </View>
       </Modal>
     </ScrollView>
+
   );
 };
 
@@ -196,7 +213,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  image: {
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  backButton: {
+    marginRight: 10,
+    paddingBottom: 20,
+  },
+    image: {
     width: 110,
     height: 110,
     borderRadius: 10,
