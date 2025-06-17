@@ -1,6 +1,6 @@
 // services/usuarioService.ts
 import axios from 'axios';
-
+const LOCAL_IP = " 192.168.4.161"; // Aqui va la ip de tu compu 
 const API_URL = 'http://${LOCAL_IP}:3000/api'; // Cambia a tu URL real (por ejemplo, http://localhost:3000)
 
 export const obtenerUsuarioPorCorreo = async (correo: string) => {

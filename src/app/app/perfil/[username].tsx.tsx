@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
-import ProfileCard from '../components/ProfileCard';
-import CommentCard from '../components/CommentCard';
-import { useAuth } from '../context/userContext';
-import { editarUsuario, obtenerUsuarioPorCorreo } from '../services/UsuarioService';
+import ProfileCard from '../../../components/ProfileCard';
+import CommentCard from '../../../components/CommentCard';
+import { useAuth } from '../../../context/userContext';
+import { editarUsuario, obtenerUsuarioPorCorreo } from '../../../services/UsuarioService';
 
 export default function Perfil() {
   const router = useRouter();
@@ -21,21 +21,24 @@ export default function Perfil() {
   const usernameParam = params.username as string;
 
   useEffect(() => {
-    const cargarPerfil = async () => {
-      try {
-        if (usernameParam) {
-          const usuario = await obtenerUsuarioPorCorreo(usernameParam);
-          setUsuarioPerfil(usuario);
-        } else if (user) {
-          setUsuarioPerfil(user);
-        }
-      } catch (error) {
-        console.error("Error cargando perfil:", error);
+  let mounted = true;
+  const cargarPerfil = async () => {
+    try {
+      if (usernameParam && mounted) {
+        const usuario = await obtenerUsuarioPorCorreo(usernameParam);
+        setUsuarioPerfil(usuario);
+      } else if (user && mounted) {
+        setUsuarioPerfil(user);
       }
-    };
+    } catch (error) {
+      console.error("Error cargando perfil:", error);
+    }
+  };
 
-    cargarPerfil();
-  }, [usernameParam, user]);
+  cargarPerfil();
+  return () => { mounted = false };
+}, [usernameParam, user]);
+
 
   const esMiPerfil = !usernameParam || (user && user.correo === usernameParam);
 

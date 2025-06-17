@@ -22,8 +22,9 @@ const CommentCard = ({
           <View>
             <TouchableOpacity 
           onPress={() => router.push({ 
-            pathname: '/Perfil', 
-            params: { username: UserName }
+            pathname: '../perfil/[username]',
+            params: { username: UserName },
+
           })}
         >
             <View style={{marginTop:10}}><Text style={{fontWeight:'bold'}}>{UserName}</Text></View></TouchableOpacity>
