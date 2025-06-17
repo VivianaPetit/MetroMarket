@@ -53,12 +53,12 @@ export default function Home() {
     return (
         <View style={styles.container}>
         <SafeAreaView style={styles.header}>
-            {/* <TouchableOpacity 
+            <TouchableOpacity 
                 onPress={() => router.push('/menu')}
                 style={styles.backButton}
             >
                 <Ionicons name="arrow-back" size={24} color="#00318D" />
-            </TouchableOpacity> */}
+            </TouchableOpacity> 
             <Text style={styles.headerTitle}>
               <Text style={{ color: '#00318D', fontWeight: 'bold'}}>Mis Favoritos</Text>
             </Text>
@@ -107,8 +107,8 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'flex-end',//space between si tiene botond regreso
     paddingHorizontal: 16,
     backgroundColor: '#fff',
     borderBottomWidth: 1,
@@ -117,7 +117,6 @@ const styles = StyleSheet.create({
   headerIcon: {
     paddingLeft: 10,
     paddingBottom: 20,
-    marginLeft: 80,//sin esto si se incluye el boton de regreso
   },
   headerTitle: {
     fontSize: 20,
@@ -127,6 +126,25 @@ const styles = StyleSheet.create({
    backButton: {
     marginRight: 10,
     paddingBottom: 20,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 30,
+    marginHorizontal: 16,
+    marginTop: 10,
+    paddingHorizontal: 15,
+    height: 45,
+    elevation: 4,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    color: '#333',
   },
   categoriesWrapper: {
     marginTop: 12,

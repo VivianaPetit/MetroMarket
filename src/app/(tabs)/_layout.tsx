@@ -51,6 +51,16 @@ export default function Layout() {
           ),
         }}
       />
+        <Tabs.Screen
+        name="formularioPublicar"
+        options={{
+          tabBarShowLabel: false,
+          title: 'formularioPublicar',
+          tabBarIcon: ({ size, color }) => (
+            <Ionicons name="add" size={32} color={color} />
+          ),
+        }}
+      />
             <Tabs.Screen
         name="publicaciones"
         options={{
@@ -75,19 +85,12 @@ export default function Layout() {
         name="publicar"
         options={{
           href: null,
-          tabBarStyle: { display: 'none' }, // Oculta la tab bar en esta pantalla
+          tabBarShowLabel: false,
+          title: 'publicar',
         }}
-      />
-      
+      />  
     </Tabs>
-    {!isOnPublicarScreen && (
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => router.push('/formularioPublicar')}
-        >
-          <Ionicons name="add" size={30} color="white" />
-        </TouchableOpacity>
-      )}
+
       </>
 
   );
