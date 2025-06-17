@@ -56,6 +56,7 @@ const MisComprasScreen = () => {
 
         const transaccionesConPublicacion = await Promise.all(
           soloCompras.map(async (trans) => {
+            
             const publicacionDetalle = await fetchPublicacionById(trans.publicacion);
             const vendedorUsuario = await fetchUsuarioById(trans.vendedor);
 

@@ -7,6 +7,7 @@ const publicacionesURL = `${API_BASE_URL}/publicaciones`;
 export const fetchPublicacionById = async (pubId: string): Promise<Publicacion> => {
   try {
     const response = await axios.get<Publicacion>(`${publicacionesURL}/${pubId}`);
+    console.log(response)
     return response.data;
   } catch (error) {
     console.error('Error fetching usuario by ID:', error);

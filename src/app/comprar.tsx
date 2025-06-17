@@ -32,6 +32,7 @@ const Comprar: React.FC = () => {
         setPublicacion(publicacionData);
         
         if (publicacionData.usuario) {
+          console.log('ID de usuario del vendedor:', publicacionData.usuario);
           const usuarioData = await fetchUsuarioById(publicacionData.usuario);
           setVendedor(usuarioData);
         }

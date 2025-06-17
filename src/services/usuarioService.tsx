@@ -47,6 +47,7 @@ export const editarUsuario = async (
 export const fetchUsuarioById = async (userId: string): Promise<Usuario> => {
   try {
     const response = await axios.get<Usuario>(`${usuariosURL}/${userId}`);
+    console.log(response)
     return response.data;
   } catch (error) {
     console.error('Error fetching usuario by ID:', error);
