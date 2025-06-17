@@ -9,6 +9,7 @@ import { fetchTransaccionById, confirmarEntrega } from '../services/transaccionS
 import { fetchPublicacionById } from '../services/publicacionService';
 import { fetchUsuarioById } from '../services/usuarioService';
 import { createResena } from '../services/ResenaServices';
+import { Linking } from 'react-native';
 import { Transaccions, Publicacion, Resena } from '../interfaces/types';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -70,6 +71,21 @@ const MisVentasScreen = () => {
 
     cargarDetalles();
   }, [user]);
+
+  const abrirWhatsApp = (telefono: string) => {
+  const numeroConPrefijo = telefono.startsWith('+') ? telefono : `+58${telefono}`; // Ajusta prefijo según país
+  const url = `whatsapp://send?phone=${numeroConPrefijo}`;
+
+  Linking.canOpenURL(url)
+    .then((supported) => {
+      if (!supported) {
+        alert('Parece que WhatsApp no está instalado');
+      } else {
+        return Linking.openURL(url);
+      }
+    })
+    .catch((err) => console.error('Error al abrir WhatsApp:', err));
+};
 
   const handleCompletarCompra = (trans: TransaccionConPublicacion) => {
     setSelectedTransaccion(trans);
