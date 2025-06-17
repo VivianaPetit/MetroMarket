@@ -225,6 +225,32 @@ export default function ProductDetails() {
           </View>        
         )}
 
+        {/* visualizacion nada(para producto) || horario(para servicio) */}
+        {product.tipo == 'producto' ? (
+          // visualizacion de Estado(para producto)
+          <View>
+            <Text style={styles.sectionLabel}>Estado</Text>
+          </View>
+        ) : (
+          // visualizacion de modalidad(para servicio)
+          <View>
+            <Text style={styles.sectionLabel}>Horario de disponibilidad</Text>
+            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+              {Object.entries(product.horario).map(([dia, valor]) => {
+                if (valor.includes('true')) {
+                  return (
+                    <Text key={dia} style={styles.badge}>
+                      {dia} 
+                    </Text>
+                  );
+                }
+                return null;
+              })}
+            </View>
+          </View>        
+        )}
+
+        
         <Text style={styles.sectionLabel}>Método de pago</Text>
         <Text style={styles.detailText}>{product.metodoPago}</Text>
 
@@ -358,6 +384,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     alignSelf: 'flex-start',
+    marginRight: 5,
   },
   linkText: {
     color: '#00318D',
