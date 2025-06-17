@@ -68,6 +68,7 @@ export default function ProductDetails() {
 
     loadProductAndRecomendadas();
   }, [productId]);
+  
   //Verifica si el profucto ha sido marcado como favorito anteriormente para mostrarlo activando el icono de corazon
   useEffect(() => {
     const checkFavorite = async () => {
@@ -166,7 +167,7 @@ export default function ProductDetails() {
       <TouchableOpacity onPress={() => router.back()}>
         <Text style={styles.linkText}>Ver más productos de la categoría "{product.categoria}"</Text>
       </TouchableOpacity>
-
+    {/* visualizacion imagen */}
       <View style={styles.imageWrapper}>
         <ScrollView
           horizontal
@@ -193,8 +194,11 @@ export default function ProductDetails() {
             <Ionicons name={isLiked ? "heart" : "heart-outline"} size={28} color="#F68628" />
           </TouchableOpacity>
         </View>
-
-        <Text style={styles.priceText}>US$ {product.precio}</Text>
+        {/* precio */}
+        <Text style={styles.priceText}>
+          {(Array.isArray(product.tipo) ? product.tipo[0] : product.tipo) === 'servicio' ? 'US$' : 'US$/hora'}
+          {product.precio}
+        </Text>
         <Text style={styles.sectionLabel}>Descripción</Text>
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
 

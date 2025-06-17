@@ -6,6 +6,10 @@ import { useAuth } from '../context/userContext';
 import { fetchTransaccionById, confirmarEntrega } from '../services/transaccionService';
 import { fetchPublicacionById } from '../services/publicacionService';
 import { Transaccions, Publicacion } from '../interfaces/types';
+import { useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Resena } from '../interfaces/types';
+import { createResena } from '../services/ResenaServices';
 
 interface TransaccionConPublicacion extends Transaccions {
   publicacionDetalle?: Publicacion;
@@ -18,6 +22,10 @@ const MisComprasScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTransaccion, setSelectedTransaccion] = useState<TransaccionConPublicacion | null>(null);
   const [comentario, setComentario] = useState('');
+  const router = useRouter();
+  const [Rating, setRating] = useState(0)
+  const [Finalizado, setFinalizado] = useState(false);
+  const fecha = new Date()
 
   useEffect(() => {
     if (!user?.transacciones?.length) {
@@ -59,6 +67,16 @@ const MisComprasScreen = () => {
   const enviarReseñaYConfirmar = async () => {
     if (!selectedTransaccion) return;
     try {
+     const newResena: Omit<Resena, '_id'> = {
+         usuario: user ? user._id : '',
+         resenado: selectedTransaccion.vendedor || 'Vendedor desconocido',
+         comentario: comentario,
+         fecha: fecha,
+         calificacion: Rating, 
+      };
+       //console.log("llegamos")
+       const createdUser = await createResena(newResena);
+       //console.log(createdUser);
       // Aquí podrías enviar la reseña también
       await confirmarEntrega(selectedTransaccion._id, false);
       const actualizada = await fetchTransaccionById(selectedTransaccion._id);
@@ -91,54 +109,102 @@ const MisComprasScreen = () => {
     );
   }
 
+    const handleRatingChange = (newRating: number) => {
+      setRating(newRating);
+      setFinalizado(false)
+      };
+
+
+  if (!user) {
+    return;
+  }
+
+
+
+
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Ionicons name="cart-outline" size={64} color="#F68628" style={styles.icon} />
+      <SafeAreaView style={styles.header}>
+      <TouchableOpacity 
+          onPress={() => router.push('/menu')}
+          style={styles.backButton}
+      >
+          <Ionicons name="arrow-back" size={24} color="#00318D" />
+      </TouchableOpacity> 
       <Text style={styles.title}>Mis Compras</Text>
+      </SafeAreaView>
+      <Ionicons name="cart-outline" size={64} color="#F68628" style={styles.icon} />
+      
 
       {transacciones.length === 0 ? (
-        <Text style={styles.emptyMessage}>No tienes transacciones aún.</Text>
-      ) : (
-        transacciones.map((trans) => (
-          <View key={trans._id} style={styles.card}>
-            <View style={styles.cardContent}>
-              <Image
-                source={{ uri: trans.publicacionDetalle.fotos[0] }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-              <View style={styles.cardInfo}>
-                <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
-                <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
-                <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
-                <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
-                <Text style={styles.fecha}>
-                  {new Date(trans.fecha).toLocaleDateString()}
-                </Text>
-                {trans.estado !== 'completado' && (
-                  <TouchableOpacity style={styles.button} onPress={() => handleCompletarCompra(trans)}>
-                    <Text style={styles.buttonText}>Marcar como completada</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          </View>
-
-        ))
-      )}
-
+            <Text style={styles.emptyMessage}>No tienes transacciones aún.</Text>
+          ) : (
+            transacciones
+              .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
+              .map((trans) => (
+                <View key={trans._id} style={styles.card}>
+                  <View style={styles.cardContent}>
+                    <Image
+                      source={{ uri: trans.publicacionDetalle.fotos[0] }}
+                      style={styles.image}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.cardInfo}>
+                      <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
+                      <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
+                      <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
+                      <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
+                      <Text style={styles.fecha}>
+                        {new Date(trans.fecha).toLocaleDateString()}
+                      </Text>
+                      {trans.estado !== 'completado' && (
+                        <TouchableOpacity
+                          style={styles.button}
+                          onPress={() => handleCompletarCompra(trans)}
+                        >
+                          <Text style={styles.buttonText}>Marcar como completada</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              ))
+          )}
+        
       {/* Modal para reseña */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>¿Quieres dejar una reseña?</Text>
-            <TextInput
-              placeholder="Escribe tu comentario..."
-              style={styles.textInput}
-              multiline
-              value={comentario}
-              onChangeText={setComentario}
-            />
+          <Text>Comentarios</Text>
+          <Text>Por favor clasifique el vendedor de este producto</Text>
+          <View style={styles.modalContent}>
+                        {[...Array(5)].map((_, i) => (
+            <TouchableOpacity 
+              key={i} 
+              onPress={() => handleRatingChange(i + 1)}
+            >
+              <Ionicons 
+                name={i < Rating ? 'star' : 'star-outline'} 
+                size={28} 
+                color='#F68628' 
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
+
+    <Text>Deje un comentario</Text>
+    <View style={styles.modalContent}>
+        <TextInput
+          editable
+          multiline
+          numberOfLines={10}
+          maxLength={400}
+          onChangeText={text => setComentario(text)}
+          value={comentario}
+          style={styles.textInput}
+        />
+        </View>
             <View style={styles.modalButtons}>
               <Button title="Cancelar" color="#888" onPress={() => setModalVisible(false)} />
               <Button title="Confirmar entrega" onPress={enviarReseñaYConfirmar} color="#F68628" />
@@ -147,6 +213,7 @@ const MisComprasScreen = () => {
         </View>
       </Modal>
     </ScrollView>
+
   );
 };
 
@@ -195,7 +262,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  image: {
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  backButton: {
+    marginRight: 10,
+    paddingBottom: 20,
+  },
+    image: {
     width: 110,
     height: 110,
     borderRadius: 10,
