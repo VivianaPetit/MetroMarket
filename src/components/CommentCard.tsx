@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 
 
 const CommentCard = ({
-  UserName = "Usuario",
+  UserName = "Anonimo",
   imagen = require('../../assets/images/user.png'),
   commentText = "Comment" 
   
