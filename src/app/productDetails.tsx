@@ -107,7 +107,7 @@ export default function ProductDetails() {
 
   const Verificacion_Usuario = () => {
     if (!user){
-       router.push("/login")
+       router.push("/Review_PostShoping")
       }else{
           router.push({
           pathname: "/comprar",
@@ -119,7 +119,7 @@ export default function ProductDetails() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#00318D" />
+        <ActivityIndicator size="large" color="#F68628" />
         <Text style={{ marginTop: 10, color: '#555' }}>Cargando producto...</Text>
       </View>
     );
@@ -175,14 +175,17 @@ export default function ProductDetails() {
         <Ionicons name="arrow-back" size={26} color="#F68628" />
       </TouchableOpacity>
       </View>*/}
-      <View> 
+    <View style={{ marginTop: 20 }}>
       <TouchableOpacity onPress={() => router.push({
-                        pathname: "/",
-                        params: { categoria: product.categoria }
-                    })}>
-        <Text style={styles.linkText}>Ver más productos de la categoría "{product.categoria}"</Text>
+        pathname: "/",
+        params: { categoria: product.categoria }
+      })}>
+        <Text style={styles.linkText}>
+          Ver más productos de la categoría "{product.categoria}"
+        </Text>
       </TouchableOpacity>
-      </View>
+    </View>
+
 
     {/* visualizacion imagen */}
       <View style={styles.imageWrapper}>

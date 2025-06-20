@@ -10,7 +10,7 @@ import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function Home() {
+export default function Publicaciones() {
   const router = useRouter();
   const { user } = useAuth(); 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -18,7 +18,6 @@ export default function Home() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
 
 
  useEffect(() => {

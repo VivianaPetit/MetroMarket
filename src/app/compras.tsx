@@ -166,7 +166,7 @@ const MisComprasScreen = () => {
                 />
                 <View style={styles.cardInfo}>
                   <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
-                  <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
+                  
                   <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
                   <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
 

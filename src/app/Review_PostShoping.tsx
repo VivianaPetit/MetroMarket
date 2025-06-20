@@ -39,7 +39,7 @@ const Review_PostShoping = () => {
           <Ionicons name="checkmark-circle" size={90} color="#4CAF50" />
         </View>
         
-        <Text style={styles.title}>¡Compra Completada!</Text>
+        <Text style={styles.title}>¡Orden Completada!</Text>
         
         <Text style={styles.subtitle}>
           {orderDetails.vendedor} ha recibido tu orden. Gracias por tu compra.
@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
     width: '100%',
+    justifyContent: 'center',
   },
   iconContainer: {
     marginVertical: 30,
@@ -114,14 +115,14 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 17,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 35,
-    paddingHorizontal: 20,
-    lineHeight: 24,
-  },
+  subtitle: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 30,
+    paddingHorizontal: 20,
+    lineHeight: 22,
+  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 15,

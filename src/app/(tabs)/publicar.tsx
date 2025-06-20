@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, Image, ActivityIndicator
 } from 'react-native';
@@ -15,7 +14,6 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '../../../supabase';
 import { useLocalSearchParams } from 'expo-router';
-
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 const modalidades = ['Presencial', 'Asincrono', 'Híbrido'];
@@ -251,14 +249,15 @@ const pickImageAndStore = async () => {
   const params = useLocalSearchParams();
   const tipoPublicacion = params.tipoPublicacion; // 'producto' o 'servicio'
 
-    // if (loading) {
-    //   return (
-    //     <View style={styles.loadingContainer}>
-    //       <ActivityIndicator size="large" color="#00318D" />
-    //       <Text style={{ marginTop: 10, color: '#555' }}>Subiendo publicación...</Text>
-    //     </View>
-    //   );
-    // }
+  if (loading) {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#F68628" />
+      <Text style={{ marginTop: 10, color: '#555' }}>Subiendo publicación...</Text>
+    </View>
+  );
+}
+
   
   return (
 
