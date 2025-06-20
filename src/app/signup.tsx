@@ -26,11 +26,6 @@ const SignUp = () => {
     return /@(?:correo\.)?unimet\.edu\.ve$/i.test(email);
   };
 
-  // Validar teléfonos móviles nacionales o internacionales
-  const validarTelefono = (phone: string) => {
-    const phoneRegex = /^(\+?\d{1,3})?(41[2466])\d{7}$/;
-    return phoneRegex.test(phone);
-  };
 
   const handleChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -54,11 +49,6 @@ const SignUp = () => {
 
     // Validar teléfono
     const trimmedPhone = formData.phone.trim();
-    if (!trimmedPhone) {
-      newErrors.phone = 'El teléfono es obligatorio.';
-    } else if (!validarTelefono(trimmedPhone)) {
-      newErrors.phone = 'Número de teléfono inválido.';
-    }
 
     // Validar email
     if (!formData.email.trim()) {

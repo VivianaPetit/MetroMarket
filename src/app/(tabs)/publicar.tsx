@@ -41,7 +41,7 @@ const CreatePublication = () => {
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
   const [modalidad, setModalidad] = useState('');
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const HORARIO_INICIAL = {
     lunes: ['false'],
@@ -122,7 +122,7 @@ const handlePublicar = async () => {
     return;
   }
 
-  setLoading(true);
+  // setLoading(true);
 
   const errores = validarFormulario();
   setErrors(errores);
@@ -200,7 +200,7 @@ const handlePublicar = async () => {
     setImages([]);
     setHorario(HORARIO_INICIAL);
 
-    setLoading(false);
+    // setLoading(false);
     Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
     navigation.goBack();
 
@@ -250,14 +250,14 @@ const pickImageAndStore = async () => {
   const params = useLocalSearchParams();
   const tipoPublicacion = params.tipoPublicacion; // 'producto' o 'servicio'
 
-    if (loading) {
-      return (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#00318D" />
-          <Text style={{ marginTop: 10, color: '#555' }}>Subiendo publicación...</Text>
-        </View>
-      );
-    }
+    // if (loading) {
+    //   return (
+    //     <View style={styles.loadingContainer}>
+    //       <ActivityIndicator size="large" color="#00318D" />
+    //       <Text style={{ marginTop: 10, color: '#555' }}>Subiendo publicación...</Text>
+    //     </View>
+    //   );
+    // }
   
   return (
 
@@ -387,7 +387,7 @@ const pickImageAndStore = async () => {
                   {op}
                 </Text>
               </TouchableOpacity>
-            ))}
+            ))} 
           </View>
         )}
       
