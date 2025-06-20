@@ -18,6 +18,8 @@ export default function Home() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+
 
  useEffect(() => {
      fetchCategorias()
