@@ -32,6 +32,20 @@ export default function ProductDetails() {
   const router = useRouter();
   const { user, refrescarUsuario } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
+  const [cantidadSeleccionada, setCantidadSeleccionada] = useState(1);
+  
+
+  const incrementarCantidad = () => {
+    if (product && cantidadSeleccionada < product.cantidad) {
+      setCantidadSeleccionada(cantidadSeleccionada + 1);
+    }
+  };
+
+  const decrementarCantidad = () => {
+    if (cantidadSeleccionada > 1) {
+      setCantidadSeleccionada(cantidadSeleccionada - 1);
+    }
+  };
 
   useEffect(() => {
     const loadProductAndRecomendadas = async () => {
@@ -91,12 +105,6 @@ export default function ProductDetails() {
     Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
     return;
   }
-
-  if (product && typeof productId === 'string') {
-    router.push({ pathname: "/comprar", params: { productId } });
-  } else {
-    Alert.alert('Error', 'No se pudo obtener el ID del producto.');
-  }
 };
 
   const handlePreguntar = () => {
@@ -106,15 +114,21 @@ export default function ProductDetails() {
   };
 
   const Verificacion_Usuario = () => {
-    if (!user){
-       router.push("/login")
-      }else{
-          router.push({
-          pathname: "/comprar",
-          params: { productId: productId } 
-        })
-      }
+    if (!user) {
+      router.push("/login");
+    } else {
+      router.push({
+        pathname: "/comprar",
+        params: { 
+          productId: productId,
+          cantidad: cantidadSeleccionada.toString()
+        }
+      });
+      console.log('La cantidad mandada fue: ',cantidadSeleccionada)
+    }
   };
+
+
 
   if (loading) {
     return (
@@ -158,8 +172,6 @@ export default function ProductDetails() {
     }
   };
 
-  
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <SafeAreaView>
@@ -170,11 +182,7 @@ export default function ProductDetails() {
         <Ionicons name="arrow-back" size={24} color="#00318D" />
           </TouchableOpacity> 
         </SafeAreaView>
-      {/* <View>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={26} color="#F68628" />
-      </TouchableOpacity>
-      </View>*/}
+
     <View style={{ marginTop: 20 }}>
       <TouchableOpacity onPress={() => router.push({
         pathname: "/",
@@ -225,10 +233,49 @@ export default function ProductDetails() {
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
 
         {/* visualizacion cantidad */}
-        <Text style={styles.sectionLabel}>
-          {product.tipo === 'producto' ? 'Cantidad disponible' : 'Cupos disponibles'}
-        </Text>
-        <Text style={styles.detailText}>{product.cantidad}</Text>
+        {product.tipo === 'producto' && (
+          <>
+            <Text style={styles.sectionLabel}>
+              Cantidad disponible: {product.cantidad}
+            </Text>
+            <View style={styles.cantidadContainer}>
+              <TouchableOpacity 
+                onPress={decrementarCantidad}
+                style={[
+                  styles.cantidadButton,
+                  cantidadSeleccionada <= 1 && styles.cantidadButtonDisabled
+                ]}
+                disabled={cantidadSeleccionada <= 1}
+              >
+                <Text style={styles.cantidadButtonText}>-</Text>
+              </TouchableOpacity>
+              
+              <TextInput
+                style={styles.cantidadInput}
+                value={cantidadSeleccionada.toString()}
+                editable={false}
+                onChangeText={(text) => {
+                  const num = parseInt(text) || 0;
+                  if (num > 0 && num <= (product?.cantidad || 1)) {
+                    setCantidadSeleccionada(num);
+                  }
+                }}
+                keyboardType="numeric"
+              />
+              
+              <TouchableOpacity 
+                onPress={incrementarCantidad}
+                style={[
+                  styles.cantidadButton,
+                  cantidadSeleccionada >= (product?.cantidad || 1) && styles.cantidadButtonDisabled
+                ]}
+                disabled={cantidadSeleccionada >= (product?.cantidad || 1)}
+              >
+                <Text style={styles.cantidadButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
 
         {/* visualizacion Estado(para producto) || modalidad(para servicio) */}
         {product.tipo == 'producto' ? (
@@ -357,14 +404,6 @@ const styles = StyleSheet.create({
     left: 13,
     padding: 6,
   },
-  heartButton: {
-    position: 'absolute',
-    top: 20,
-    right: 16,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: 20,
-    padding: 6,
-  },
   detailsContainer: {
     padding: 20,
   },
@@ -418,11 +457,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textDecorationLine: 'underline'
   },
-  questionText: {
-    fontSize: 15,
-    marginBottom: 8,
-    color: '#222',
-  },
   input: {
     borderColor: '#ccc',
     borderWidth: 1,
@@ -431,14 +465,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     minHeight: 40,
     textAlignVertical: 'top',
-  },
-  sendButton: {
-    backgroundColor: '#F68628',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 20,
   },
   buyButton: {
     backgroundColor: '#F68628',
@@ -505,4 +531,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  cantidadContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginVertical: 5,
+},
+cantidadButton: {
+  backgroundColor: '#F68628',
+  width: 30,
+  height: 30,
+  borderRadius: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+cantidadButtonDisabled: {
+  backgroundColor: '#cccccc',
+},
+cantidadButtonText: {
+  color: 'white',
+  fontSize: 20,
+  fontWeight: 'bold',
+  alignSelf: 'center'
+},
+cantidadInput: {
+  borderWidth: 1,
+  borderColor: '#ddd',
+  borderRadius: 8,
+  padding: 10,
+  marginHorizontal: 10,
+  width: 70,
+  textAlign: 'center',
+  fontSize: 16,
+},
 });

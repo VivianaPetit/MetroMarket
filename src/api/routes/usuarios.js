@@ -58,6 +58,29 @@ router.post('/', async (req, res) => {
   }
 });
 
+// para insertar multiples usuarios
+router.post('/bulk', async (req, res) => {
+  try {
+    if (!Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Se esperaba un array de usuarios' });
+
+    }
+
+    const resultado = await Usuario.insertMany(req.body);
+    
+    res.status(201).json({
+      count: resultado.length,
+      usuarios: resultado
+    });
+
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Error al crear usuarios',
+      details: error.message 
+    });
+  }
+});
+
 // Agregar una publicación a un usuario
 router.patch('/:userId/publicaciones', async (req, res) => {
   const { userId } = req.params;

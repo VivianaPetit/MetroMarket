@@ -49,6 +49,7 @@ export interface Transaccions {
   vendedor: string;
   publicacion: string;
   fecha: Date;
+  cantidadComprada: number,
   monto: number; 
   estado: string;
   metodoPago: string;

@@ -16,8 +16,6 @@ export const fetchTransacciones = async (): Promise<Transaccions[]> => {
   }
 };
 
-
-
 // Crear una nueva transaccións
 export const createTransaccion = async (
   nuevaTransaccion: Omit<Transaccions, '_id'>

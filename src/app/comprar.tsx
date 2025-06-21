@@ -19,13 +19,30 @@ import { Publicacion, Usuario } from '../interfaces/types';
 
 const Comprar: React.FC = () => {
   const { user, refrescarUsuario } = useAuth();
-  const { productId } = useLocalSearchParams();
+  const params = useLocalSearchParams();
   const router = useRouter();
   const [publicacion, setPublicacion] = useState<Publicacion | null>(null);
   const [vendedor, setVendedor] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cantidad, setCantidad] = useState(1); // Estado local para la cantidad
+
+  // Parsear parámetros correctamente
+  const { productId, cantidad: cantidadParam } = params as {
+    productId?: string;
+    cantidad?: string;
+  };
+
+  useEffect(() => {
+    // Inicializar cantidad desde los parámetros si existe
+    if (cantidadParam) {
+      const cantidadNum = parseInt(cantidadParam, 10);
+      if (!isNaN(cantidadNum)) {
+        setCantidad(cantidadNum);
+      }
+    }
+  }, [cantidadParam]);
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -49,12 +66,16 @@ const Comprar: React.FC = () => {
   const handleConfirmarCompra = async () => {
     if (!user || !publicacion || !vendedor || publicacion.cantidad <= 0) return;
     setProcessing(true);
+    
     try {
+      const montoTotal = cantidad * publicacion.precio;
+      
       const nuevaTransaccion = await createTransaccion({
         comprador: user._id,
         vendedor: vendedor._id,
         publicacion: publicacion._id,
-        monto: publicacion.precio,
+        monto: montoTotal,
+        cantidadComprada: cantidad,
         metodoPago: 'efectivo',
         estado: 'Pendiente',
         fecha: new Date(),
@@ -73,15 +94,17 @@ const Comprar: React.FC = () => {
         params: {
           productId: publicacion._id,
           productName: publicacion.titulo,
-          productPrice: publicacion.precio.toString(),
+          productPrice: montoTotal.toString(), // Enviamos el precio total
           sellerName: vendedor.nombre,
           sellerPhone: vendedor.telefono,
           purchaseDate: new Date().toLocaleDateString(), 
           transaccionId: nuevaTransaccion._id,
+          cantidad: cantidad.toString(), // Enviamos la cantidad
         },
       });
       
     } catch (err) {
+      console.error('Error en la compra:', err);
       Alert.alert('Error', 'No se pudo completar la compra');
     } finally {
       setProcessing(false);
@@ -107,6 +130,8 @@ const Comprar: React.FC = () => {
       </View>
     );
   }
+
+  const montoTotal = cantidad * publicacion.precio;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -141,19 +166,21 @@ const Comprar: React.FC = () => {
           <Text style={styles.productTitle}>{publicacion.titulo}</Text>
           <View style={styles.separador} />
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Cantidad </Text>
-            <Text style={styles.detailValue}>{publicacion.cantidad}</Text>
+            <Text style={styles.detailLabel}>Precio unitario </Text>
+            <Text style={styles.detailValue}>${publicacion.precio.toFixed(2)}</Text>
           </View>
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Precio </Text>
-            <Text style={styles.detailValue}>${publicacion.precio}</Text>
+            <Text style={styles.detailLabel}>Cantidad seleccionada </Text>
+            <Text style={styles.detailValue}>{cantidad}</Text>
           </View>
 
           <View style={styles.separador} />
 
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Monto a pagar </Text>
-            <Text style={styles.detailValue}>{(publicacion.cantidad * publicacion.precio).toFixed(2)}</Text>
+            <Text style={[styles.detailLabel, { fontWeight: 'bold' }]}>Monto total </Text>
+            <Text style={[styles.detailValue, { fontWeight: 'bold', color: '#F68628' }]}>
+              ${montoTotal.toFixed(2)}
+            </Text>
           </View>
         </View>
       </View>
@@ -178,9 +205,9 @@ const Comprar: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 60,
+    padding: 20,
+    paddingTop: 60,
     backgroundColor: '#fff',
-    position: 'relative',
   },
   centered: {
     flex: 1,
@@ -204,7 +231,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 30,
-    marginTop: 40,
+    marginTop: 10,
     textAlign: 'center',
     color: '#111',
   },
@@ -212,9 +239,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginBottom: 20,
+    paddingHorizontal: 10,
   },
   sectionContent: {
     marginLeft: 10,
+    flex: 1,
   },
   detailRow: {
     flexDirection: 'row',
@@ -225,19 +254,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     fontWeight: '500',
-    flexShrink: 1,
   },
   detailValue: {
     fontSize: 16,
     color: '#333',
     fontWeight: '600',
-    textAlign: 'right',
-    flexShrink: 1,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 5,
   },
   sectionText: {
     fontSize: 15,
@@ -250,30 +277,23 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   image: {
-    width: 150,
-    height: 100,
+    width: '100%',
+    height: 150,
     borderRadius: 10,
-    marginRight: 15,
-    marginBottom: 10,
-    alignSelf: 'center', 
+    marginBottom: 15,
   },
   productTitle: {
     fontSize: 17,
     fontWeight: 'bold',
     color: '#111',
-    textAlign: 'center',
     marginBottom: 5,
-  },
-  productDetail: {
-    fontSize: 15,
-    color: '#444',
-    marginTop: 5,
   },
   confirmButton: {
     backgroundColor: '#F68628',
     paddingVertical: 16,
     borderRadius: 10,
     alignItems: 'center',
+    marginHorizontal: 10,
   },
   confirmButtonDisabled: {
     backgroundColor: '#aaa',

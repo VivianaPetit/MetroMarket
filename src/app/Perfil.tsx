@@ -97,7 +97,7 @@ const handleGuardar = async () => {
       {!modoEdicion && (
         <TouchableOpacity style={styles.button} onPress={() => setShowReviews(prev => !prev)}>
           <Ionicons name="chatbubbles-outline" color="#F68628" size={20} />
-          <Text style={styles.buttonTextAlt}>Ver las reseñas de este usuario</Text>
+          <Text style={styles.buttonTextAlt}>Ver reseñas</Text>
         </TouchableOpacity>
       )}
 
