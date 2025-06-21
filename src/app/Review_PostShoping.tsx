@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -27,17 +27,22 @@ const Review_PostShoping = () => {
   const orderDetails = {
     vendedor: sellerName || 'Vendedor desconocido',
     telefono: sellerPhone || 'No disponible',
-    fecha: purchaseDate || new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }),
+    fecha: purchaseDate || new Date().toLocaleDateString(),
     producto: productName || 'Producto no especificado',
     precio: `$${productPrice || '0.00'}`
   };
 
+console.log('fehcha:', purchaseDate)
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          <Ionicons name="checkmark-circle" size={90} color="#4CAF50" />
-        </View>
+<View style={styles.iconContainer}>
+  <Image
+    source={require('../../assets/images/LogoMetroMarket.png')}
+    style={{ width: 80, height: 80, resizeMode: 'contain' }}
+  />
+</View>
         
         <Text style={styles.title}>¡Orden Completada!</Text>
         
@@ -75,7 +80,7 @@ const Review_PostShoping = () => {
         </View>
         
         <Text style={styles.infoText}>
-          Puedes dejar una reseña sobre tu experiencia con este vendedor en la sección "Mis Compras".
+          Puedes ver el estado de esta orden en la sección "Mis Compras".
         </Text>
         
         <TouchableOpacity 

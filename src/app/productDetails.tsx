@@ -107,7 +107,7 @@ export default function ProductDetails() {
 
   const Verificacion_Usuario = () => {
     if (!user){
-       router.push("/Review_PostShoping")
+       router.push("/login")
       }else{
           router.push({
           pathname: "/comprar",
@@ -345,9 +345,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   productImage: {
-    width: Dimensions.get('window').width,
+    width: Dimensions.get('screen').width,
     height: 450,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
+    backgroundColor: 'white'
   },
 
   backButton: {
