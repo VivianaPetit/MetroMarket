@@ -32,7 +32,7 @@ export const agregarTransaccionAUsuario = async (
 
 export const editarUsuario = async (
   userId: string,
-  datos: Partial<Pick<Usuario, 'nombre' | 'telefono'>>
+  datos: Partial<Pick<Usuario, 'nombre' | 'telefono' | 'foto' >>
 ): Promise<Usuario> => {
   try {
     const response = await axios.patch<Usuario>(`${usuariosURL}/${userId}`, datos);

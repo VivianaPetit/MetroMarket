@@ -17,7 +17,7 @@ export default function Home() {
   const router = useRouter();
   const params = useLocalSearchParams(); // ← Obtiene params de la navegación
   const categoriaParam = typeof params.categoria === 'string' ? params.categoria : null;
-
+  const [showAllCategories, setShowAllCategories] = useState(false);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -62,24 +62,26 @@ export default function Home() {
 
   // Filtro combinado
   const getFilteredPublications = () => {
-    let filtered = [...publicaciones];
+  let filtered = [...publicaciones];
 
-    if (selectedCategory) {
-      filtered = filtered.filter(pub => pub.categoria === selectedCategory);
-    }
+  if (selectedCategory && selectedCategory !== 'all') {
+    filtered = filtered.filter(pub => pub.categoria === selectedCategory);
+  }
 
-    if (search) {
-      const searchTerm = search.toLowerCase();
-      filtered = filtered.filter(pub => 
-        pub.titulo.toLowerCase().includes(searchTerm) || 
-        pub.categoria.toLowerCase().includes(searchTerm)
-      );
-    }
+  if (search) {
+    const searchTerm = search.toLowerCase();
+    filtered = filtered.filter(pub => 
+      pub.titulo.toLowerCase().includes(searchTerm) || 
+      pub.categoria.toLowerCase().includes(searchTerm)
+    );
+  }
 
-    return filtered;
-  };
+  return filtered;
+};
 
   const filteredPublications = getFilteredPublications();
+
+  
 
   return (
     <View style={styles.container}>
@@ -95,10 +97,9 @@ export default function Home() {
             returnKeyType="search"
           />
         </View>
-
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesWrapper}>
-            {categorias.map((cat) => (
+            {(showAllCategories ? categorias : categorias.slice(0, 10)).map((cat) => (
               <CategoryBadge
                 key={cat._id}
                 label={cat.nombre}
@@ -107,8 +108,20 @@ export default function Home() {
                 onPress={() => handleCategoryPress(cat.nombre)}
               />
             ))}
+            
+            {/* Mostrar el botón "Más" solo si hay más de 10 categorías y no estamos mostrando todas */}
+            {categorias.length > 10 && !showAllCategories && (
+              <TouchableOpacity
+                style={styles.moreCategoriesButton}
+                onPress={() => setShowAllCategories(true)}
+              >
+                <View style={styles.moreCategory}>
+                  <Ionicons name="add" size={24} color="#00318D" />
+                  <Text style={styles.moreText}>Más</Text>
+                </View>
+              </TouchableOpacity>
+            )}
           </ScrollView>
-
           <View style={styles.productsGrid}>
             {filteredPublications.length > 0 ? (
               filteredPublications.map((pub) => (
@@ -140,7 +153,7 @@ export default function Home() {
                 ) : (
                   <Text style={styles.emptyText}>
                     No hay resultados para{' '}
-                    <Text style={styles.selectedCategoryText}>{selectedCategory || search}</Text>
+                    <Text style={styles.selectedCategoryText}>{selectedCategory || search || 'Todos'}</Text>
                   </Text>
                 )}
               </View>
@@ -196,5 +209,37 @@ const styles = StyleSheet.create({
   searchText: {
     fontWeight: 'bold',
     color: '#FF8C00',
+  },  categoryItem: {
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    backgroundColor: '#f0f0f0',
+  },
+  selectedCategory: {
+    borderWidth: 2,
+    borderColor: '#F68628',
+  },
+    moreCategoriesButton: {
+    marginRight: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 80,
+    height: 80,
+    borderRadius: 10,
+    backgroundColor: '#f0f0f0',
+    marginTop: 15
+  },
+  moreCategory: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  moreText: {
+    marginTop: 5,
+    fontSize: 12,
+    color: '#00318D',
+    fontWeight: 'bold',
   },
 });

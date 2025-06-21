@@ -165,17 +165,17 @@ if (Object.keys(errores).length > 0) {
     const categoriaSeleccionada = categorias.find(c => c._id === categoria);
 
     const nuevaPublicacion = {
-      titulo,
-      descripcion,
+      titulo: titulo.trim(),
+      descripcion: descripcion.trim(),
       precio: parseFloat(precio),
       cantidad: parseInt(cantidad),
-      estado,
-      lugarEntrega,
-      metodoPago,
+      estado: estado.trim(),
+      lugarEntrega: lugarEntrega.trim(),
+      metodoPago: metodoPago.trim(),
       tipo: tipoPublicacion,
-      modalidad,
+      modalidad: modalidad.trim(),
       horario,
-      categoria: categoriaSeleccionada?.nombre,
+      categoria: categoriaSeleccionada?.nombre?.trim(),
       usuario: user._id,
       fotos: urls, // Aquí se guarda la lista de URLs de las imágenes
     };
@@ -183,8 +183,6 @@ if (Object.keys(errores).length > 0) {
     const publicacionCreada = await crearPublicacion(nuevaPublicacion);
     await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
     await refrescarUsuario();
-
-    
 
     // 3. Resetear formulario
     setTitulo('');
@@ -246,7 +244,7 @@ const pickImageAndStore = async () => {
 };
 
   const params = useLocalSearchParams();
-  const tipoPublicacion = params.tipoPublicacion; // 'producto' o 'servicio'
+  const tipoPublicacion: string = String(params.tipoPublicacion); // 'producto' o 'servicio'
 
   if (loading) {
   return (

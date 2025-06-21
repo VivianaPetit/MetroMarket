@@ -1,7 +1,7 @@
 import { Entypo, Fontisto, Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { useRouter } from 'expo-router';
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Alert} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/userContext'; 
 
@@ -39,7 +39,7 @@ export default function Formulario(){
                         }
                         router.push({
                             pathname: '../publicar',
-                            params: { tipoPublicacion: 'producto' } // Parámetro para producto
+                            params: { tipoPublicacion: 'Producto' } // Parámetro para producto
                         });
                     }}
                     activeOpacity={0.8}
@@ -60,7 +60,7 @@ export default function Formulario(){
                         }
                         router.push({
                             pathname: '../publicar',
-                            params: { tipoPublicacion: 'servicio' } // Parámetro para servicio
+                            params: { tipoPublicacion: 'Servicio' } // Parámetro para servicio
                         });
                     }}
                     activeOpacity={0.8}

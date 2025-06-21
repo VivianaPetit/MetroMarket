@@ -94,6 +94,7 @@ const SignUp = () => {
         telefono: trimmedPhone,
         correo: formData.email.trim(),
         contrasena: hashedPassword,
+        foto: '',
         publicaciones: [],
         favoritos: [],
         transacciones: [],

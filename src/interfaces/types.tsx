@@ -10,6 +10,7 @@ export interface Usuario {
   correo: string;
   telefono: string;
   contrasena: string;
+  foto: string;
   publicaciones: string[];  
   favoritos: string[];
   transacciones: string[];
@@ -18,7 +19,7 @@ export interface Usuario {
 export interface Publicacion {
   _id: string;
   usuario : string;
-  tipo: string | string[];
+  tipo: string;
   categoria: string;
   descripcion: string;
   cantidad: number;
