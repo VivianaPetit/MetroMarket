@@ -216,7 +216,7 @@ export default function ProductDetails() {
 
       <View style={styles.detailsContainer}>
         <View style={styles.header}>
-          <Text style={styles.titleText}>{product.titulo}</Text>
+          <Text style={styles.titleText} numberOfLines={3}>{product.titulo}</Text>
           <TouchableOpacity onPress={handleFavorito}>
             <Ionicons name={isLiked ? "heart" : "heart-outline"} size={28} color="#F68628" />
           </TouchableOpacity>
@@ -224,7 +224,7 @@ export default function ProductDetails() {
 
         {/* visualizacion precio */}
         <Text style={styles.priceText}>
-          {product.tipo === 'producto' ? 'US$' : 'US$/hora  '}
+          {product.tipo === 'Producto' ? 'US$' : 'US$/hora  '}
           {product.precio}
         </Text>
 
@@ -233,7 +233,7 @@ export default function ProductDetails() {
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
 
         {/* visualizacion cantidad */}
-        {product.tipo === 'producto' && (
+        {product.tipo === 'Producto' && (
           <>
             <Text style={styles.sectionLabel}>
               Cantidad disponible: {product.cantidad}
@@ -278,7 +278,7 @@ export default function ProductDetails() {
         )}
 
         {/* visualizacion Estado(para producto) || modalidad(para servicio) */}
-        {product.tipo == 'producto' ? (
+        {product.tipo == 'Producto' ? (
           // visualizacion de Estado(para producto)
           <View>
             <Text style={styles.sectionLabel}>Estado</Text>
@@ -293,10 +293,10 @@ export default function ProductDetails() {
         )}
 
         {/* visualizacion nada(para producto) || horario(para servicio) */}
-        {product.tipo == 'producto' ? (
+        {product.tipo == 'Producto' ? (
           // visualizacion de Estado(para producto)
           <View>
-            <Text style={styles.sectionLabel}>Estado</Text>
+            
           </View>
         ) : (
           // visualizacion de modalidad(para servicio)
@@ -316,17 +316,28 @@ export default function ProductDetails() {
             </View>
           </View>        
         )}
-
         
         <Text style={styles.sectionLabel}>Método de pago</Text>
         <Text style={styles.detailText}>{product.metodoPago}</Text>
 
         <Text style={styles.sectionLabel}>Vendedor</Text>
-        <Text style={styles.detailText}>{vendedor ? `${vendedor.nombre} - ${vendedor.telefono}` : 'Cargando...'}</Text>
+        <TouchableOpacity onPress={() => {
+          if (vendedor?._id) {
+            router.push({
+              pathname: '/perfilVendedor',
+              params: { vendedorId: vendedor._id }
+            });
+          }
+        }}>
+          <Text style={[styles.detailText, { textDecorationLine: 'underline', color: '#00318D' }]}>
+            {vendedor ? `${vendedor.nombre} - ${vendedor.telefono}` : 'Cargando...'}
+          </Text>
+        </TouchableOpacity>
+
 
         <TouchableOpacity style={styles.buyButton} onPress={Verificacion_Usuario} >
           <Text style={styles.buyButtonText}>
-            {product.tipo === 'producto' ? 'Comprar' : 'Reservar'}
+            {product.tipo === 'Producto' ? 'Comprar' : 'Reservar'}
           </Text>
         </TouchableOpacity>
 
@@ -390,6 +401,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%'
   },
   productImage: {
     width: Dimensions.get('screen').width,
@@ -408,10 +420,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   titleText: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 6,
     color: '#111',
+    flex: 1,
+    marginRight: 10
   },
   priceText: {
     fontSize: 22,
@@ -447,6 +461,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     alignSelf: 'flex-start',
     marginRight: 5,
+    marginBottom: 8
   },
   linkText: {
     color: '#00318D',

@@ -196,7 +196,7 @@ const Comprar: React.FC = () => {
         {processing ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.confirmText}>{publicacion.tipo === 'producto' ? 'Confirmar compra' : 'Confirmar reserva'}</Text>
+          <Text style={styles.confirmText}>{publicacion.tipo === 'Producto' ? 'Confirmar compra' : 'Confirmar reserva'}</Text>
         )}
       </TouchableOpacity>
     </ScrollView>

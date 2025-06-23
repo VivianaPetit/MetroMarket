@@ -267,7 +267,7 @@ const pickImageAndStore = async () => {
       <Text style={styles.titulo}>Crear Publicación</Text>
       {/* para cargar imagenes */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Fotos del producto' : 'Fotos del servicio'}
+        {tipoPublicacion === 'Producto' ? 'Fotos del producto' : 'Fotos del servicio'}
       </Text>
       <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndStore} disabled={loading}>
         <Ionicons name="image-outline" size={20} color="#fff" />
@@ -277,16 +277,23 @@ const pickImageAndStore = async () => {
       {images.length > 0 && (
         <ScrollView horizontal style={{ marginTop: 10 }} showsHorizontalScrollIndicator={false}>
           {images.map((img, index) => (
-            <Image
-              key={index}
-              source={{ uri: img.uri }}
-              style={{
-                width: 150,
-                height: 150,
-                marginRight: 10,
-                borderRadius: 10,
-              }}
-            />
+            <View key={index} style={styles.imageContainer}>
+              <Image
+                source={{ uri: img.uri }}
+                style={styles.previewImage}
+              />
+              <TouchableOpacity 
+                style={styles.deleteButton} 
+                onPress={() => {
+                  const newImages = [...images];
+                  newImages.splice(index, 1);
+                  setImages(newImages);
+                }}
+                disabled={loading}
+              >
+                <Ionicons name="close-circle" size={24} color="#ff4444" />
+              </TouchableOpacity>
+            </View>
           ))}
         </ScrollView>
       )}
@@ -294,7 +301,7 @@ const pickImageAndStore = async () => {
 
       {/* titulo */}
       <Text style={styles.label}>Título *</Text>
-        {tipoPublicacion == 'producto' ? (
+        {tipoPublicacion == 'Producto' ? (
           // formulario de titulo para producto
           <TextInput 
             style={styles.input}
@@ -333,7 +340,7 @@ const pickImageAndStore = async () => {
 
       {/* Precio */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Precio *' : 'Precio por hora *'}
+        {tipoPublicacion === 'Producto' ? 'Precio *' : 'Precio por hora *'}
       </Text>
       <TextInput
         style={styles.input}
@@ -346,7 +353,7 @@ const pickImageAndStore = async () => {
 
       {/* Cantidad*/}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
+        {tipoPublicacion === 'Producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
       </Text>
         <TextInput
           style={styles.input}
@@ -359,9 +366,9 @@ const pickImageAndStore = async () => {
 
       {/* Estado del producto (no aplica para servicios) || Modalidad del servicio (no aplica para producto) */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Estado' : 'Modalidad del Servicio'}
+        {tipoPublicacion === 'Producto' ? 'Estado' : 'Modalidad del Servicio'}
       </Text>
-      {tipoPublicacion == 'producto' ? (
+      {tipoPublicacion == 'Producto' ? (
           // formulario de Estado para producto
           <View style={styles.chipsContainer}>
             {estados.map((op) => (
@@ -398,9 +405,9 @@ const pickImageAndStore = async () => {
       
       {/* Lugar de entrega (no aplica para servicios) || horario (no aplica para producto) */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Lugar entrega' : 'Horario'}
+        {tipoPublicacion === 'Producto' ? 'Lugar entrega' : 'Horario'}
       </Text>
-      {tipoPublicacion == 'producto' ? (
+      {tipoPublicacion == 'Producto' ? (
           // formulario de Lugar de entrega para producto
           <TextInput
             style={styles.input}
@@ -484,11 +491,11 @@ const pickImageAndStore = async () => {
         {categorias
           .filter(cat => {
             //para producto
-            if (tipoPublicacion === 'producto') {
+            if (tipoPublicacion === 'Producto') {
               return !['Clases'].includes(cat.nombre);
             }
             //para servicio - Pd: por ahora solo se harcodea la categoria "Clase" para servicios, proximante mas
-            if (tipoPublicacion === 'servicio') {
+            if (tipoPublicacion === 'Servicio') {
               return ['Clases'].includes(cat.nombre);
             }
           })
@@ -560,6 +567,23 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
     marginBottom: 12,
+  },
+    imageContainer: {
+    position: 'relative',
+    marginRight: 10,
+  },
+  previewImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 10,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 12,
+    padding: 2,
   },
   chip: {
     borderWidth: 1,

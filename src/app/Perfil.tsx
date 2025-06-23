@@ -14,16 +14,6 @@ import { supabase } from '../../supabase';
 import { fetchPublicaciones } from '../services/publicacionService';
 import ProductCard from '../components/ProductCard';
 
-// Mock de publicaciones (reemplazar con tus datos reales)
-const mockPublicaciones = [
-  { id: '1', imagen: 'https://picsum.photos/500/500?random=1', titulo: 'Producto 1', precio: '$20' },
-  { id: '2', imagen: 'https://picsum.photos/500/500?random=2', titulo: 'Producto 2', precio: '$35' },
-  { id: '3', imagen: 'https://picsum.photos/500/500?random=3', titulo: 'Producto 3', precio: '$15' },
-  { id: '4', imagen: 'https://picsum.photos/500/500?random=4', titulo: 'Producto 4', precio: '$50' },
-  { id: '5', imagen: 'https://picsum.photos/500/500?random=5', titulo: 'Producto 5', precio: '$25' },
-  { id: '6', imagen: 'https://picsum.photos/500/500?random=6', titulo: 'Producto 6', precio: '$40' },
-];
-
 export default function Perfil() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
   const [publicacionesUsuario, setPublicacionesUsuario] = useState<Publicacion[]>([]);
@@ -34,11 +24,11 @@ export default function Perfil() {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [nombre, setNombre] = useState(user?.nombre ?? '');
   const [telefono, setTelefono] = useState(user?.telefono ?? '');
-  const [showReviews, setShowReviews] = useState(false);
   const [Resenas, setResenas] = useState<Resena[]>([]);
   const [Resenas2, setResenas2] = useState<Resena[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState('publicaciones'); // 'publicaciones' o 'reseñas'
+  const img = require('../../assets/images/LogoMetroMarketBN.png');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -195,7 +185,7 @@ export default function Perfil() {
     <ScrollView style={styles.wrapper} contentContainerStyle={styles.scrollContent}>
       {/* Header */}
       <View style={styles.headerContainer}>
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={() => router.push('/')}>
           <Ionicons name="arrow-back" size={24} color="#00318D" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Mi Perfil</Text>
@@ -298,11 +288,18 @@ export default function Perfil() {
       </View>
     ) : (
       <View style={styles.emptyContainer}>
-        <Ionicons name="camera-outline" size={50} color="#CCC" />
+        <Image
+          source={img}
+          style={{ width: 100, height: 100, marginBottom: 16 }}
+          resizeMode="contain"
+         // onLoadStart={() => setIsUploading(true)}
+        //  onLoadEnd={() => setIsUploading(false)}
+        />
+        {/*isUploading && <ActivityIndicator size="small" color="#00318D" />*/}
         <Text style={styles.emptyText}>No tienes publicaciones</Text>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => router.push('/publicar')}
+          onPress={() => router.push('/formularioPublicar')}
         >
           <Text style={styles.addButtonText}>Crear primera publicación</Text>
         </TouchableOpacity>
@@ -310,18 +307,23 @@ export default function Perfil() {
     )}
   </View>
 ) : (
-            <View style={styles.commentsContainer}>
-              {Resenas2.length > 0 ? (
-                Resenas2.map((comentario) => (
-                  <CommentCard
-                    key={comentario._id}
-                    commentText={comentario.comentario}
-                  />
-                ))
-              ) : (
-                <Text style={styles.emptyText}>No hay reseñas todavía</Text>
-              )}
-            </View>
+      <View style={styles.commentsContainer}>
+        {Resenas2 && Resenas2.filter(r => r.comentario?.trim())
+          .sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+          .slice(0, 8)
+          .map((comentario) => (
+            <CommentCard
+              key={comentario._id}
+              commentText={comentario.comentario}
+              fecha={typeof comentario.fecha === 'string' ? comentario.fecha : new Date(comentario.fecha).toISOString()}
+              calificacion={comentario.calificacion}
+            />
+          ))
+        }
+        {Resenas2.filter(r => r.comentario?.trim()).length === 0 && (
+          <Text style={styles.emptyText}>No hay reseñas todavía</Text>
+        )}
+      </View> 
           )}
 
           <TouchableOpacity 

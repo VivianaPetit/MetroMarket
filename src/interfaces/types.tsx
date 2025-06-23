@@ -38,7 +38,7 @@ export interface Publicacion {
 export interface Resena {
   _id: string,
   usuario: string;
-   resenado: string;
+  resenado: string;
   comentario: string;
   fecha: Date;
   calificacion: number; 

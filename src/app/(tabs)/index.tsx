@@ -122,43 +122,40 @@ export default function Home() {
               </TouchableOpacity>
             )}
           </ScrollView>
-          <View style={styles.productsGrid}>
-            {filteredPublications.length > 0 ? (
-              filteredPublications.map((pub) => (
-                <TouchableOpacity
-                  key={pub._id}
+         <View style={styles.productsGrid}>
+          {filteredPublications.length > 0 ? (
+            filteredPublications.map((pub) => (
+              <View style={styles.productCardWrapper} key={pub._id}>
+                <ProductCard
+                  name={pub.titulo}
+                  price={pub.precio}
+                  category={pub.categoria}
+                  image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}
+                  tipo={pub.tipo}
                   onPress={() => router.push({
                     pathname: "/productDetails",
                     params: { productId: pub._id }
                   })}
-                  activeOpacity={0.7}
-                >
-                  <ProductCard
-                    name={pub.titulo}
-                    price={pub.precio}
-                    category={pub.categoria}
-                    image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}
-                    tipo={pub.tipo}
-                  />
-                </TouchableOpacity>
-              ))
-            ) : (
-              <View style={styles.emptyContainer}>
-                <Ionicons name="sad-outline" size={48} color="#888" />
-                {search.length > 0 && selectedCategory != null ? (
-                  <Text style={styles.emptyText}>
-                    No hay resultados para <Text style={styles.searchText}>"{search}"</Text> en la categoría{' '}
-                    <Text style={styles.selectedCategoryText}>{selectedCategory}</Text>
-                  </Text>
-                ) : (
-                  <Text style={styles.emptyText}>
-                    No hay resultados para{' '}
-                    <Text style={styles.selectedCategoryText}>{selectedCategory || search || 'Todos'}</Text>
-                  </Text>
-                )}
+                />
               </View>
-            )}
-          </View>
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+                        <Ionicons name="sad-outline" size={48} color="#888" />
+                        {search.length > 0 && selectedCategory != null ? (
+                          <Text style={styles.emptyText}>
+                            No hay resultados para <Text style={styles.searchText}>"{search}"</Text> en la categoría{' '}
+                            <Text style={styles.selectedCategoryText}>{selectedCategory}</Text>
+                          </Text>
+                        ) : (
+                          <Text style={styles.emptyText}>
+                            No hay resultados para{' '}
+                            <Text style={styles.selectedCategoryText}>{selectedCategory || search || 'Todos'}</Text>
+                          </Text>
+                        )}
+                      </View>
+          )}
+        </View>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -184,12 +181,16 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingLeft: 16,
   },
-  productsGrid: {
+productsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     marginTop: 20,
+  },
+  productCardWrapper: {
+    width: '48%', // Ocupa casi la mitad del ancho (deja espacio para el margen)
+    marginBottom: 16, // Espacio vertical entre cards
   },
   emptyContainer: {
     alignItems: 'center',

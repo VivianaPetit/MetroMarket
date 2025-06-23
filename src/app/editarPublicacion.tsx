@@ -65,7 +65,7 @@ const EditarProducto = () => {
     return;
   }
   const isHorarioInitial = JSON.stringify(horario) === JSON.stringify(HORARIO_INICIAL);
-  if (isHorarioInitial && parsedProducto?.tipo === 'servicio') {
+  if (isHorarioInitial && parsedProducto?.tipo === 'Servicio') {
     Alert.alert('Error', 'Debes seleccionar al menos un día de disponibilidad.');
     return;
   }
@@ -128,7 +128,7 @@ const EditarProducto = () => {
 
       {/* titulo */}
       <Text style={styles.label}>Título *</Text>
-        {parsedProducto?.tipo == 'producto' ? (
+        {parsedProducto?.tipo == 'Producto' ? (
           // formulario de titulo para producto
           <TextInput 
             style={styles.input}
@@ -160,7 +160,7 @@ const EditarProducto = () => {
       />
       {/* precio */}
       <Text style={styles.label}>
-        {parsedProducto?.tipo === 'producto' ? 'Precio *' : 'Precio por hora *'}
+        {parsedProducto?.tipo === 'Producto' ? 'Precio *' : 'Precio por hora *'}
       </Text>
       <TextInput
         style={styles.input}
@@ -171,7 +171,7 @@ const EditarProducto = () => {
 
       {/* Cantidad */}
       <Text style={styles.label}>
-        {parsedProducto?.tipo === 'producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
+        {parsedProducto?.tipo === 'Producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
       </Text>
       <TextInput
         style={styles.input}
@@ -182,9 +182,9 @@ const EditarProducto = () => {
 
       {/* Estado del producto (no aplica para servicios) || Modalidad del servicio (no aplica para producto) */}
       <Text style={styles.label}>
-        {parsedProducto?.tipo === 'producto' ? 'Estado' : 'Modalidad del Servicio'}
+        {parsedProducto?.tipo === 'Producto' ? 'Estado' : 'Modalidad del Servicio'}
       </Text>
-        {parsedProducto?.tipo == 'producto' ? (
+        {parsedProducto?.tipo == 'Producto' ? (
           // formulario de Estado para producto
           <View style={styles.chipsContainer}>
             {estados.map((op) => (
@@ -229,9 +229,9 @@ const EditarProducto = () => {
       
       {/* Lugar de entrega (no aplica para servicios) || horario (no aplica para producto) */}
       <Text style={styles.label}>
-        {parsedProducto?.tipo === 'producto' ? 'Lugar entrega' : 'Horario'}
+        {parsedProducto?.tipo === 'Producto' ? 'Lugar entrega' : 'Horario'}
       </Text>      
-        {parsedProducto?.tipo == 'producto' ? (
+        {parsedProducto?.tipo == 'Producto' ? (
           // formulario de Lugar de entrega para producto
           <TextInput
             style={styles.input}
@@ -309,11 +309,11 @@ const EditarProducto = () => {
         {categorias
           .filter(cat => {
             //para producto
-            if (parsedProducto?.tipo === 'producto') {
+            if (parsedProducto?.tipo === 'Producto') {
               return !['Clases'].includes(cat.nombre);
             }
             //para servicio - Pd: por ahora solo se harcodea la categoria "Clase" para servicios, proximante mas
-            if (parsedProducto?.tipo === 'servicio') {
+            if (parsedProducto?.tipo === 'Servicio') {
               return ['Clases'].includes(cat.nombre);
             }
           })

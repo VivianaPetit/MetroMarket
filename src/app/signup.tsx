@@ -87,7 +87,7 @@ const SignUp = () => {
         Crypto.CryptoDigestAlgorithm.SHA256,
         formData.password.trim()
       );
-      console.log(hashedPassword)
+      console.log(hashedPassword);
 
       const newUser: Omit<Usuario, '_id'> = {
         nombre: trimmedName,

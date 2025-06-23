@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/userContext'; 
 import ProductCard from '../../components/ProductCard';
@@ -18,6 +18,8 @@ export default function Publicaciones() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const img = require('../../../assets/images/LogoMetroMarketBN.png');
 
 
  useEffect(() => {
@@ -101,7 +103,23 @@ export default function Publicaciones() {
             />
           ))
         ) : (
-          <Text style={styles.errorMensaje}>No se encontraron publicaciones</Text>
+                <View style={styles.emptyContainer}>
+                  <Image
+                    source={img}
+                    style={{ width: 100, height: 100, marginBottom: 16 }}
+                    resizeMode="contain"
+                    onLoadStart={() => setIsUploading(true)}
+                    onLoadEnd={() => setIsUploading(false)}
+                  />
+                  {isUploading && <ActivityIndicator size="small" color="#00318D" />}
+                  <Text style={styles.emptyText}>No tienes publicaciones</Text>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => router.push('/formularioPublicar')}
+                  >
+                    <Text style={styles.addButtonText}>Crear primera publicación</Text>
+                  </TouchableOpacity>
+                </View>
         )}
       </ScrollView>) : (
         <Text style={styles.errorMensaje}>{message}</Text>
@@ -155,6 +173,30 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#333',
+  },
+    emptyText: {
+    textAlign: 'center',
+    color: '#888',
+    fontSize: 14,
+    paddingVertical: 16,
+  },
+    emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    padding: 20,
+
+  },
+  addButton: {
+    marginTop: 20,
+    backgroundColor: '#00318D',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#FFF',
+    fontWeight: '600',
   },
   categoriesWrapper: {
     marginTop: 12,

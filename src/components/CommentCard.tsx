@@ -1,61 +1,90 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
+type CommentCardProps = {
+  commentText?: string;
+  fecha?: string;
+  calificacion?: number; // del 1 al 5
+};
 
 const CommentCard = ({
-  UserName = "Anonimo",
-  imagen = require('../../assets/images/user.png'),
-  commentText = "Comment" 
-  
-}: {
-  UserName?: string;
-  imagen?: any;
-  commentText?:string;
-  
-}) => {
+  commentText = "Comentario",
+  fecha,
+  calificacion = 0,
+}: CommentCardProps) => {
+  const formattedDate = fecha
+    ? new Date(fecha).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : null;
+
+  const renderStars = (count: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <Text key={i} style={i <= count ? styles.starFilled : styles.starEmpty}>
+          ★
+        </Text>
+      );
+    }
+    return stars;
+  };
+
   return (
-  <View style={styles.CommentBox}>
-          <View style={[styles.circleContainer,{borderColor:'black',width:60,height:60}]}><Image source={imagen} style={styles.avatarImage} /> </View> 
-          
-          <View>
-            <View style={{marginTop:10}}><Text style={{fontWeight:'bold'}}>{UserName}</Text></View>
-            <View style={styles.comment}><Text>{commentText}</Text></View>
-          </View>
-  
-        </View>)}
+    <View style={styles.commentBox}>
+      <View>
+        {formattedDate && <Text style={styles.date}>{formattedDate}</Text>}
+        <View style={styles.starsContainer}>{renderStars(calificacion)}</View>
+        <View style={styles.commentContainer}>
+          <Text style={styles.commentText}>{commentText}</Text>
+        </View>
+      </View>
+    </View>
+  );
+};
 
 export default CommentCard;
 
-
 const styles = StyleSheet.create({
-
-    CommentBox: {
+  commentBox: {
     flexDirection: 'row',
-    alignItems: 'flex-start', 
+    alignItems: 'flex-start',
     paddingVertical: 10,
     paddingHorizontal: 5,
-    width: '100%', 
-  },
-  comment:{
-    marginTop:7,
-    marginRight:5,
-    width:'90%',
-    backgroundColor:'#F6F6F6',
-    padding:4,
-    borderRadius:5},
-
-  circleContainer: {
-    margin: 10,
-    width: 150,
-    height: 150,
-    borderRadius: 80,
-    borderWidth: 3,
-    borderColor: 'white',
-    overflow: 'hidden'
-  },
-  avatarImage: {
     width: '100%',
-    height: '100%',
-    resizeMode: 'cover'
-  }}
-)
+  },
+  userName: {
+    fontWeight: 'bold',
+    fontSize: 14,
+    color: '#00318D',
+  },
+  date: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 2,
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    marginBottom: 6,
+  },
+  starFilled: {
+    color: '#FFD700', // dorado
+    fontSize: 16,
+  },
+  starEmpty: {
+    color: '#CCC',
+    fontSize: 16,
+  },
+  commentContainer: {
+    backgroundColor: '#F6F6F6',
+    padding: 8,
+    borderRadius: 5,
+    maxWidth: '90%',
+  },
+  commentText: {
+    fontSize: 14,
+    color: '#333',
+  },
+});
