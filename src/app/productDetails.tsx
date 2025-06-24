@@ -33,6 +33,8 @@ export default function ProductDetails() {
   const { user, refrescarUsuario } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const scrollViewRef = React.useRef<ScrollView>(null);
   
 
   const incrementarCantidad = () => {
@@ -196,23 +198,42 @@ export default function ProductDetails() {
 
 
     {/* visualizacion imagen */}
-      <View style={styles.imageWrapper}>
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-        >
-          {(product.fotos?.length ? product.fotos : ['https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'])
-            .map((foto, index) => (
-              <Image
-                key={index}
-                source={{ uri: foto }}
-                style={styles.productImage}
-              />
-            ))
-          }
-        </ScrollView>
-      </View>
+      // En la parte de visualización de imágenes, reemplaza el código actual con este:
+<View style={styles.imageWrapper}>
+  <ScrollView
+    horizontal
+    pagingEnabled
+    showsHorizontalScrollIndicator={false}
+    onScroll={(event) => {
+      // Actualizar el índice actual basado en el scroll
+      const contentOffset = event.nativeEvent.contentOffset.x;
+      const viewSize = Dimensions.get('window').width;
+      const currentIndex = Math.round(contentOffset / viewSize);
+      setCurrentImageIndex(currentIndex);
+    }}
+    scrollEventThrottle={200}
+  >
+    {(product.fotos?.length ? product.fotos : ['https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'])
+      .map((foto, index) => (
+        <View key={index} style={styles.imageContainer}>
+          <Image
+            source={{ uri: foto }}
+            style={styles.productImage}
+          />
+        </View>
+      ))
+    }
+  </ScrollView>
+  
+  {/* Indicador de múltiples imágenes */}
+  {(product.fotos?.length || 0) > 1 && (
+    <View style={styles.imageCounter}>
+      <Text style={styles.imageCounterText}>
+        {currentImageIndex + 1}/{product.fotos?.length || 1}
+      </Text>
+    </View>
+  )}
+</View>
 
       <View style={styles.detailsContainer}>
         <View style={styles.header}>
@@ -388,6 +409,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+imageContainer: {
+  width: Dimensions.get('window').width,
+  height: 300,
+},
+imageCounter: {
+  position: 'absolute',
+  bottom: 15,
+  right: 15,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  paddingHorizontal: 10,
+  paddingVertical: 5,
+  borderRadius: 15,
+},
+imageCounterText: {
+  color: 'white',
+  fontSize: 14,
+  fontWeight: 'bold',
+},
+navArrow: {
+  position: 'absolute',
+  top: '50%',
+  backgroundColor: 'rgba(0,0,0,0.4)',
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+  transform: [{ translateY: -20 }],
+},
+leftArrow: {
+  left: 15,
+},
+rightArrow: {
+  right: 15,
+},
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
