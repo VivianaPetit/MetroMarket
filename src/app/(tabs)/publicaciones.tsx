@@ -108,10 +108,7 @@ export default function Publicaciones() {
                     source={img}
                     style={{ width: 100, height: 100, marginBottom: 16 }}
                     resizeMode="contain"
-                    onLoadStart={() => setIsUploading(true)}
-                    onLoadEnd={() => setIsUploading(false)}
                   />
-                  {isUploading && <ActivityIndicator size="small" color="#00318D" />}
                   <Text style={styles.emptyText}>No tienes publicaciones</Text>
                   <TouchableOpacity
                     style={styles.addButton}
@@ -122,7 +119,22 @@ export default function Publicaciones() {
                 </View>
         )}
       </ScrollView>) : (
-        <Text style={styles.errorMensaje}>{message}</Text>
+        <ScrollView contentContainerStyle={styles.productsGrid}>
+          <View style={styles.emptyContainer}>
+            <Image
+              source={img}
+              style={{ width: 100, height: 100, marginBottom: 16 }}
+              resizeMode="contain"
+            />
+            <Text style={styles.emptyText}>{message}</Text>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => router.push('/login')}
+            >
+              <Text style={styles.addButtonText}>Iniciar sesión</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       )}
     </View>
   );

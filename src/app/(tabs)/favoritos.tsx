@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View, Image} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/userContext'; 
 import ProductCard from '../../components/ProductCard';
@@ -17,6 +17,7 @@ export default function Home() {
     const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
+    const img = require('../../../assets/images/LogoMetroMarketBN.png');
 
     useEffect(() => {
         fetchCategorias()
@@ -92,8 +93,22 @@ export default function Home() {
   )}
 </ScrollView>
 ) : (
-          <Text style={styles.errorMensaje}>{message}</Text>
-          
+              <ScrollView contentContainerStyle={styles.productsGrid}>
+                <View style={styles.emptyContainer}>
+                  <Image
+                    source={img}
+                    style={{ width: 100, height: 100, marginBottom: 16 }}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.emptyText}>{message}</Text>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => router.push('/login')}
+                  >
+                    <Text style={styles.addButtonText}>Iniciar sesión</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
         )}
         </View>
   );
@@ -136,6 +151,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     height: 45,
     elevation: 4,
+  },
+    addButton: {
+    marginTop: 20,
+    backgroundColor: '#00318D',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#FFF',
+    fontWeight: '600',
+  },
+      emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    padding: 20,
+  },
+      emptyText: {
+    textAlign: 'center',
+    color: '#888',
+    fontSize: 14,
+    paddingVertical: 16,
   },
   searchIcon: {
     marginRight: 8,

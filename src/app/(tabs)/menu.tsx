@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { useAuth } from '../../context/userContext';
 
 export default function Perfil() {
@@ -15,7 +15,7 @@ export default function Perfil() {
 
   return (
     <ScrollView style={styles.container}>
-      {/* Invitado/User Card */}
+      {/* User Card */}
       <TouchableOpacity
         style={styles.menuButton}
         activeOpacity={1}
@@ -26,21 +26,35 @@ export default function Perfil() {
         }}
       >
         <View style={styles.guestCardContent}>
-          <Ionicons name="person-outline" size={30} color="#fff" />
-          <Text style={styles.guestText}>{user?.nombre ?? 'Invitado'}</Text>
+          {user?.foto ? (
+            <Image 
+              source={{ uri: user.foto }} 
+              style={styles.profileImage}
+            />
+          ) : (
+            <View style={styles.profileIconContainer}>
+              <Ionicons name="person-outline" size={30} color="#fff" />
+            </View>
+          )}
+          <View style={styles.textContainer}>
+            <Text style={styles.guestText}>{user?.nombre ?? 'Invitado'}</Text>
+            {user?.correo && (
+              <Text style={styles.emailText}>{user.correo}</Text>
+            )}
+          </View>
         </View>
       </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => router.push('./')}
-            activeOpacity={0.8}
-          >
-            <View style={styles.publicationsButtonContent}>
-              <Ionicons name="home-outline" size={24} color="#FF8C00" />
-              <Text style={styles.publicationsButtonText}>Inicio</Text>
-            </View>
-          </TouchableOpacity>
+       <TouchableOpacity
+        style={styles.menuButton}
+        onPress={() => router.push('./')}
+        activeOpacity={0.8}
+      >
+        <View style={styles.publicationsButtonContent}>
+          <Ionicons name="home-outline" size={24} color="#FF8C00" />
+          <Text style={styles.publicationsButtonText}>Inicio</Text>
+        </View>
+      </TouchableOpacity>
 
       {user && (
         <>
@@ -148,11 +162,35 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: 70,
   },
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10, // Aumenté el margen derecho
+  },
+  profileIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10, // Mismo margen que la imagen para consistencia
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textContainer: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    marginLeft: 3, // Pequeño margen izquierdo adicional
+  },
   guestText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 18,
-    marginLeft: 12,
+    fontSize: 16,
+    marginBottom: 2, // Espacio entre nombre y email
+  },
+  emailText: {
+    color: '#fff',
+    fontSize: 12,
+    opacity: 0.8,
   },
   loginButtonContent: {
     flexDirection: 'row',
