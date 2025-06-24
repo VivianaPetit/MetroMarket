@@ -33,6 +33,7 @@ export interface Publicacion {
   preguntas: [string];
   modalidad: string;
   horario:Record<string, string[]>;
+  esPatrocinada: boolean
 }
 
 export interface Resena {
