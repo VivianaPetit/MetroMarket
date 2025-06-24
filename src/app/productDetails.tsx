@@ -186,14 +186,13 @@ export default function ProductDetails() {
         </SafeAreaView>
 
     <View style={{ marginTop: 20 }}>
-      <TouchableOpacity onPress={() => router.push({
+      <Text style={styles.NolinkText}> Ver más productos de la categoría{' '}<Text style={styles.linkText} onPress={() => router.push({
         pathname: "/",
         params: { categoria: product.categoria }
       })}>
-        <Text style={styles.linkText}>
-          Ver más productos de la categoría "{product.categoria}"
-        </Text>
-      </TouchableOpacity>
+          "{product.categoria}"
+          </Text>
+        </Text> 
     </View>
 
 
@@ -520,13 +519,17 @@ rightArrow: {
     marginBottom: 8
   },
   linkText: {
+    color: '#F68628',
+    fontWeight: '600',
+    marginBottom: 8,
+    fontSize: 16,
+  },
+    NolinkText: {
     color: '#00318D',
     fontWeight: '600',
-    marginTop: 70,
-    marginBottom: 8,
-    marginHorizontal: 20,
+    marginTop: 50,
+    marginLeft: 20,
     fontSize: 16,
-    textDecorationLine: 'underline'
   },
   input: {
     borderColor: '#ccc',
