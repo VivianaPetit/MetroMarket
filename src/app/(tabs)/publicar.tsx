@@ -65,6 +65,8 @@ const CreatePublication = () => {
   cantidad?: string;
   categoria?: string;
   metodoPago?: string;
+  estado?: string;
+  modalidad?: string;
   imagenes?: string;
 }
 const [errors, setErrors] = useState<FormErrors>({});
@@ -100,6 +102,14 @@ const validarFormulario = (): FormErrors => {
 
   if (!metodoPago || metodoPago === '' || metodoPago === 'Selecciona un método de pago') {
     errores.metodoPago = 'Debes seleccionar un método de pago válido.';
+  }
+
+  if (!estado || estado === '' && tipoPublicacion === 'producto') {
+    errores.estado = 'Debes seleccionar un estado para el producto.';
+  }
+
+  if (!modalidad || modalidad === '' && tipoPublicacion === 'servicio') {
+    errores.modalidad = 'Debes seleccionar un modalidad para el servicio.';
   }
 
   if (images.length === 0) {
@@ -374,6 +384,7 @@ const pickImageAndStore = async () => {
               </TouchableOpacity>
             ))}
           </View> 
+          
         ) : (
           // formulario de Modalidad para servicio
           <View style={styles.chipsContainer}>
@@ -390,7 +401,9 @@ const pickImageAndStore = async () => {
             ))} 
           </View>
         )}
-      
+      {errors.estado && <Text style={styles.errorText}>{errors.estado}</Text>}
+      {errors.modalidad && <Text style={styles.errorText}>{errors.modalidad}</Text>}
+
       
       {/* Lugar de entrega (no aplica para servicios) || horario (no aplica para producto) */}
       <Text style={styles.label}>
@@ -441,6 +454,7 @@ const pickImageAndStore = async () => {
             <Text>{JSON.stringify(horario, null, 2)}</Text> */}
           </View>
         )}
+    
 
       {/* Metodos de pago */}
     <Text style={styles.label}>Método de pago *</Text>
