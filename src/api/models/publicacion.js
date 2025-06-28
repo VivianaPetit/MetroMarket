@@ -69,6 +69,10 @@ const publicacionSchema = new mongoose.Schema({
       viernes: [],
       sabado: [],
       domingo: []
+    },
+    esPatrocinada: {
+      type: Boolean,
+      default: false,
     }
   }
 });

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/userContext'; 
 import ProductCard from '../../components/ProductCard';
@@ -10,7 +10,7 @@ import { fetchCategorias } from '../../services/categoriaService';
 import { fetchPublicaciones } from '../../services/publicacionService';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function Home() {
+export default function Publicaciones() {
   const router = useRouter();
   const { user } = useAuth(); 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -18,6 +18,9 @@ export default function Home() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const img = require('../../../assets/images/LogoMetroMarketBN.png');
+
 
  useEffect(() => {
      fetchCategorias()
@@ -84,7 +87,8 @@ export default function Home() {
       {/* Productos */}
       {user ? (<ScrollView contentContainerStyle={styles.productsGrid}>
         {filteredPublications.length > 0 ? (
-          filteredPublications.map((pub) => (
+          filteredPublications.map((pub) => ( 
+          <View style={styles.productCardWrapper} key={pub._id}>
             <ProductCard
               key={pub._id}
               name={pub.titulo}
@@ -98,12 +102,41 @@ export default function Home() {
               tipo={pub.tipo}
               onEdit={() => handleEditProduct(pub)}
             />
+            </View>
           ))
         ) : (
-          <Text style={styles.errorMensaje}>No se encontraron publicaciones</Text>
+                <View style={styles.emptyContainer}>
+                  <Image
+                    source={img}
+                    style={{ width: 100, height: 100, marginBottom: 16 }}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.emptyText}>No tienes publicaciones</Text>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => router.push('/formularioPublicar')}
+                  >
+                    <Text style={styles.addButtonText}>Crear primera publicación</Text>
+                  </TouchableOpacity>
+                </View>
         )}
       </ScrollView>) : (
-        <Text style={styles.errorMensaje}>{message}</Text>
+        <ScrollView contentContainerStyle={styles.container2}>
+          <View style={styles.emptyContainer}>
+            <Image
+              source={img}
+              style={{ width: 100, height: 100, marginBottom: 16 }}
+              resizeMode="contain"
+            />
+            <Text style={styles.emptyText}>{message}</Text>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => router.push('/login')}
+            >
+              <Text style={styles.addButtonText}>Iniciar sesión</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       )}
     </View>
   );
@@ -155,6 +188,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
+    emptyText: {
+    textAlign: 'center',
+    color: '#888',
+    fontSize: 14,
+    paddingVertical: 16,
+  },
+    emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    padding: 20,
+  },
+    productCardWrapper: {
+    width: '48%', // Ocupa casi la mitad del ancho (deja espacio para el margen)
+    marginBottom: 16, // Espacio vertical entre cards
+  },
+  addButton: {
+    marginTop: 20,
+    backgroundColor: '#00318D',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#FFF',
+    fontWeight: '600',
+  },
   categoriesWrapper: {
     marginTop: 12,
     paddingBottom: 10,
@@ -163,13 +223,20 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     paddingHorizontal: 16,
   },
-  productsGrid: {
+  container2: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 80,
     paddingTop: 10, 
+  },
+  productsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginTop: 20,
   },
   errorMensaje: {
     fontSize: 16,

@@ -1,97 +1,111 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { fetchPublicacionById } from '../services/publicacionService';
-import { fetchUsuarioById } from '../services/usuarioService';
+import { fetchUsuarioById, agregarTransaccionAUsuario } from '../services/usuarioService';
 import { createTransaccion } from '../services/transaccionService';
-import { agregarTransaccionAUsuario } from '../services/usuarioService';
-import { useAuth } from '../context/userContext'; 
+import { useAuth } from '../context/userContext';
 import { Publicacion, Usuario } from '../interfaces/types';
 
 const Comprar: React.FC = () => {
   const { user, refrescarUsuario } = useAuth();
-  const { productId } = useLocalSearchParams();
+  const params = useLocalSearchParams();
   const router = useRouter();
   const [publicacion, setPublicacion] = useState<Publicacion | null>(null);
+  const [vendedor, setVendedor] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [vendedor, setVendedor] = useState<Usuario | null>(null);
+  const [cantidad, setCantidad] = useState(1); // Estado local para la cantidad
+
+  // Parsear parámetros correctamente
+  const { productId, cantidad: cantidadParam } = params as {
+    productId?: string;
+    cantidad?: string;
+  };
 
   useEffect(() => {
-    const cargarPublicacionYVendedor = async () => {
+    // Inicializar cantidad desde los parámetros si existe
+    if (cantidadParam) {
+      const cantidadNum = parseInt(cantidadParam, 10);
+      if (!isNaN(cantidadNum)) {
+        setCantidad(cantidadNum);
+      }
+    }
+  }, [cantidadParam]);
+
+  useEffect(() => {
+    const cargarDatos = async () => {
       try {
-        if (typeof productId !== 'string') {
-          setError('ID de producto inválido');
-          setLoading(false);
-          return;
+        if (typeof productId !== 'string') return;
+        const pub = await fetchPublicacionById(productId);
+        setPublicacion(pub);
+        if (pub.usuario) {
+          const vendedorInfo = await fetchUsuarioById(pub.usuario);
+          setVendedor(vendedorInfo);
         }
-        
-        const publicacionData = await fetchPublicacionById(productId);
-        setPublicacion(publicacionData);
-        
-        if (publicacionData.usuario) {
-          console.log('ID de usuario del vendedor:', publicacionData.usuario);
-          const usuarioData = await fetchUsuarioById(publicacionData.usuario);
-          setVendedor(usuarioData);
-        }
-        
-      } catch (err) {
-        console.error('Error al cargar datos:', err);
+      } catch (e) {
         setError('No se pudo cargar la información del producto');
       } finally {
         setLoading(false);
       }
     };
-
-    cargarPublicacionYVendedor();
+    cargarDatos();
   }, [productId]);
 
   const handleConfirmarCompra = async () => {
-    if (!user || !publicacion || !vendedor) return;
-    if (publicacion.cantidad <= 0) return;
-
+    if (!user || !publicacion || !vendedor || publicacion.cantidad <= 0) return;
     setProcessing(true);
     
     try {
-      // 1. Crear la transacción
+      const montoTotal = cantidad * publicacion.precio;
+      
       const nuevaTransaccion = await createTransaccion({
         comprador: user._id,
         vendedor: vendedor._id,
         publicacion: publicacion._id,
-        monto: publicacion.precio,
-        metodoPago: 'efectivo', 
-        estado: 'Pendiente', 
+        monto: montoTotal,
+        cantidadComprada: cantidad,
+        metodoPago: 'efectivo',
+        estado: 'Pendiente',
         fecha: new Date(),
-        entregado : [false, false],
+        entregado: [false, false],
       });
 
       await Promise.all([
         agregarTransaccionAUsuario(user._id, nuevaTransaccion._id),
-        agregarTransaccionAUsuario(vendedor._id, nuevaTransaccion._id)
+        agregarTransaccionAUsuario(vendedor._id, nuevaTransaccion._id),
       ]);
 
-      // 3. Refrescar el usuario en el contexto
-      await refrescarUsuario(); // ✅ Esto actualiza la info del usuario
+      await refrescarUsuario();
 
-      // 3. Navegar a la pantalla de confirmación
       router.push({
         pathname: '/Review_PostShoping',
         params: {
           productId: publicacion._id,
           productName: publicacion.titulo,
-          productPrice: publicacion.precio.toString(),
+          productPrice: montoTotal.toString(), // Enviamos el precio total
           sellerName: vendedor.nombre,
           sellerPhone: vendedor.telefono,
+          purchaseDate: new Date().toLocaleDateString(), 
           transaccionId: nuevaTransaccion._id,
-          purchaseDate: new Date().toISOString()
+          cantidad: cantidad.toString(), // Enviamos la cantidad
         },
       });
-
-    } catch (error) {
+      
+    } catch (err) {
+      console.error('Error en la compra:', err);
       Alert.alert('Error', 'No se pudo completar la compra');
-      console.error('Error en compra:', error);
     } finally {
       setProcessing(false);
     }
@@ -99,226 +113,200 @@ const Comprar: React.FC = () => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color="#F68628" />
-        <Text style={{ marginTop: 10, color: '#555' }}>Cargando producto...</Text>
+        <Text style={{ marginTop: 10 }}>Cargando producto...</Text>
       </View>
     );
   }
 
   if (error || !publicacion) {
     return (
-      <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle-outline" size={50} color="red" />
-        <Text style={styles.errorText}>{error || 'Producto no encontrado.'}</Text>
-        <TouchableOpacity onPress={() => router.back()} style={styles.errorButton}>
-          <Text style={styles.errorButtonText}>Volver</Text>
+      <View style={styles.centered}>
+        <Text style={{ color: 'red' }}>{error || 'Producto no encontrado'}</Text>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButtonAlt}>
+          <Text style={{ color: '#fff' }}>Volver</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  const textoVendedor = (vendedor?.nombre && vendedor?.telefono)
-    ? `${vendedor.nombre} - ${vendedor.telefono}`
-    : 'Cargando información del vendedor...';
+  const montoTotal = cantidad * publicacion.precio;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView contentContainerStyle={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Ionicons name="arrow-back" size={26} color="#F68628" />
       </TouchableOpacity>
 
-      <View style={styles.imageWrapper}>
-        <Image
-          source={{
-            uri: publicacion.fotos?.[0] || 'https://via.placeholder.com/400x300?text=No+Image',
-          }}
-          style={styles.productImage}
-          resizeMode="cover"
-        />
-      </View>
+      <Text style={styles.header}>Revisa y confirma tu compra</Text>
 
-      <View style={styles.detailsContainer}>
-        <View style={styles.header}>
-          <Text style={styles.titleText}>{publicacion.titulo}</Text>
-          <TouchableOpacity>
-            <Ionicons name="heart-outline" size={28} color="#F68628" />
-          </TouchableOpacity>
+      <View style={styles.section}>
+        <Ionicons name="location-outline" size={24} color="#F68628" />
+        <View style={styles.sectionContent}>
+          <Text style={styles.sectionTitle}>Detalle de la entrega</Text>
+          <Text style={styles.sectionText}>Entrega a acordar con el vendedor</Text>
         </View>
-
-        <Text style={styles.priceText}>
-          {`$${typeof publicacion.precio === 'number' ? publicacion.precio.toFixed(2) : '0.00'}`}
-          {publicacion.tipo === 'producto' ? '' : ' por hora'}
-        </Text>
-        
-        
-        <Text style={styles.stock}>
-          {publicacion.tipo === 'producto' ? 'Cantidad disponible: ' : 'Cupos disponibles: '}
-          {publicacion.cantidad}          
-        </Text>
-
-        <View style={styles.separador} />
-
-        <Text style={styles.sectionLabel}>Descripción</Text>
-        <Text style={styles.descriptionText}>{publicacion.descripcion}</Text>
-
-        <View style={styles.separador} />
-
-        <Text style={styles.sectionLabel}>Vendedor</Text>
-        <Text style={styles.detailText}>{textoVendedor}</Text>
-
-        <TouchableOpacity 
-          style={[
-            styles.buyButton, 
-            publicacion.cantidad <= 0 ? styles.buyButtonDisabled : null,
-            processing ? styles.buyButtonProcessing : null
-          ]}
-          onPress={handleConfirmarCompra}
-          disabled={publicacion.cantidad <= 0 || processing || !user}
-        >
-          {processing ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buyButtonText}>
-              {publicacion.cantidad > 0 ? 'Confirmar compra' : 'Agotado'}
-            </Text>
-          )}
-        </TouchableOpacity>
       </View>
+
+      <View style={styles.section}>
+        <Ionicons name="cash-outline" size={24} color="#F68628" />
+        <View style={styles.sectionContent}>
+          <Text style={styles.sectionTitle}>Detalle del pago</Text>
+          <Text style={styles.sectionText}>Pago a acordar con el vendedor</Text>
+        </View>
+      </View>
+
+      <View style={styles.card}>
+        <Image
+          source={{ uri: publicacion.fotos?.[0] || 'https://via.placeholder.com/150' }}
+          style={styles.image}
+        />
+        <View>
+          <Text style={styles.productTitle}>{publicacion.titulo}</Text>
+          <View style={styles.separador} />
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Precio unitario </Text>
+            <Text style={styles.detailValue}>${publicacion.precio.toFixed(2)}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Cantidad seleccionada </Text>
+            <Text style={styles.detailValue}>{cantidad}</Text>
+          </View>
+
+          <View style={styles.separador} />
+
+          <View style={styles.detailRow}>
+            <Text style={[styles.detailLabel, { fontWeight: 'bold' }]}>Monto total </Text>
+            <Text style={[styles.detailValue, { fontWeight: 'bold', color: '#F68628' }]}>
+              ${montoTotal.toFixed(2)}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      <TouchableOpacity
+        style={[
+          styles.confirmButton,
+          publicacion.cantidad <= 0 || processing ? styles.confirmButtonDisabled : null,
+        ]}
+        disabled={publicacion.cantidad <= 0 || processing}
+        onPress={handleConfirmarCompra}
+      >
+        {processing ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.confirmText}>{publicacion.tipo === 'Producto' ? 'Confirmar compra' : 'Confirmar reserva'}</Text>
+        )}
+      </TouchableOpacity>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    padding: 20,
+    paddingTop: 60,
     backgroundColor: '#fff',
   },
-  loadingContainer: {
+  centered: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-  },
-  imageWrapper: {
-    position: 'relative',
-  },
-  productImage: {
-    width: '100%',
-    height: 350,
+    padding: 20,
   },
   backButton: {
     position: 'absolute',
-    top: 50,
-    left: 15,
-    padding: 8,
-    zIndex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
+    top: 30,
+    left: 20,
+    zIndex: 2,
   },
-  detailsContainer: {
-    padding: 20,
-    paddingTop: 10,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  titleText: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    flex: 1,
-    marginRight: 10,
-    color: '#111',
-  },
-  priceText: {
-    fontSize: 24,
-    color: '#F68628',
-    fontWeight: 'bold',
-    marginVertical: 8,
-  },
-  stock: {
-    color: '#555',
-    marginBottom: 15,
-    fontSize: 16,
-  },
-  sectionLabel: {
-    fontSize: 19,
-    fontWeight: '700',
-    marginTop: 15,
-    marginBottom: 8,
-    color: '#333',
-  },
-  descriptionText: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#444',
-    marginBottom: 10,
-  },
-  detailText: {
-    fontSize: 16,
-    marginBottom: 10,
-    color: '#444',
-  },
-  buyButton: {
+  backButtonAlt: {
+    marginTop: 20,
     backgroundColor: '#F68628',
-    paddingVertical: 15,
-    borderRadius: 10,
-    marginTop: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#F68628',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  buyButtonDisabled: {
-    backgroundColor: '#cccccc',
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  buyButtonProcessing: {
-    opacity: 0.7,
-  },
-  buyButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 19,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#f8f9fa',
-  },
-  errorText: {
-    color: '#d9534f',
-    fontSize: 18,
-    marginBottom: 20,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  errorButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    padding: 10,
     borderRadius: 8,
   },
-  errorButtonText: {
-    color: '#fff',
+  header: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 30,
+    marginTop: 10,
+    textAlign: 'center',
+    color: '#111',
+  },
+  section: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  sectionContent: {
+    marginLeft: 10,
+    flex: 1,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+  detailLabel: {
     fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  detailValue: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '600',
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  sectionText: {
+    fontSize: 15,
+    color: '#555',
+  },
+  card: {
+    padding: 20,
+    backgroundColor: '#f6f6f6',
+    borderRadius: 10,
+    marginBottom: 30,
+  },
+  image: {
+    width: '100%',
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 15,
+  },
+  productTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#111',
+    marginBottom: 5,
+  },
+  confirmButton: {
+    backgroundColor: '#F68628',
+    paddingVertical: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  confirmButtonDisabled: {
+    backgroundColor: '#aaa',
+  },
+  confirmText: {
+    color: '#fff',
+    fontSize: 17,
     fontWeight: '600',
   },
   separador: {
     height: 1,
-    backgroundColor: '#eee',
-    marginVertical: 20,
+    backgroundColor: '#ddd',
+    marginVertical: 10,
   },
 });
 

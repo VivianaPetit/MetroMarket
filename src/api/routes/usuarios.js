@@ -28,7 +28,7 @@ router.get('/:userId', async (req, res) => {
 
 router.patch('/:userId', async (req, res) => {
   const { userId } = req.params;
-  const { nombre, telefono } = req.body;
+  const { nombre, telefono, foto } = req.body;
 
   try {
     const usuario = await Usuario.findById(userId);
@@ -38,6 +38,7 @@ router.patch('/:userId', async (req, res) => {
 
     if (nombre !== undefined) usuario.nombre = nombre;
     if (telefono !== undefined) usuario.telefono = telefono;
+    if (foto !== undefined) usuario.foto = foto;
 
     await usuario.save();
     res.json(usuario);
@@ -55,6 +56,29 @@ router.post('/', async (req, res) => {
     res.json(nuevoUsuario);
   } catch (error) {
     res.status(500).json({ error: 'Error al crear el usuario.' });
+  }
+});
+
+// para insertar multiples usuarios
+router.post('/bulk', async (req, res) => {
+  try {
+    if (!Array.isArray(req.body)) {
+      return res.status(400).json({ error: 'Se esperaba un array de usuarios' });
+
+    }
+
+    const resultado = await Usuario.insertMany(req.body);
+    
+    res.status(201).json({
+      count: resultado.length,
+      usuarios: resultado
+    });
+
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Error al crear usuarios',
+      details: error.message 
+    });
   }
 });
 

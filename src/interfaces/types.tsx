@@ -10,6 +10,7 @@ export interface Usuario {
   correo: string;
   telefono: string;
   contrasena: string;
+  foto: string;
   publicaciones: string[];  
   favoritos: string[];
   transacciones: string[];
@@ -18,7 +19,7 @@ export interface Usuario {
 export interface Publicacion {
   _id: string;
   usuario : string;
-  tipo: string | string[];
+  tipo: string;
   categoria: string;
   descripcion: string;
   cantidad: number;
@@ -32,12 +33,13 @@ export interface Publicacion {
   preguntas: [string];
   modalidad: string;
   horario:Record<string, string[]>;
+  esPatrocinada: boolean
 }
 
 export interface Resena {
   _id: string,
   usuario: string;
-   resenado: string;
+  resenado: string;
   comentario: string;
   fecha: Date;
   calificacion: number; 
@@ -49,6 +51,7 @@ export interface Transaccions {
   vendedor: string;
   publicacion: string;
   fecha: Date;
+  cantidadComprada: number,
   monto: number; 
   estado: string;
   metodoPago: string;

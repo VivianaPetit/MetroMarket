@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'expo-router';
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, View, Image} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/userContext'; 
 import ProductCard from '../../components/ProductCard';
@@ -17,6 +17,7 @@ export default function Home() {
     const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
     const [search, setSearch] = useState("");
     const [message, setMessage] = useState("");
+    const img = require('../../../assets/images/LogoMetroMarketBN.png');
 
     useEffect(() => {
         fetchCategorias()
@@ -70,30 +71,42 @@ export default function Home() {
         {/* Productos */}
         { user ? (<ScrollView contentContainerStyle={styles.productsGrid}>
   {filteredPublications.length > 0 ? (
-    filteredPublications.map((pub) => (
-      <TouchableOpacity
-        key={pub._id}
-        onPress={() => router.push({
-          pathname: "/productDetails",
-          params: { productId: pub._id }
-        })}
-      >
+    filteredPublications.map((pub) => (          
+    <View style={styles.productCardWrapper} key={pub._id}>
         <ProductCard
           name={pub.titulo}
           price={pub.precio}
           category={pub.categoria}
           tipo={pub.tipo}
           image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}
+          onPress={() => router.push({
+          pathname: "/productDetails",
+          params: { productId: pub._id }
+        })}
         />
-      </TouchableOpacity>
+      </View>
     ))
   ) : (
     <Text style={styles.errorMensaje}>No tienes productos en favoritos</Text>
   )}
 </ScrollView>
 ) : (
-          <Text style={styles.errorMensaje}>{message}</Text>
-          
+              <ScrollView contentContainerStyle={styles.productsGrid}>
+                <View style={styles.emptyContainer}>
+                  <Image
+                    source={img}
+                    style={{ width: 100, height: 100, marginBottom: 16 }}
+                    resizeMode="contain"
+                  />
+                  <Text style={styles.emptyText}>{message}</Text>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => router.push('/login')}
+                  >
+                    <Text style={styles.addButtonText}>Iniciar sesión</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
         )}
         </View>
   );
@@ -137,6 +150,29 @@ const styles = StyleSheet.create({
     height: 45,
     elevation: 4,
   },
+    addButton: {
+    marginTop: 20,
+    backgroundColor: '#00318D',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#FFF',
+    fontWeight: '600',
+  },
+      emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    padding: 20,
+  },
+      emptyText: {
+    textAlign: 'center',
+    color: '#888',
+    fontSize: 14,
+    paddingVertical: 16,
+  },
   searchIcon: {
     marginRight: 8,
   },
@@ -160,6 +196,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 80,
     paddingTop: 10, 
+  },
+      productCardWrapper: {
+    width: '48%', // Ocupa casi la mitad del ancho (deja espacio para el margen)
+    marginBottom: 16, // Espacio vertical entre cards
   },
   errorMensaje: {
     fontSize: 16,

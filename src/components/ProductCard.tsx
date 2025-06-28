@@ -1,121 +1,183 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // <-- NEW: Import Ionicons
+import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
+const [color, setColor] = useState('');
 
-// <-- MODIFIED: Add onEdit to ProductCardProps
 type ProductCardProps = {
   name: string;
   price: number;
   category: string;
   image: string;
-  tipo: string | string[];
-  onEdit?: () => void; // Optional function for edit action
+  tipo: string;
+  onEdit?: () => void;
+  onPress?: () => void;
 };
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, price, category, image, tipo, onEdit }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ 
+  name, 
+  price, 
+  category, 
+  image, 
+  tipo, 
+  onEdit,
+  onPress 
+}) => {
   return (
-    <View style={styles.productCard}>
-      
-      <Text style={styles.productCategory2}>{tipo}</Text>
-      <Image source={{ uri: image }} style={styles.productImage}/>
+    <TouchableOpacity 
+      style={styles.productCard} 
+      onPress={onPress}
+      activeOpacity={0.9}
+    >
+      {/* Contenedor de imagen con botón de edición */}
+      <View style={styles.imageContainer}>
+        <Image 
+          source={{ uri: image }} 
+          style={styles.productImage}
+          resizeMode="cover"
+        />
+        
+        {onEdit && (
+          <TouchableOpacity 
+            style={styles.editButton} 
+            onPress={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+          >
+            <Ionicons name="pencil" size={16} color="white" />
+          </TouchableOpacity>
+        )}
+      </View>
 
-      {/* <-- NEW: Edit Icon */}
-      {onEdit &&  ( 
-        <TouchableOpacity style={styles.editIconContainer} onPress={onEdit} >
-          <Ionicons name="pencil-outline" size={20} color="#fff" />
-        </TouchableOpacity>
-      )}
-
-      <Text style={styles.productName}>{name}</Text>
-      <Text style={styles.productPrice}>${price}</Text>
-      <Text style={styles.productCategory}>{category}</Text>
-    </View>
+      {/* Contenedor de información */}
+      <View style={styles.infoContainer}>
+        <Text style={styles.productName} numberOfLines={2}>{name}</Text>
+        
+        {/* Precio destacado */}
+        <Text style={styles.priceText}>${price.toFixed(2)}</Text>
+        
+        {/* Fila de categoría y tipo */}
+        <View style={styles.metaContainer}>
+          <View style={styles.categoryBadge}>
+            <Ionicons name="pricetag" size={12} color="#00318D" />
+            <Text style={styles.categoryText}>{category}</Text>
+          </View>
+          
+          
+            {tipo == 'Producto' ? (
+            <View style={styles.typeBadgeProduct}>
+              <Text style={styles.typeProductText}>{tipo} </Text> 
+            </View>):( <View style={styles.typeBadgeService}>
+              <Text style={styles.typeServiceText}>{tipo} </Text> 
+            </View>)}     
+        </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
-
-export default ProductCard;
+const CARD_WIDTH = (width / 2) - 16;
+const IMAGE_HEIGHT = CARD_WIDTH * 0.8;
 
 const styles = StyleSheet.create({
   productCard: {
-    width: (width / 2) - 24,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    width: CARD_WIDTH,
     marginBottom: 16,
-    overflow: 'hidden', // KEEP THIS: Important for the borderRadius to clip children
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.01,
-    shadowRadius: 1,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    overflow: 'hidden',
     elevation: 2,
-    shadowColor: '#FF8C00',
-    alignItems: 'center',
-    // position: 'relative' is implicitly handled by RN if children are absolute
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
   },
-
+  imageContainer: {
+    width: '100%',
+    height: IMAGE_HEIGHT,
+    position: 'relative',
+  },
   productImage: {
     width: '100%',
-    height: 130,
-    resizeMode: 'cover',
+    height: '100%',
   },
-  // <-- NEW: Style for the edit icon container
-  editIconContainer: {
+  editButton: {
     position: 'absolute',
-    top: 8, // Distance from the top of the productCard
-    right: 8, // Distance from the right of the productCard
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent black background
-    borderRadius: 15, // Makes it a circle (half of width/height for a 30x30 circle)
-    width: 30, // Fixed width
-    height: 30, // Fixed height
-    justifyContent: 'center', // Center icon horizontally
-    alignItems: 'center', // Center icon vertically
-    zIndex: 1, // Ensure it's above the image
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  infoContainer: {
+    padding: 12,
   },
   productName: {
-    fontSize: 13,
-    fontWeight: '500',
+    fontSize: 17, // Aumentado de 14 a 15
+    fontWeight: '600',
     color: '#333',
-    textAlign: 'center',
-    marginTop: 8,
-  },
-  productPrice: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#000',
     marginBottom: 8,
-    textAlign: 'center',
+    height: 40,
+    lineHeight: 20, // Mejor espaciado entre líneas
   },
-  productCategory: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 18,
-    paddingVertical: 6,
-    margin: 10,
-    height: 26,
-    justifyContent: 'center',
+  priceText: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#00318D',
+    marginBottom: 8,
+  },
+  metaContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
+    gap: 8,
+  },
+  typeBadgeProduct: {
+    backgroundColor: '#F0F4FF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+    typeBadgeService: {
+    backgroundColor: '#FEF2E8',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  
+  typeProductText: {
     fontSize: 12,
-    color: '#333',
-    fontWeight: '500',
+    fontWeight: '600',
+    color: '#00318D',
+    textTransform: 'capitalize',
   },
-  productCategory2: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    paddingHorizontal: 18,
-    paddingVertical: 6,
-    margin: 10,
-    height: 26,
-    justifyContent: 'center',
+    typeServiceText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#F68628',
+    textTransform: 'capitalize',
+  },
+  categoryBadge: {
+    flexDirection: 'row',
     alignItems: 'center',
-    alignContent: 'flex-end',
+    backgroundColor: '#FAFAFA',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#ddd',
-    fontSize: 8,
-    color: '#333',
-    fontWeight: '500',
+    borderColor: '#EEE',
+    flex: 1, // Ocupa espacio disponible
+  },
+  categoryText: {
+    fontSize: 12,
+    color: '#666',
+    marginLeft: 4,
   },
 });
+
+export default ProductCard;
+

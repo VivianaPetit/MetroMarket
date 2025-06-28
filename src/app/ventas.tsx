@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface TransaccionConPublicacion extends Transaccions {
+  monto: number; // Asegúrate de que monto esté presente y sea un número
   publicacionDetalle?: Publicacion;
   compradorDetalle?: {
     nombre: string;
@@ -171,8 +172,7 @@ const MisVentasScreen = () => {
                 />
                 <View style={styles.cardInfo}>
                   <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
-                  <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
-                  <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
+                  <Text style={styles.precio}>Monto: ${trans.monto}</Text>
                   <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
                   <Text style={styles.descripcion}>Comprador: {trans.compradorDetalle?.nombre}</Text>
                   <Text style={styles.descripcion}>Teléfono: {trans.compradorDetalle?.telefono}</Text>

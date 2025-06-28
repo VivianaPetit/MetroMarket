@@ -32,6 +32,22 @@ export default function ProductDetails() {
   const router = useRouter();
   const { user, refrescarUsuario } = useAuth();
   const [isLiked, setIsLiked] = useState(false);
+  const [cantidadSeleccionada, setCantidadSeleccionada] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const scrollViewRef = React.useRef<ScrollView>(null);
+  
+
+  const incrementarCantidad = () => {
+    if (product && cantidadSeleccionada < product.cantidad) {
+      setCantidadSeleccionada(cantidadSeleccionada + 1);
+    }
+  };
+
+  const decrementarCantidad = () => {
+    if (cantidadSeleccionada > 1) {
+      setCantidadSeleccionada(cantidadSeleccionada - 1);
+    }
+  };
 
   useEffect(() => {
     const loadProductAndRecomendadas = async () => {
@@ -91,12 +107,6 @@ export default function ProductDetails() {
     Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero.');
     return;
   }
-
-  if (product && typeof productId === 'string') {
-    router.push({ pathname: "/comprar", params: { productId } });
-  } else {
-    Alert.alert('Error', 'No se pudo obtener el ID del producto.');
-  }
 };
 
   const handlePreguntar = () => {
@@ -106,20 +116,26 @@ export default function ProductDetails() {
   };
 
   const Verificacion_Usuario = () => {
-    if (!user){
-       router.push("/login")
-      }else{
-          router.push({
-          pathname: "/comprar",
-          params: { productId: productId } 
-        })
-      }
+    if (!user) {
+      router.push("/login");
+    } else {
+      router.push({
+        pathname: "/comprar",
+        params: { 
+          productId: productId,
+          cantidad: cantidadSeleccionada.toString()
+        }
+      });
+      console.log('La cantidad mandada fue: ',cantidadSeleccionada)
+    }
   };
+
+
 
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#00318D" />
+        <ActivityIndicator size="large" color="#F68628" />
         <Text style={{ marginTop: 10, color: '#555' }}>Cargando producto...</Text>
       </View>
     );
@@ -158,8 +174,6 @@ export default function ProductDetails() {
     }
   };
 
-  
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <SafeAreaView>
@@ -170,42 +184,59 @@ export default function ProductDetails() {
         <Ionicons name="arrow-back" size={24} color="#00318D" />
           </TouchableOpacity> 
         </SafeAreaView>
-      {/* <View>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={26} color="#F68628" />
-      </TouchableOpacity>
-      </View>*/}
-      <View> 
-      <TouchableOpacity onPress={() => router.push({
-                        pathname: "/",
-                        params: { categoria: product.categoria }
-                    })}>
-        <Text style={styles.linkText}>Ver más productos de la categoría "{product.categoria}"</Text>
-      </TouchableOpacity>
-      </View>
+
+    <View style={{ marginTop: 20 }}>
+      <Text style={styles.NolinkText}> Ver más productos de la categoría{' '}<Text style={styles.linkText} onPress={() => router.push({
+        pathname: "/",
+        params: { categoria: product.categoria }
+      })}>
+          "{product.categoria}"
+          </Text>
+        </Text> 
+    </View>
+
 
     {/* visualizacion imagen */}
-      <View style={styles.imageWrapper}>
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-        >
-          {(product.fotos?.length ? product.fotos : ['https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'])
-            .map((foto, index) => (
-              <Image
-                key={index}
-                source={{ uri: foto }}
-                style={styles.productImage}
-              />
-            ))
-          }
-        </ScrollView>
-      </View>
+      // En la parte de visualización de imágenes, reemplaza el código actual con este:
+<View style={styles.imageWrapper}>
+  <ScrollView
+    horizontal
+    pagingEnabled
+    showsHorizontalScrollIndicator={false}
+    onScroll={(event) => {
+      // Actualizar el índice actual basado en el scroll
+      const contentOffset = event.nativeEvent.contentOffset.x;
+      const viewSize = Dimensions.get('window').width;
+      const currentIndex = Math.round(contentOffset / viewSize);
+      setCurrentImageIndex(currentIndex);
+    }}
+    scrollEventThrottle={200}
+  >
+    {(product.fotos?.length ? product.fotos : ['https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'])
+      .map((foto, index) => (
+        <View key={index} style={styles.imageContainer}>
+          <Image
+            source={{ uri: foto }}
+            style={styles.productImage}
+          />
+        </View>
+      ))
+    }
+  </ScrollView>
+  
+  {/* Indicador de múltiples imágenes */}
+  {(product.fotos?.length || 0) > 1 && (
+    <View style={styles.imageCounter}>
+      <Text style={styles.imageCounterText}>
+        {currentImageIndex + 1}/{product.fotos?.length || 1}
+      </Text>
+    </View>
+  )}
+</View>
 
       <View style={styles.detailsContainer}>
         <View style={styles.header}>
-          <Text style={styles.titleText}>{product.titulo}</Text>
+          <Text style={styles.titleText} numberOfLines={3}>{product.titulo}</Text>
           <TouchableOpacity onPress={handleFavorito}>
             <Ionicons name={isLiked ? "heart" : "heart-outline"} size={28} color="#F68628" />
           </TouchableOpacity>
@@ -213,7 +244,7 @@ export default function ProductDetails() {
 
         {/* visualizacion precio */}
         <Text style={styles.priceText}>
-          {product.tipo === 'producto' ? 'US$' : 'US$/hora  '}
+          {product.tipo === 'Producto' ? 'US$' : 'US$/hora  '}
           {product.precio}
         </Text>
 
@@ -222,13 +253,52 @@ export default function ProductDetails() {
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
 
         {/* visualizacion cantidad */}
-        <Text style={styles.sectionLabel}>
-          {product.tipo === 'producto' ? 'Cantidad disponible' : 'Cupos disponibles'}
-        </Text>
-        <Text style={styles.detailText}>{product.cantidad}</Text>
+        {product.tipo === 'Producto' && (
+          <>
+            <Text style={styles.sectionLabel}>
+              Cantidad disponible: {product.cantidad}
+            </Text>
+            <View style={styles.cantidadContainer}>
+              <TouchableOpacity 
+                onPress={decrementarCantidad}
+                style={[
+                  styles.cantidadButton,
+                  cantidadSeleccionada <= 1 && styles.cantidadButtonDisabled
+                ]}
+                disabled={cantidadSeleccionada <= 1}
+              >
+                <Text style={styles.cantidadButtonText}>-</Text>
+              </TouchableOpacity>
+              
+              <TextInput
+                style={styles.cantidadInput}
+                value={cantidadSeleccionada.toString()}
+                editable={false}
+                onChangeText={(text) => {
+                  const num = parseInt(text) || 0;
+                  if (num > 0 && num <= (product?.cantidad || 1)) {
+                    setCantidadSeleccionada(num);
+                  }
+                }}
+                keyboardType="numeric"
+              />
+              
+              <TouchableOpacity 
+                onPress={incrementarCantidad}
+                style={[
+                  styles.cantidadButton,
+                  cantidadSeleccionada >= (product?.cantidad || 1) && styles.cantidadButtonDisabled
+                ]}
+                disabled={cantidadSeleccionada >= (product?.cantidad || 1)}
+              >
+                <Text style={styles.cantidadButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
 
         {/* visualizacion Estado(para producto) || modalidad(para servicio) */}
-        {product.tipo == 'producto' ? (
+        {product.tipo == 'Producto' ? (
           // visualizacion de Estado(para producto)
           <View>
             <Text style={styles.sectionLabel}>Estado</Text>
@@ -243,10 +313,10 @@ export default function ProductDetails() {
         )}
 
         {/* visualizacion nada(para producto) || horario(para servicio) */}
-        {product.tipo == 'producto' ? (
+        {product.tipo == 'Producto' ? (
           // visualizacion de Estado(para producto)
           <View>
-            <Text style={styles.sectionLabel}>Estado</Text>
+            
           </View>
         ) : (
           // visualizacion de modalidad(para servicio)
@@ -266,17 +336,28 @@ export default function ProductDetails() {
             </View>
           </View>        
         )}
-
         
         <Text style={styles.sectionLabel}>Método de pago</Text>
         <Text style={styles.detailText}>{product.metodoPago}</Text>
 
         <Text style={styles.sectionLabel}>Vendedor</Text>
-        <Text style={styles.detailText}>{vendedor ? `${vendedor.nombre} - ${vendedor.telefono}` : 'Cargando...'}</Text>
+        <TouchableOpacity onPress={() => {
+          if (vendedor?._id) {
+            router.push({
+              pathname: '/perfilVendedor',
+              params: { vendedorId: vendedor._id }
+            });
+          }
+        }}>
+          <Text style={[styles.detailText, { textDecorationLine: 'underline', color: '#00318D' }]}>
+            {vendedor ? `${vendedor.nombre} - ${vendedor.telefono}` : 'Cargando...'}
+          </Text>
+        </TouchableOpacity>
+
 
         <TouchableOpacity style={styles.buyButton} onPress={Verificacion_Usuario} >
           <Text style={styles.buyButtonText}>
-            {product.tipo === 'producto' ? 'Comprar' : 'Reservar'}
+            {product.tipo === 'Producto' ? 'Comprar' : 'Reservar'}
           </Text>
         </TouchableOpacity>
 
@@ -327,6 +408,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+imageContainer: {
+  width: Dimensions.get('window').width,
+  height: 300,
+},
+imageCounter: {
+  position: 'absolute',
+  bottom: 15,
+  right: 15,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  paddingHorizontal: 10,
+  paddingVertical: 5,
+  borderRadius: 15,
+},
+imageCounterText: {
+  color: 'white',
+  fontSize: 14,
+  fontWeight: 'bold',
+},
+navArrow: {
+  position: 'absolute',
+  top: '50%',
+  backgroundColor: 'rgba(0,0,0,0.4)',
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+  transform: [{ translateY: -20 }],
+},
+leftArrow: {
+  left: 15,
+},
+rightArrow: {
+  right: 15,
+},
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -340,11 +456,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    width: '100%'
   },
   productImage: {
-    width: Dimensions.get('window').width,
+    width: Dimensions.get('screen').width,
     height: 450,
-    resizeMode: 'cover',
+    resizeMode: 'contain',
+    backgroundColor: 'white'
   },
 
   backButton: {
@@ -353,22 +471,16 @@ const styles = StyleSheet.create({
     left: 13,
     padding: 6,
   },
-  heartButton: {
-    position: 'absolute',
-    top: 20,
-    right: 16,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    borderRadius: 20,
-    padding: 6,
-  },
   detailsContainer: {
     padding: 20,
   },
   titleText: {
-    fontSize: 26,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 6,
     color: '#111',
+    flex: 1,
+    marginRight: 10
   },
   priceText: {
     fontSize: 22,
@@ -404,20 +516,20 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     alignSelf: 'flex-start',
     marginRight: 5,
+    marginBottom: 8
   },
   linkText: {
+    color: '#F68628',
+    fontWeight: '600',
+    marginBottom: 8,
+    fontSize: 16,
+  },
+    NolinkText: {
     color: '#00318D',
     fontWeight: '600',
-    marginTop: 70,
-    marginBottom: 8,
-    marginHorizontal: 20,
+    marginTop: 50,
+    marginLeft: 20,
     fontSize: 16,
-    textDecorationLine: 'underline'
-  },
-  questionText: {
-    fontSize: 15,
-    marginBottom: 8,
-    color: '#222',
   },
   input: {
     borderColor: '#ccc',
@@ -427,14 +539,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     minHeight: 40,
     textAlignVertical: 'top',
-  },
-  sendButton: {
-    backgroundColor: '#F68628',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 20,
   },
   buyButton: {
     backgroundColor: '#F68628',
@@ -501,4 +605,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  cantidadContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginVertical: 5,
+},
+cantidadButton: {
+  backgroundColor: '#F68628',
+  width: 30,
+  height: 30,
+  borderRadius: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+cantidadButtonDisabled: {
+  backgroundColor: '#cccccc',
+},
+cantidadButtonText: {
+  color: 'white',
+  fontSize: 20,
+  fontWeight: 'bold',
+  alignSelf: 'center'
+},
+cantidadInput: {
+  borderWidth: 1,
+  borderColor: '#ddd',
+  borderRadius: 8,
+  padding: 10,
+  marginHorizontal: 10,
+  width: 70,
+  textAlign: 'center',
+  fontSize: 16,
+},
 });

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, Image, ActivityIndicator
 } from 'react-native';
@@ -15,7 +14,6 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '../../../supabase';
 import { useLocalSearchParams } from 'expo-router';
-
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 const modalidades = ['Presencial', 'Asincrono', 'Híbrido'];
@@ -41,7 +39,7 @@ const CreatePublication = () => {
   const [metodoPago, setMetodoPago] = useState('');
   const [categoria, setCategoria] = useState('');
   const [modalidad, setModalidad] = useState('');
-  // const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const HORARIO_INICIAL = {
     lunes: ['false'],
@@ -132,12 +130,13 @@ const handlePublicar = async () => {
     return;
   }
 
-  // setLoading(true);
-
-  const errores = validarFormulario();
-  setErrors(errores);
-
-  if (Object.keys(errores).length > 0) return;
+setLoading(true);
+const errores = validarFormulario();
+setErrors(errores);
+if (Object.keys(errores).length > 0) {
+  setLoading(false);
+  return;
+}
 
   try {
     // 1. Subir imágenes a Supabase
@@ -176,17 +175,17 @@ const handlePublicar = async () => {
     const categoriaSeleccionada = categorias.find(c => c._id === categoria);
 
     const nuevaPublicacion = {
-      titulo,
-      descripcion,
+      titulo: titulo.trim(),
+      descripcion: descripcion.trim(),
       precio: parseFloat(precio),
       cantidad: parseInt(cantidad),
-      estado,
-      lugarEntrega,
-      metodoPago,
+      estado: estado.trim(),
+      lugarEntrega: lugarEntrega.trim(),
+      metodoPago: metodoPago.trim(),
       tipo: tipoPublicacion,
-      modalidad,
+      modalidad: modalidad.trim(),
       horario,
-      categoria: categoriaSeleccionada?.nombre,
+      categoria: categoriaSeleccionada?.nombre?.trim(),
       usuario: user._id,
       fotos: urls, // Aquí se guarda la lista de URLs de las imágenes
     };
@@ -194,8 +193,6 @@ const handlePublicar = async () => {
     const publicacionCreada = await crearPublicacion(nuevaPublicacion);
     await agregarPublicacionAUsuario(user._id, publicacionCreada._id);
     await refrescarUsuario();
-
-    
 
     // 3. Resetear formulario
     setTitulo('');
@@ -230,7 +227,6 @@ const pickImageAndStore = async () => {
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.Images,
     allowsEditing: true,
-    aspect: [4, 3],
     quality: 0.7,
   });
 
@@ -258,31 +254,32 @@ const pickImageAndStore = async () => {
 };
 
   const params = useLocalSearchParams();
-  const tipoPublicacion = params.tipoPublicacion; // 'producto' o 'servicio'
+  const tipoPublicacion: string = String(params.tipoPublicacion); // 'producto' o 'servicio'
 
-    // if (loading) {
-    //   return (
-    //     <View style={styles.loadingContainer}>
-    //       <ActivityIndicator size="large" color="#00318D" />
-    //       <Text style={{ marginTop: 10, color: '#555' }}>Subiendo publicación...</Text>
-    //     </View>
-    //   );
-    // }
+  if (loading) {
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#F68628" />
+      <Text style={{ marginTop: 10, color: '#555' }}>Subiendo publicación...</Text>
+    </View>
+  );
+}
+
   
   return (
 
     <ScrollView contentContainerStyle={styles.container}>
       {/* parte para salir del formulario */}
-      <TouchableOpacity onPress={() => router.push('/formularioPublicar')} style={styles.backButton}>
+      <TouchableOpacity onPress={() => router.push('/formularioPublicar')} style={styles.backButton} disabled={loading}>
         <Ionicons name="arrow-back" size={24} color="#00318D" />
       </TouchableOpacity>
       {/* titulo de la pagina */}
       <Text style={styles.titulo}>Crear Publicación</Text>
       {/* para cargar imagenes */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Fotos del producto' : 'Fotos del servicio'}
+        {tipoPublicacion === 'Producto' ? 'Fotos del producto' : 'Fotos del servicio'}
       </Text>
-      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndStore}>
+      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndStore} disabled={loading}>
         <Ionicons name="image-outline" size={20} color="#fff" />
         <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
       </TouchableOpacity>
@@ -290,16 +287,23 @@ const pickImageAndStore = async () => {
       {images.length > 0 && (
         <ScrollView horizontal style={{ marginTop: 10 }} showsHorizontalScrollIndicator={false}>
           {images.map((img, index) => (
-            <Image
-              key={index}
-              source={{ uri: img.uri }}
-              style={{
-                width: 150,
-                height: 150,
-                marginRight: 10,
-                borderRadius: 10,
-              }}
-            />
+            <View key={index} style={styles.imageContainer}>
+              <Image
+                source={{ uri: img.uri }}
+                style={styles.previewImage}
+              />
+              <TouchableOpacity 
+                style={styles.deleteButton} 
+                onPress={() => {
+                  const newImages = [...images];
+                  newImages.splice(index, 1);
+                  setImages(newImages);
+                }}
+                disabled={loading}
+              >
+                <Ionicons name="close-circle" size={24} color="#ff4444" />
+              </TouchableOpacity>
+            </View>
           ))}
         </ScrollView>
       )}
@@ -307,7 +311,7 @@ const pickImageAndStore = async () => {
 
       {/* titulo */}
       <Text style={styles.label}>Título *</Text>
-        {tipoPublicacion == 'producto' ? (
+        {tipoPublicacion == 'Producto' ? (
           // formulario de titulo para producto
           <TextInput 
             style={styles.input}
@@ -315,6 +319,7 @@ const pickImageAndStore = async () => {
             placeholderTextColor="#888"
             value={titulo}
             onChangeText={setTitulo}
+            editable={!loading}
           />
         ) : (
           // formulario de titulo para servicio
@@ -324,6 +329,7 @@ const pickImageAndStore = async () => {
             placeholderTextColor="#888"
             value={titulo}
             onChangeText={setTitulo}
+            editable={!loading}
           />
         )}
 
@@ -338,38 +344,41 @@ const pickImageAndStore = async () => {
         placeholderTextColor="#888"
         value={descripcion}
         onChangeText={setDescripcion}
+        editable={!loading}
       />
       {errors.descripcion && <Text style={styles.errorText}>{errors.descripcion}</Text>}
 
       {/* Precio */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Precio *' : 'Precio por hora *'}
+        {tipoPublicacion === 'Producto' ? 'Precio *' : 'Precio por hora *'}
       </Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
         value={precio}
         onChangeText={setPrecio}
+        editable={!loading}
       />
       {errors.precio && <Text style={styles.errorText}>{errors.precio}</Text>}
 
       {/* Cantidad*/}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
+        {tipoPublicacion === 'Producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
       </Text>
         <TextInput
           style={styles.input}
           keyboardType="numeric"
           value={cantidad}
           onChangeText={setCantidad}
+          editable={!loading}
         />
       {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}
 
       {/* Estado del producto (no aplica para servicios) || Modalidad del servicio (no aplica para producto) */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Estado' : 'Modalidad del Servicio'}
+        {tipoPublicacion === 'Producto' ? 'Estado' : 'Modalidad del Servicio'}
       </Text>
-      {tipoPublicacion == 'producto' ? (
+      {tipoPublicacion == 'Producto' ? (
           // formulario de Estado para producto
           <View style={styles.chipsContainer}>
             {estados.map((op) => (
@@ -377,6 +386,7 @@ const pickImageAndStore = async () => {
                 key={op}
                 style={[styles.chip, estado === op && styles.chipSelected]}
                 onPress={() => setEstado(op)}
+                disabled={loading}
               >
                 <Text style={[styles.chipText, estado === op && styles.chipTextSelected]}>
                   {op}
@@ -393,6 +403,7 @@ const pickImageAndStore = async () => {
                 key={op}
                 style={[styles.chip, modalidad === op && styles.chipSelected]}
                 onPress={() => setModalidad(op)}
+                disabled={loading}
               >
                 <Text style={[styles.chipText, modalidad === op && styles.chipTextSelected]}>
                   {op}
@@ -407,14 +418,15 @@ const pickImageAndStore = async () => {
       
       {/* Lugar de entrega (no aplica para servicios) || horario (no aplica para producto) */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'producto' ? 'Lugar entrega' : 'Horario'}
+        {tipoPublicacion === 'Producto' ? 'Lugar entrega' : 'Horario'}
       </Text>
-      {tipoPublicacion == 'producto' ? (
+      {tipoPublicacion == 'Producto' ? (
           // formulario de Lugar de entrega para producto
           <TextInput
             style={styles.input}
             value={lugarEntrega}
             onChangeText={setLugarEntrega}
+            editable={!loading}
           />
         ) : (
           // formulario de horario para servicio
@@ -442,6 +454,7 @@ const pickImageAndStore = async () => {
                       return newSelection;
                     });
                   }}
+                  disabled={loading}
                 >
                   <Text style={[styles.chipText, diasSeleccionados.includes(op) && styles.chipTextSelected]}>
                     {op}
@@ -465,6 +478,7 @@ const pickImageAndStore = async () => {
         style={[
           Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
         ]}
+        enabled={!loading}
       >
         <Picker.Item key="pick" label="Selecciona un método de pago" value="" />
         {/*Muestra una lista de metodos de pago para seleccionar*/}
@@ -484,17 +498,18 @@ const pickImageAndStore = async () => {
         style={[
           Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
         ]}
+        enabled={!loading}
       >
         <Picker.Item key="pick" label="Selecciona una categoría" value="" />
         {/* filtrar las categorias que son de producto y las que son de servicio MODIFICAR A FUTURO*/}
         {categorias
           .filter(cat => {
             //para producto
-            if (tipoPublicacion === 'producto') {
+            if (tipoPublicacion === 'Producto') {
               return !['Clases'].includes(cat.nombre);
             }
             //para servicio - Pd: por ahora solo se harcodea la categoria "Clase" para servicios, proximante mas
-            if (tipoPublicacion === 'servicio') {
+            if (tipoPublicacion === 'Servicio') {
               return ['Clases'].includes(cat.nombre);
             }
           })
@@ -506,10 +521,23 @@ const pickImageAndStore = async () => {
     
     {errors.categoria && <Text style={styles.errorText}>{errors.categoria}</Text>}
 
-      <TouchableOpacity style={styles.botonPublicar} onPress={handlePublicar}>
-        <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
-        <Text style={styles.botonTexto}>Publicar</Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+      style={[styles.botonPublicar, loading && { backgroundColor: '#ccc' }]}
+      onPress={handlePublicar}
+      disabled={loading}
+    >
+      {loading ? (
+        <>
+          <ActivityIndicator size="small" color="#fff" />
+          <Text style={styles.botonTexto}>  Subiendo...</Text>
+        </>
+      ) : (
+        <>
+          <Ionicons name="cloud-upload-outline" size={20} color="#fff" />
+          <Text style={styles.botonTexto}>Publicar</Text>
+        </>
+      )}
+    </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -553,6 +581,23 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
     marginBottom: 12,
+  },
+    imageContainer: {
+    position: 'relative',
+    marginRight: 10,
+  },
+  previewImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 10,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 12,
+    padding: 2,
   },
   chip: {
     borderWidth: 1,

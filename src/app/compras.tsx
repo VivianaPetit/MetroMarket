@@ -22,6 +22,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { createResena } from '../services/ResenaServices';
 
 interface TransaccionConPublicacion extends Transaccions {
+  monto: number,
   publicacionDetalle?: Publicacion;
   vendedorDetalle?: {
     nombre: string;
@@ -166,8 +167,8 @@ const MisComprasScreen = () => {
                 />
                 <View style={styles.cardInfo}>
                   <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
-                  <Text style={styles.descripcion}>{trans.publicacionDetalle.descripcion}</Text>
-                  <Text style={styles.precio}>${trans.publicacionDetalle.precio}</Text>
+                  
+                  <Text style={styles.precio}>Monto: ${trans.monto}</Text>
                   <Text style={styles.estado}>Estado: {trans.estado.toUpperCase()}</Text>
 
                   <Text style={styles.descripcion}>Vendedor: {trans.vendedorDetalle?.nombre}</Text>

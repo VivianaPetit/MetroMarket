@@ -29,6 +29,43 @@ router.post('/', async (req, res) => {
   res.json(nuevaPublicacion);
 });
 
+
+// Para insertar multiples publicaciones
+router.post('/bulk', async (req, res) => {
+  try {
+    // Verificar que el cuerpo de la petición sea un array
+    if (!Array.isArray(req.body)) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'El cuerpo de la petición debe ser un array de publicaciones' 
+      });
+    }
+
+    // Validar que todas las publicaciones tengan los campos requeridos
+    const publicacionesValidas = req.body.map(pub => {
+      const nuevaPub = new Publicacion(pub);
+      // Aquí puedes agregar validaciones adicionales si es necesario
+      return nuevaPub;
+    });
+
+    // Insertar todas las publicaciones en una sola operación
+    const resultado = await Publicacion.insertMany(publicacionesValidas);
+
+    res.status(201).json({
+      success: true,
+      count: resultado.length,
+      data: resultado
+    });
+
+  } catch (error) {
+    console.error('Error al insertar publicaciones:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Error al procesar las publicaciones'
+    });
+  }
+});
+
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 

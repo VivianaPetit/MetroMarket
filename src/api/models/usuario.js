@@ -5,6 +5,7 @@ const usuarioSchema = new mongoose.Schema({
     correo: { type: String, unique: true, required: true },
     contrasena: { type: String, required: true },
     telefono: { type: String, required: true },
+    foto: String,
     calificacionPromedio: { type: Number, default: 0 },
     publicaciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Publicacion' }],
     nivelReputacion: { type: String, default: 'Bronce' }, // Oro, Plata, Bronce (???)

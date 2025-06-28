@@ -1,125 +1,240 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, TextInput } from 'react-native';
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 type ProfileCardProps = {
   UserName?: string;
   nombreyA?: string;
   tlf?: string;
-  imagen?: any;
+  foto?: string; // Cambiado de 'imagen' a 'fotoPerfil' para consistencia
   editable?: boolean;
   onNombreChange?: (text: string) => void;
   onTelefonoChange?: (text: string) => void;
+  onFotoChange?: () => void; // Nueva prop para manejar el cambio de foto
+  isUploading?: boolean; // Para mostrar estado de carga
 };
 
 const ProfileCard = ({
-  UserName = "Usuario",
+  UserName = "usuario@unimet.edu.ve",
   nombreyA = "Nombre Apellido",
-  tlf = "0000000000",
-  imagen,
+  tlf = "+58 412 1234567",
+  foto,
   editable = false,
   onNombreChange,
   onTelefonoChange,
+  onFotoChange,
+  isUploading = false,
 }: ProfileCardProps) => {
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Image source={imagen} style={styles.image} />
+      {/* Sección superior - Foto y datos básicos */}
+      <View style={styles.profileHeader}>
+        <TouchableOpacity 
+          style={styles.avatarContainer}
+          onPress={onFotoChange}
+          disabled={!editable || isUploading}
+        >
+          {foto ? (
+            <Image source={{ uri: foto }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Ionicons name="person" size={50} color="white" />
+            </View>
+          )}
+          
+          {editable && !isUploading && (
+            <View style={styles.editPhotoBadge}>
+              <Ionicons name="camera" size={16} color="white" />
+            </View>
+          )}
+          
+          {isUploading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="small" color="white" />
+            </View>
+          )}
+        </TouchableOpacity>
+
+        <View style={styles.profileInfo}>
+          <Text style={styles.name}>{nombreyA}</Text>
+          <Text style={styles.username}>{UserName}</Text>
+        </View>
       </View>
 
-      <Text style={styles.email}>{UserName}</Text>
+      {/* Sección editable - Solo visible en modo edición */}
+      {editable && (
+        <TouchableOpacity 
+          style={styles.editPhotoButton}
+          onPress={onFotoChange}
+          disabled={isUploading}
+        >
+          <Text style={styles.editPhotoText}>Cambiar foto de perfil</Text>
+        </TouchableOpacity>
+      )}
 
-      <View style={styles.infoCard}>
-        <View style={styles.infoRow}>
-          <Ionicons name='person-outline' size={24} color="#F68628" style={styles.icon} />
-          {editable ? (
-            <TextInput
-              style={styles.input}
-              value={nombreyA}
-              onChangeText={onNombreChange}
-              placeholder="Nombre completo"
-              placeholderTextColor="#888"
-            />
-          ) : (
-            <Text style={styles.infoText}>{nombreyA}</Text>
-          )}
+      {/* Tarjeta de información */}
+      <View style={styles.detailCard}>
+        <View style={styles.detailRow}>
+          <Ionicons name='person-circle-outline' size={24} color="#00318D" style={styles.detailIcon} />
+          <View style={styles.detailContent}>
+            {editable ? (
+              <TextInput
+                style={styles.editableInput}
+                value={nombreyA}
+                onChangeText={onNombreChange}
+                placeholder="Nombre completo"
+              />
+            ) : (
+              <>
+                <Text style={styles.detailLabel}>Nombre</Text>
+                <Text style={styles.detailValue}>{nombreyA}</Text>
+              </>
+            )}
+          </View>
         </View>
 
-        <View style={styles.infoRow}>
-          <Ionicons name='call-outline' size={24} color="#F68628" style={styles.icon} />
-          {editable ? (
-            <TextInput
-              style={styles.input}
-              value={tlf}
-              onChangeText={onTelefonoChange}
-              keyboardType="phone-pad"
-              placeholder="Teléfono"
-              placeholderTextColor="#888"
-            />
-          ) : (
-            <Text style={styles.infoText}>{tlf}</Text>
-          )}
+        <View style={styles.separator} />
+
+        <View style={styles.detailRow}>
+          <Ionicons name='call-outline' size={24} color="#00318D" style={styles.detailIcon} />
+          <View style={styles.detailContent}>
+            {editable ? (
+              <TextInput
+                style={styles.editableInput}
+                value={tlf}
+                onChangeText={onTelefonoChange}
+                keyboardType="phone-pad"
+                placeholder="Teléfono"
+              />
+            ) : (
+              <>
+                <Text style={styles.detailLabel}>Teléfono</Text>
+                <Text style={styles.detailValue}>{tlf}</Text>
+              </>
+            )}
+          </View>
         </View>
       </View>
     </View>
   );
 };
 
-export default ProfileCard;
-
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    marginVertical: 20,
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    paddingHorizontal: 16,
   },
-  imageContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    overflow: 'hidden',
-    borderWidth: 2,
-    borderColor: '#F68628',
-    marginBottom: 10,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  email: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
-  },
-  infoCard: {
-    width: '90%',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 15,
-    elevation: 4, // Android sombra
-    shadowColor: '#000', // iOS sombra
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-  },
-  infoRow: {
+  profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    marginVertical: 24,
   },
-  icon: {
-    marginRight: 10,
+  avatarContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#00318D',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    marginRight: 20,
   },
-  infoText: {
-    fontSize: 16,
-    color: '#333',
+  avatar: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 50,
+  },
+  avatarPlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  editPhotoBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#00318D',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileInfo: {
     flex: 1,
   },
-  input: {
+  name: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  username: {
+    fontSize: 16,
+    color: '#666',
+  },
+  editPhotoButton: {
+    marginBottom: 24,
+  },
+  editPhotoText: {
+    color: '#00318D',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  detailCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  detailIcon: {
+    marginRight: 16,
+  },
+  detailContent: {
+    flex: 1,
+  },
+  detailLabel: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 4,
+  },
+  detailValue: {
     fontSize: 16,
     color: '#333',
+  },
+  editableInput: {
+    fontSize: 16,
+    color: '#333',
+    paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    flex: 1,
-    paddingVertical: 2,
+    borderBottomColor: '#ddd',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#eee',
+    marginVertical: 4,
   },
 });
+
+export default ProfileCard;

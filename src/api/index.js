@@ -23,6 +23,7 @@ const resenasRoutes = require('./routes/resenas');
 app.use('/api/resenas', resenasRoutes);
 
 const categoriasRoutes = require('./routes/categorias');
+const os = require('os');
 app.use('/api/categorias', categoriasRoutes);
 
 // Conexión a MongoDB
@@ -34,4 +35,18 @@ mongoose.connect(process.env.MONGO_URI, {
 .catch(err => console.error('Error al conectar MongoDB:', err));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
+function getLocalIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
+const LOCAL_IP = getLocalIp();
+
+app.listen(PORT, () => console.log(`Servidor corriendo en http://${LOCAL_IP}:${PORT}`));

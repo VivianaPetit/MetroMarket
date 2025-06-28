@@ -1,15 +1,27 @@
 import { Entypo, Fontisto, Ionicons } from '@expo/vector-icons';
-import React from 'react';
-import { useRouter } from 'expo-router';
-import {ScrollView, StyleSheet, Text, TouchableOpacity, View, Alert} from 'react-native';
+import React, { useCallback } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { StyleSheet, Text, TouchableOpacity, View, Alert, ScrollView, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/userContext'; 
+import { useState } from 'react';
 
 
 export default function Formulario(){
     const { user, logout } = useAuth();
     const router = useRouter();
+    const img = require('../../../assets/images/LogoMetroMarketBN.png');
+    const [message, setMessage] = useState("");
 
+    useFocusEffect(
+      useCallback(() => {
+        if (!user) {
+          setMessage("Por favor, inicia sesión para publicar.");
+          return;
+        }
+      }, [user])
+    );
+    
     return (
         <View style={styles.container}>
             <SafeAreaView style={styles.header}>
@@ -26,7 +38,8 @@ export default function Formulario(){
               <Ionicons name="person-outline" size={24} color="#fff" />
             </TouchableOpacity>
             </SafeAreaView>
-            <View style={styles.containerList}>
+
+            {user ? (<View style={styles.containerList}>
                 <Text style={styles.headerInstruccion}>Seleccione el tipo de publicación que desea crear</Text>
                 {/*este llevara al formulario de publicaciones de tipo producto */}
                 <TouchableOpacity
@@ -39,7 +52,7 @@ export default function Formulario(){
                         }
                         router.push({
                             pathname: '../publicar',
-                            params: { tipoPublicacion: 'producto' } // Parámetro para producto
+                            params: { tipoPublicacion: 'Producto' } // Parámetro para producto
                         });
                     }}
                     activeOpacity={0.8}
@@ -60,7 +73,7 @@ export default function Formulario(){
                         }
                         router.push({
                             pathname: '../publicar',
-                            params: { tipoPublicacion: 'servicio' } // Parámetro para servicio
+                            params: { tipoPublicacion: 'Servicio' } // Parámetro para servicio
                         });
                     }}
                     activeOpacity={0.8}
@@ -70,11 +83,27 @@ export default function Formulario(){
                         <Text style={styles.publicationsButtonText}>Servicio</Text>
                     </View>
                 </TouchableOpacity>
-            </View>
+            </View>) : (
+                
+                <ScrollView contentContainerStyle={styles.container2}>
+                      <View style={styles.emptyContainer}>
+                        <Image
+                          source={img}
+                          style={{ width: 100, height: 100, marginBottom: 16 }}
+                          resizeMode="contain"
+                        />
+                        <Text style={styles.emptyText}>{message}</Text>
+                        <TouchableOpacity
+                          style={styles.addButton}
+                          onPress={() => router.push('/login')}
+                        >
+                          <Text style={styles.addButtonText}>Iniciar sesión</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </ScrollView>
+                )}
         </View>
-        
     )
-
 }
 
 const styles = StyleSheet.create({
@@ -115,7 +144,37 @@ const styles = StyleSheet.create({
     width: '100%', 
     marginTop: 20,
     marginBottom: 20,
-    
+  },
+    addButton: {
+    marginTop: 20,
+    backgroundColor: '#00318D',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#FFF',
+    fontWeight: '600',
+  },
+    container2: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 80,
+    paddingTop: 10, 
+  },
+    emptyText: {
+    textAlign: 'center',
+    color: '#888',
+    fontSize: 14,
+    paddingVertical: 16,
+  },
+    emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    padding: 20,
   },
     backButton: {
         marginRight: 10,
@@ -150,3 +209,6 @@ const styles = StyleSheet.create({
         marginLeft: 12,
     },
 });
+
+
+
