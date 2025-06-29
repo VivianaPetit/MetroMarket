@@ -87,7 +87,8 @@ export default function Publicaciones() {
       {/* Productos */}
       {user ? (<ScrollView contentContainerStyle={styles.productsGrid}>
         {filteredPublications.length > 0 ? (
-          filteredPublications.map((pub) => (
+          filteredPublications.map((pub) => ( 
+          <View style={styles.productCardWrapper} key={pub._id}>
             <ProductCard
               key={pub._id}
               name={pub.titulo}
@@ -101,6 +102,7 @@ export default function Publicaciones() {
               tipo={pub.tipo}
               onEdit={() => handleEditProduct(pub)}
             />
+            </View>
           ))
         ) : (
                 <View style={styles.emptyContainer}>
@@ -119,7 +121,7 @@ export default function Publicaciones() {
                 </View>
         )}
       </ScrollView>) : (
-        <ScrollView contentContainerStyle={styles.productsGrid}>
+        <ScrollView contentContainerStyle={styles.container2}>
           <View style={styles.emptyContainer}>
             <Image
               source={img}
@@ -197,7 +199,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1,
     padding: 20,
-
+  },
+    productCardWrapper: {
+    width: '48%', // Ocupa casi la mitad del ancho (deja espacio para el margen)
+    marginBottom: 16, // Espacio vertical entre cards
   },
   addButton: {
     marginTop: 20,
@@ -218,13 +223,20 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     paddingHorizontal: 16,
   },
-  productsGrid: {
+  container2: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 80,
     paddingTop: 10, 
+  },
+  productsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginTop: 20,
   },
   errorMensaje: {
     fontSize: 16,

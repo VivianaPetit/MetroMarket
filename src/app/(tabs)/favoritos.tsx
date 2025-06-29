@@ -71,22 +71,20 @@ export default function Home() {
         {/* Productos */}
         { user ? (<ScrollView contentContainerStyle={styles.productsGrid}>
   {filteredPublications.length > 0 ? (
-    filteredPublications.map((pub) => (
-      <TouchableOpacity
-        key={pub._id}
-        onPress={() => router.push({
-          pathname: "/productDetails",
-          params: { productId: pub._id }
-        })}
-      >
+    filteredPublications.map((pub) => (          
+    <View style={styles.productCardWrapper} key={pub._id}>
         <ProductCard
           name={pub.titulo}
           price={pub.precio}
           category={pub.categoria}
           tipo={pub.tipo}
           image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}
+          onPress={() => router.push({
+          pathname: "/productDetails",
+          params: { productId: pub._id }
+        })}
         />
-      </TouchableOpacity>
+      </View>
     ))
   ) : (
     <Text style={styles.errorMensaje}>No tienes productos en favoritos</Text>
@@ -198,6 +196,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 80,
     paddingTop: 10, 
+  },
+      productCardWrapper: {
+    width: '48%', // Ocupa casi la mitad del ancho (deja espacio para el margen)
+    marginBottom: 16, // Espacio vertical entre cards
   },
   errorMensaje: {
     fontSize: 16,
