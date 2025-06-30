@@ -45,6 +45,14 @@ export interface Resena {
   calificacion: number; 
 }
 
+export interface Mensaje {
+  _id: string,
+  usuario: string;
+  tipo: string;
+  mensaje: string;
+  fecha: Date; 
+}
+
 export interface Transaccions {
   _id: string,
   comprador: string;
@@ -56,5 +64,6 @@ export interface Transaccions {
   estado: string;
   metodoPago: string;
   entregado: boolean[];
+  mensajes: string[];
 
 }

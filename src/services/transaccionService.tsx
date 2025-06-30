@@ -60,6 +60,22 @@ export const confirmarEntrega = async (
   }
 };
 
+export const agregarMensajeATransaccion = async (
+  transaccionId: string,
+  mensajeId: string
+): Promise<Transaccions> => {
+  try {
+    const response = await axios.patch<Transaccions>(
+      `${transaccionesURL}/${transaccionId}/agregar-mensaje`,
+      { mensajeId }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error agregando mensaje a transacción:', error);
+    throw error;
+  }
+};
+
 // Obtener transacciones por usuario (comprador o vendedor)
 export const fetchTransaccionesByUsuario = async (usuarioId: string): Promise<Transaccions[]> => {
   try {

@@ -22,6 +22,10 @@ app.use('/api/transacciones', transaccionesRoutes);
 const resenasRoutes = require('./routes/resenas');
 app.use('/api/resenas', resenasRoutes);
 
+const mensajesRoutes = require('./routes/mensajes');
+app.use('/api/mensajes', mensajesRoutes);
+
+
 const categoriasRoutes = require('./routes/categorias');
 const os = require('os');
 app.use('/api/categorias', categoriasRoutes);

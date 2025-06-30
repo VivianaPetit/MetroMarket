@@ -90,12 +90,15 @@ const MisComprasScreen = () => {
     setRating(newRating);
   };
 
-  const handleContactarVendedor = (telefono: string) => {
-  if (!telefono) {
-    alert('No hay número de teléfono disponible');
+  const handleContactarVendedor = (transaccionId: string) => {
+  if (!transaccionId) {
+    alert('Transacción no identificada');
     return;
   }
-  alert(`Contactar al vendedor:\nTeléfono: ${telefono}\n\n(Puedes implementar WhatsApp/Llamadas aquí)`);
+  router.push({
+    pathname: '/chat',
+    params: { transaccionId },  // ahora sí pasa el id correcto
+  });
 };
 
   const enviarReseñaYConfirmar = async () => {
@@ -209,7 +212,7 @@ const MisComprasScreen = () => {
               <View style={styles.buttonsRow}>
                 <TouchableOpacity
                   style={[styles.button, styles.buttonSecondary]}
-                  onPress={() => handleContactarVendedor(trans.vendedorDetalle?.telefono || '')}
+                  onPress={() => handleContactarVendedor(trans._id)}
                 >
                   <Text style={styles.buttonText}>Contactar</Text>
                 </TouchableOpacity>

@@ -80,6 +80,7 @@ const Comprar: React.FC = () => {
         estado: 'Pendiente',
         fecha: new Date(),
         entregado: [false, false],
+        mensajes : []
       });
 
       await Promise.all([

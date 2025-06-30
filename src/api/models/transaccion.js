@@ -12,6 +12,7 @@ const transaccionSchema = new mongoose.Schema({
   resenaComprador: { type: mongoose.Schema.Types.ObjectId, ref: 'Resena' }, 
   resenaVendedor: { type: mongoose.Schema.Types.ObjectId, ref: 'Resena' },
   entregado: { type: [Boolean], default: [false, false] },
+  mensajes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Mensaje' }],
 });
 
 module.exports = mongoose.model('Transaccion', transaccionSchema);
