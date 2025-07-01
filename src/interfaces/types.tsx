@@ -28,7 +28,9 @@ export interface Publicacion {
   lugarEntrega: string;
   titulo: string;
   precio: number;
+  precioTasa: number;
   metodoPago: string;
+  formaMoneda:string;
   fotos: string[];
   preguntas: [string];
   modalidad: string;

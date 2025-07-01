@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width } = Dimensions.get('window');
 const [color, setColor] = useState('');
@@ -8,9 +9,12 @@ const [color, setColor] = useState('');
 type ProductCardProps = {
   name: string;
   price: number;
+  priceTasa: number;
+  formCoin: string;
   category: string;
   image: string;
   tipo: string;
+  
   onEdit?: () => void;
   onPress?: () => void;
 };
@@ -18,6 +22,8 @@ type ProductCardProps = {
 const ProductCard: React.FC<ProductCardProps> = ({ 
   name, 
   price, 
+  priceTasa,
+  formCoin,
   category, 
   image, 
   tipo, 
@@ -31,13 +37,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
       activeOpacity={0.9}
     >
       {/* Contenedor de imagen con botón de edición */}
-      <View style={styles.imageContainer}>
+      {tipo !== 'Samanes' ? (
+        <View style={styles.imageContainer}>
         <Image 
-          source={{ uri: image }} 
-          style={styles.productImage}
-          resizeMode="cover"
-        />
-        
+            source={{ uri: image }} 
+            style={styles.productImage}
+            resizeMode="cover"
+          />  
         {onEdit && (
           <TouchableOpacity 
             style={styles.editButton} 
@@ -50,14 +56,44 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </TouchableOpacity>
         )}
       </View>
-
+      ) : (
+      <View>
+        {onEdit && (
+          <TouchableOpacity 
+            style={styles.editButton} 
+            onPress={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+          >
+            <Ionicons name="pencil" size={16} color="white" />
+          </TouchableOpacity>
+        )}
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:4}}>
+          <Text style={{ fontSize: 25, fontWeight: 'bold'}}>🌳</Text>
+          <Text style={styles.chip}>{price}</Text>     
+        </View>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom:25}}>
+          <Text style={styles.chip2}>{formCoin}</Text> 
+        </View>
+        <View style={{alignContent: 'center', justifyContent: 'center', alignItems: 'center'}}> 
+          <AntDesign name="retweet" size={50} color="#FF8C00"/>
+        </View>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:25}}>
+          <Text style={styles.chip}>{priceTasa}</Text>
+          <Text style={{ fontSize: 25, fontWeight: 'bold'}}>Bs</Text>          
+        </View>
+      </View>
+      )}
+      
       {/* Contenedor de información */}
       <View style={styles.infoContainer}>
         <Text style={styles.productName} numberOfLines={2}>{name}</Text>
         
-        {/* Precio destacado */}
-        <Text style={styles.priceText}>${price.toFixed(2)}</Text>
-        
+        {/* Precio destacado solo valido para servicio y producto */}
+        <View style={tipo === 'Samanes' ? { display: 'none' } : null}>
+          <Text style={styles.priceText}>${price.toFixed(2)}</Text>
+        </View>
         {/* Fila de categoría y tipo */}
         <View style={styles.metaContainer}>
           <View style={styles.categoryBadge}>
@@ -69,9 +105,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {tipo == 'Producto' ? (
             <View style={styles.typeBadgeProduct}>
               <Text style={styles.typeProductText}>{tipo} </Text> 
-            </View>):( <View style={styles.typeBadgeService}>
+            </View>
+            ) : tipo == 'Servicio' ? ( 
+            <View style={styles.typeBadgeService}>
               <Text style={styles.typeServiceText}>{tipo} </Text> 
-            </View>)}     
+            </View>
+            ) : (
+            <View style={styles.typeBadgeSamanes}>
+              <Text style={styles.typeSamanesText}>{tipo} </Text> 
+            </View>
+            )}     
         </View>
       </View>
     </TouchableOpacity>
@@ -148,6 +191,13 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 4,
   },
+
+    typeBadgeSamanes: {
+    backgroundColor: '#f0fff5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
   
   typeProductText: {
     fontSize: 12,
@@ -161,6 +211,12 @@ const styles = StyleSheet.create({
     color: '#F68628',
     textTransform: 'capitalize',
   },
+    typeSamanesText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#29f56d',
+    textTransform: 'capitalize',
+  },  
   categoryBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -176,6 +232,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginLeft: 4,
+  },
+  chip: {
+    borderWidth: 1,
+    borderColor: '#FF8C00',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginTop: 4,
+    borderRadius: 100,
+    width: 150,
+    padding: 12,
+    fontSize: 19,
+    textAlign: 'center',
+  },  
+  chip2: {
+    backgroundColor: '#d5edfc',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 20,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#29a5f5',
+    textTransform: 'capitalize',
   },
 });
 

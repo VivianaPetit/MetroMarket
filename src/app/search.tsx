@@ -66,6 +66,8 @@ export default function SearchPage() {
                 <ProductCard
                 name={pub.titulo}
                 price={pub.precio}
+                priceTasa={pub.precioTasa}
+                formCoin={pub.formaMoneda}
                 category={pub.categoria}
                 tipo={pub.tipo}
                 image={pub.fotos?.[0] ?? 'https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'}

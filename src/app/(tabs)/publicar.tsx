@@ -14,10 +14,12 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { supabase } from '../../../supabase';
 import { useLocalSearchParams } from 'expo-router';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const estados = ['Nuevo', 'Usado', 'Reparado'];
 const modalidades = ['Presencial', 'Asincrono', 'Híbrido'];
 const metodoPagos = ['Efectivo', 'PagoMovil', 'Transferencia bancaria', 'Zelle', 'Paypal'];
+const formaMonedas = ['Zelle', 'Binance', 'Zinli', 'efectivo', 'MercantilPanama'];
 //--------------------------------------------------------------------------------------------------------
 //necesario para la seleccion de horario
 const semanas = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
@@ -33,10 +35,12 @@ const CreatePublication = () => {
   const [descripcion, setDescripcion] = useState('');
   const [tipo, setTipo] = useState('');
   const [precio, setPrecio] = useState('');
+  const [precioTasa, setPrecioTasa] = useState('');
   const [cantidad, setCantidad] = useState('');
   const [estado, setEstado] = useState('');
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
+  const [formaMoneda, setFormaMoneda] = useState('');
   const [categoria, setCategoria] = useState('');
   const [modalidad, setModalidad] = useState('');
   const [loading, setLoading] = useState(false);
@@ -60,12 +64,15 @@ const CreatePublication = () => {
   titulo?: string;
   descripcion?: string;
   precio?: string;
+  precioTasa?: string
   cantidad?: string;
   categoria?: string;
   metodoPago?: string;
+  formaMoneda?: string;
   estado?: string;
   modalidad?: string;
   imagenes?: string;
+  horarios?: string;
 }
 const [errors, setErrors] = useState<FormErrors>({});
 
@@ -82,11 +89,17 @@ const validarFormulario = (): FormErrors => {
 
   const precioNumerico = parseFloat(precio);
   if (isNaN(precioNumerico) || precioNumerico < 0) {
-    errores.precio = 'El precio debe ser un número válido mayor o igual a 0.';
+      errores.precio = 'El precio debe ser un número válido mayor o igual a 0.';
+    
+  }
+
+  const precioNumericoTasa = parseFloat(precioTasa);
+  if (isNaN(precioNumericoTasa) && tipoPublicacion === 'Samanes'|| precioNumericoTasa < 0 && tipoPublicacion === 'Samanes') {
+    errores.precioTasa = 'El precio de la tasa debe ser un número válido mayor o igual a 0.';
   }
 
   const cantidadNumerica = parseInt(cantidad);
-  if (isNaN(cantidadNumerica) || cantidadNumerica <= 0) {
+  if (isNaN(cantidadNumerica) && tipoPublicacion !== 'Samanes'|| cantidadNumerica <= 0 && tipoPublicacion !== 'Samanes') {
     errores.cantidad = 'La cantidad debe ser un número válido mayor que 0.';
   }
 
@@ -94,23 +107,28 @@ const validarFormulario = (): FormErrors => {
     errores.categoria = 'Debes seleccionar una categoría válida.';
   }
 
-  if (horario === HORARIO_INICIAL && tipoPublicacion === 'servicio') {
-    errores.metodoPago = 'Debes seleccionar al menos un dia de disponibilidad.';
+  const isHorarioInitial = JSON.stringify(horario) === JSON.stringify(HORARIO_INICIAL);
+  if (isHorarioInitial &&  tipoPublicacion === 'Servicio') {
+    errores.horarios = 'Debes seleccionar al menos un dia de disponibilidad.';
   }
 
   if (!metodoPago || metodoPago === '' || metodoPago === 'Selecciona un método de pago') {
     errores.metodoPago = 'Debes seleccionar un método de pago válido.';
   }
 
-  if (!estado || estado === '' && tipoPublicacion === 'producto') {
+  if (!formaMoneda && tipoPublicacion === 'Samanes' || formaMoneda === '' && tipoPublicacion === 'Samanes' || formaMoneda === 'Selecciona la forma de los samanes 🌳' && tipoPublicacion === 'Samanes' ) {
+    errores.formaMoneda = 'Debes seleccionar una forma de venta de los samanes válida.';
+  }
+
+  if (!estado && tipoPublicacion === 'Producto' || estado === '' && tipoPublicacion === 'Producto') {
     errores.estado = 'Debes seleccionar un estado para el producto.';
   }
 
-  if (!modalidad || modalidad === '' && tipoPublicacion === 'servicio') {
+  if (!modalidad && tipoPublicacion === 'Servicio'|| modalidad === '' && tipoPublicacion === 'Servicio') {
     errores.modalidad = 'Debes seleccionar un modalidad para el servicio.';
   }
 
-  if (images.length === 0) {
+  if (images.length === 0 && tipoPublicacion !== 'Samanes') {
     errores.imagenes = 'Debes seleccionar al menos una imagen.';
   }
 
@@ -178,10 +196,12 @@ if (Object.keys(errores).length > 0) {
       titulo: titulo.trim(),
       descripcion: descripcion.trim(),
       precio: parseFloat(precio),
+      precioTasa: parseFloat(precioTasa),
       cantidad: parseInt(cantidad),
       estado: estado.trim(),
       lugarEntrega: lugarEntrega.trim(),
       metodoPago: metodoPago.trim(),
+      formaMoneda: formaMoneda.trim(),
       tipo: tipoPublicacion,
       modalidad: modalidad.trim(),
       horario,
@@ -198,16 +218,18 @@ if (Object.keys(errores).length > 0) {
     setTitulo('');
     setDescripcion('');
     setPrecio('');
+    setPrecioTasa('');
     setCantidad('');
     setEstado('');
     setModalidad('');
     setLugarEntrega('');
     setMetodoPago('');
+    setFormaMoneda('');
     setCategoria('');
     setImages([]);
     setHorario(HORARIO_INICIAL);
 
-    // setLoading(false);
+    setLoading(false);
     Alert.alert('¡Éxito!', 'Tu publicación ha sido creada.');
     navigation.goBack();
 
@@ -254,8 +276,8 @@ const pickImageAndStore = async () => {
 };
 
   const params = useLocalSearchParams();
-  const tipoPublicacion: string = String(params.tipoPublicacion); // 'producto' o 'servicio'
-
+  const tipoPublicacion: string = String(params.tipoPublicacion); // 'producto', 'servicio' o 'samanes'
+  //console.log(tipoPublicacion)
   if (loading) {
   return (
     <View style={styles.loadingContainer}>
@@ -276,15 +298,17 @@ const pickImageAndStore = async () => {
       {/* titulo de la pagina */}
       <Text style={styles.titulo}>Crear Publicación</Text>
       {/* para cargar imagenes */}
-      <Text style={styles.label}>
-        {tipoPublicacion === 'Producto' ? 'Fotos del producto' : 'Fotos del servicio'}
-      </Text>
-      <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndStore} disabled={loading}>
-        <Ionicons name="image-outline" size={20} color="#fff" />
-        <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
-      </TouchableOpacity>
-
-      {images.length > 0 && (
+      
+      <View style={tipoPublicacion === 'Samanes' ? { display: 'none' } : null}>
+        <Text style={styles.label}>
+          {tipoPublicacion === 'Producto' ? 'Fotos del producto' : 'Fotos del servicio'}
+        </Text>
+        <TouchableOpacity style={styles.botonPublicar} onPress={pickImageAndStore} disabled={loading}>
+          <Ionicons name="image-outline" size={20} color="#fff" />
+          <Text style={styles.botonTexto}>Seleccionar Imagen</Text>
+        </TouchableOpacity>
+      
+      {images.length > 0 &&(
         <ScrollView horizontal style={{ marginTop: 10 }} showsHorizontalScrollIndicator={false}>
           {images.map((img, index) => (
             <View key={index} style={styles.imageContainer}>
@@ -308,10 +332,11 @@ const pickImageAndStore = async () => {
         </ScrollView>
       )}
       {errors.imagenes && <Text style={styles.errorText}>{errors.imagenes}</Text>}
+      </View>
 
       {/* titulo */}
       <Text style={styles.label}>Título *</Text>
-        {tipoPublicacion == 'Producto' ? (
+        {tipoPublicacion === 'Producto' ? (
           // formulario de titulo para producto
           <TextInput 
             style={styles.input}
@@ -321,7 +346,7 @@ const pickImageAndStore = async () => {
             onChangeText={setTitulo}
             editable={!loading}
           />
-        ) : (
+        ) : tipoPublicacion === 'Servicio' ? (
           // formulario de titulo para servicio
           <TextInput 
             style={styles.input}
@@ -331,8 +356,16 @@ const pickImageAndStore = async () => {
             onChangeText={setTitulo}
             editable={!loading}
           />
+        ) :  (
+          <TextInput 
+            style={styles.input}
+            placeholder="Ej. Venta de 10Cash"
+            placeholderTextColor="#888"
+            value={titulo}
+            onChangeText={setTitulo}
+            editable={!loading}
+          />
         )}
-
       {errors.titulo && <Text style={styles.errorText}>{errors.titulo}</Text>}
       
       {/* descripcion */}
@@ -348,150 +381,220 @@ const pickImageAndStore = async () => {
       />
       {errors.descripcion && <Text style={styles.errorText}>{errors.descripcion}</Text>}
 
-      {/* Precio */}
+      {/* Precio para producto y servicio es el mismo, para Samanes es diferente */}
       <Text style={styles.label}>
-        {tipoPublicacion === 'Producto' ? 'Precio *' : 'Precio por hora *'}
+        {
+          tipoPublicacion === 'Producto' ? 'Precio *' : 
+          tipoPublicacion === 'Servicio' ? 'Precio por hora *' : 
+          'Valor de Venta *' // Para 'Samanes' o cualquier otro caso
+        }
       </Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        value={precio}
-        onChangeText={setPrecio}
-        editable={!loading}
-      />
-      {errors.precio && <Text style={styles.errorText}>{errors.precio}</Text>}
-
-      {/* Cantidad*/}
-      <Text style={styles.label}>
-        {tipoPublicacion === 'Producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
-      </Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          value={cantidad}
-          onChangeText={setCantidad}
-          editable={!loading}
-        />
-      {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}
-
-      {/* Estado del producto (no aplica para servicios) || Modalidad del servicio (no aplica para producto) */}
-      <Text style={styles.label}>
-        {tipoPublicacion === 'Producto' ? 'Estado' : 'Modalidad del Servicio'}
-      </Text>
-      {tipoPublicacion == 'Producto' ? (
-          // formulario de Estado para producto
-          <View style={styles.chipsContainer}>
-            {estados.map((op) => (
-              <TouchableOpacity
-                key={op}
-                style={[styles.chip, estado === op && styles.chipSelected]}
-                onPress={() => setEstado(op)}
-                disabled={loading}
-              >
-                <Text style={[styles.chipText, estado === op && styles.chipTextSelected]}>
-                  {op}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View> 
-          
-        ) : (
-          // formulario de Modalidad para servicio
-          <View style={styles.chipsContainer}>
-            {modalidades.map((op) => (
-              <TouchableOpacity
-                key={op}
-                style={[styles.chip, modalidad === op && styles.chipSelected]}
-                onPress={() => setModalidad(op)}
-                disabled={loading}
-              >
-                <Text style={[styles.chipText, modalidad === op && styles.chipTextSelected]}>
-                  {op}
-                </Text>
-              </TouchableOpacity>
-            ))} 
-          </View>
-        )}
-      {errors.estado && <Text style={styles.errorText}>{errors.estado}</Text>}
-      {errors.modalidad && <Text style={styles.errorText}>{errors.modalidad}</Text>}
-
-      
-      {/* Lugar de entrega (no aplica para servicios) || horario (no aplica para producto) */}
-      <Text style={styles.label}>
-        {tipoPublicacion === 'Producto' ? 'Lugar entrega' : 'Horario'}
-      </Text>
-      {tipoPublicacion == 'Producto' ? (
-          // formulario de Lugar de entrega para producto
-          <TextInput
+        {tipoPublicacion !== 'Samanes' ? (
+          //Forma de vista del precio para publicaciones de tipo servico y producto
+          <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 2}}>
+            <Text style={{ marginRight: 8, marginLeft: 8, fontSize: 25, fontWeight: 'bold' }}>$</Text>
+            <TextInput
             style={styles.input}
-            value={lugarEntrega}
-            onChangeText={setLugarEntrega}
+            keyboardType="numeric"
+            value={precio}
+            onChangeText={setPrecio}
+            editable={!loading}
+            />
+          </View>
+        ) : (
+          //Forma de vista del precio para publicaciones de tipo Samanes (esta hecho para que se va bien con la Tasa de cambio (precioTasa))
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{ fontSize: 25, fontWeight: 'bold'}}>🌳</Text>
+            <TextInput
+            style={styles.input2}
+            keyboardType="numeric"
+            value={precio}
+            onChangeText={setPrecio}
+            editable={!loading}
+            />
+          </View>
+          
+        )}
+        {errors.precio && <Text style={styles.errorText}>{errors.precio}</Text>}
+      
+      {/* Tasa de cambio (solo para publicaciones de tipo samanes) */}
+      <View style={tipoPublicacion !== 'Samanes' ? { display: 'none' } : null}>
+        {/* icono de cambio */}
+        <View style={{alignContent: 'center', justifyContent: 'center', alignItems: 'center', marginTop:30}}> 
+          <AntDesign name="retweet" size={50} color="#FF8C00"/>
+        </View>
+        <Text style={styles.label}>Tasa *</Text>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 15}}>
+          <TextInput
+            style={styles.input2}
+            keyboardType="numeric"
+            value={precioTasa}
+            onChangeText={setPrecioTasa}
             editable={!loading}
           />
-        ) : (
-          // formulario de horario para servicio
-          <View>
-            <Text style={{marginBottom:10,}}>Selecciona tus dias de disponibilidad:</Text>
+          <Text style={{ fontSize: 25, fontWeight: 'bold', marginLeft: 7 }}>Bs</Text>
+        </View>
+        {errors.precioTasa && <Text style={styles.errorText}>{errors.precioTasa}</Text>}
+      </View>
+
+      {/* De aqui hasta la forma de metodo de pago es solamente para publicaciones de tipo producto o servicio*/}
+      <View style={tipoPublicacion === 'Samanes' ? { display: 'none' } : null}> 
+        {/* Cantidad (no aplica para samanes)*/}
+        <Text style={styles.label}>
+          {tipoPublicacion === 'Producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
+        </Text>
+          <TextInput
+            style={styles.input}
+            keyboardType="numeric"
+            value={cantidad}
+            onChangeText={setCantidad}
+            editable={!loading}
+          />
+        {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}
+
+        {/* Estado del producto (no aplica para servicios, ni samanes) || Modalidad del servicio (no aplica para producto, ni samanes) */}
+        <Text style={styles.label}>
+          {tipoPublicacion === 'Producto' ? 'Estado' : 'Modalidad del Servicio'}
+        </Text>
+        {tipoPublicacion == 'Producto' ? (
+            // formulario de Estado para producto
             <View style={styles.chipsContainer}>
-              {semanas.map((op) => (
+              {estados.map((op) => (
                 <TouchableOpacity
                   key={op}
-                  style={[
-                    styles.chip,
-                    diasSeleccionados.includes(op) && styles.chipSelected
-                  ]}
-                  onPress={() => {
-                    setDiasSeleccionados(prev => {
-                      const newSelection = prev.includes(op) 
-                        ? prev.filter(dia => dia !== op) 
-                        : [...prev, op];
-                      
-                      setHorario(prevHorario => ({
-                        ...prevHorario,
-                        [op]: prevHorario[op][0] === 'false' ? ['true'] : ['false'],
-                      }));
-                      
-                      return newSelection;
-                    });
-                  }}
+                  style={[styles.chip, estado === op && styles.chipSelected]}
+                  onPress={() => setEstado(op)}
                   disabled={loading}
                 >
-                  <Text style={[styles.chipText, diasSeleccionados.includes(op) && styles.chipTextSelected]}>
+                  <Text style={[styles.chipText, estado === op && styles.chipTextSelected]}>
                     {op}
                   </Text>
                 </TouchableOpacity>
               ))}
+              {errors.estado && <Text style={styles.errorText}>{errors.estado}</Text>}
+            </View> 
+            
+          ) : (
+            // formulario de Modalidad para servicio
+            <View style={styles.chipsContainer}>
+              {modalidades.map((op) => (
+                <TouchableOpacity
+                  key={op}
+                  style={[styles.chip, modalidad === op && styles.chipSelected]}
+                  onPress={() => setModalidad(op)}
+                  disabled={loading}
+                >
+                  <Text style={[styles.chipText, modalidad === op && styles.chipTextSelected]}>
+                    {op}
+                  </Text>
+                </TouchableOpacity>
+              ))} 
+              {errors.modalidad && <Text style={styles.errorText}>{errors.modalidad}</Text>}
             </View>
-            {/* para una visualizacion en tiempo real */}
-            {/* <Text style={styles.subtitle}>Horario actual:</Text>
-            <Text>{JSON.stringify(horario, null, 2)}</Text> */}
-          </View>
-        )}
-    
+          )}
 
-      {/* Metodos de pago */}
-    <Text style={styles.label}>Método de pago *</Text>
-    <View style={styles.pickerWrapper}>
-      <Picker
-        selectedValue={metodoPago}
-        onValueChange={(itemValue) => setMetodoPago(itemValue)}
-        style={[
-          Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
-        ]}
-        enabled={!loading}
-      >
-        <Picker.Item key="pick" label="Selecciona un método de pago" value="" />
-        {/*Muestra una lista de metodos de pago para seleccionar*/}
-        {metodoPagos.map((met) => (
-          <Picker.Item key={met} label={met} value={met}/>
-        ))}
-        </Picker>
-    </View>
-    {errors.metodoPago && <Text style={styles.errorText}>{errors.metodoPago}</Text>}
+        
+        {/* Lugar de entrega (no aplica para servicios) || horario (no aplica para producto) */}
+        <Text style={styles.label}>
+          {tipoPublicacion === 'Producto' ? 'Lugar entrega' : 'Horario'}
+        </Text>
+        {tipoPublicacion == 'Producto' ? (
+            // formulario de Lugar de entrega para producto
+            <TextInput
+              style={styles.input}
+              value={lugarEntrega}
+              onChangeText={setLugarEntrega}
+              editable={!loading}
+            />
+          ) : (
+            // formulario de horario para servicio
+            <View>
+              <Text style={{marginBottom:10,}}>Selecciona tus dias de disponibilidad:</Text>
+              <View style={styles.chipsContainer}>
+                {semanas.map((op) => (
+                  <TouchableOpacity
+                    key={op}
+                    style={[
+                      styles.chip,
+                      diasSeleccionados.includes(op) && styles.chipSelected
+                    ]}
+                    onPress={() => {
+                      setDiasSeleccionados(prev => {
+                        const newSelection = prev.includes(op) 
+                          ? prev.filter(dia => dia !== op) 
+                          : [...prev, op];
+                        
+                        setHorario(prevHorario => ({
+                          ...prevHorario,
+                          [op]: prevHorario[op][0] === 'false' ? ['true'] : ['false'],
+                        }));
+                        
+                        return newSelection;
+                      });
+                    }}
+                    disabled={loading}
+                  >
+                    <Text style={[styles.chipText, diasSeleccionados.includes(op) && styles.chipTextSelected]}>
+                      {op}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {/* para una visualizacion en tiempo real */}
+              {/* <Text style={styles.subtitle}>Horario actual:</Text>
+              <Text>{JSON.stringify(horario, nulsl, 2)}</Text> */}
+            {errors.horarios && <Text style={styles.errorText}>{errors.horarios}</Text>}
+            </View>
+          )}
+      </View> 
+      
+      {/* Forma de la moneda (los samanes) / solo para productos tipo Samanes*/}
+      <View style={tipoPublicacion !== 'Samanes' ? { display: 'none' } : null}>
+        <Text style={styles.label}>Forma de los Samanes 🌳*</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={formaMoneda}
+            onValueChange={(itemValue) => setFormaMoneda(itemValue)}
+            style={[
+              Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
+            ]}
+            enabled={!loading}
+          >
+            <Picker.Item key="pick" label="Selecciona la forma de los samanes 🌳" value="" />
+            {/*Muestra una lista de las formas de pago para seleccionar*/}
+            {formaMonedas.map((forMon) => (
+              <Picker.Item key={forMon} label={forMon} value={forMon}/>
+            ))}
+            </Picker>
+        </View>
+        {errors.formaMoneda && <Text style={styles.errorText}>{errors.formaMoneda}</Text>}
+      </View>
+
+      {/* Metodos de pago */}   
+      <Text style={styles.label}>
+      {tipoPublicacion === 'Samanes' ? 'Método de pago para los Samanes 🌳 en Bs *' : 'Método de pago *'}
+      </Text>
+      <View style={styles.pickerWrapper}>
+        <Picker
+          selectedValue={metodoPago}
+          onValueChange={(itemValue) => setMetodoPago(itemValue)}
+          style={[
+            Platform.OS === 'ios' ? styles.pickerIOS : styles.picker
+          ]}
+          enabled={!loading}
+        >
+          <Picker.Item key="pick" label="Selecciona un método de pago" value="" />
+          {/*Muestra una lista de metodos de pago para seleccionar*/}
+          {metodoPagos.map((met) => (
+            <Picker.Item key={met} label={met} value={met}/>
+          ))}
+          </Picker>
+      </View>
+      {errors.metodoPago && <Text style={styles.errorText}>{errors.metodoPago}</Text>}
 
     {/* categorias */}
     <Text style={styles.label}>Categoría *</Text>
-    <View style={styles.pickerWrapper}>
+      <View style={styles.pickerWrapper}>
       <Picker
         selectedValue={categoria}
         onValueChange={(itemValue) => setCategoria(itemValue)}
@@ -512,13 +615,15 @@ const pickImageAndStore = async () => {
             if (tipoPublicacion === 'Servicio') {
               return ['Clases'].includes(cat.nombre);
             }
+            if (tipoPublicacion === 'Samanes') {
+              return ['Samanes'].includes(cat.nombre);
+            }
           })
           .map((cat) => (
             <Picker.Item key={cat._id} label={cat.nombre} value={cat._id} />
           ))}
         </Picker>
     </View>
-    
     {errors.categoria && <Text style={styles.errorText}>{errors.categoria}</Text>}
 
     <TouchableOpacity
@@ -574,6 +679,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
+    backgroundColor: '#fafafa',
+    minWidth: 310,
+  },
+  input2: {
+    borderWidth: 1,
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 12,
+    borderColor: '#ddd',
+    borderRadius: 100,
+    width: 150,
+    padding: 12,
+    fontSize: 19,
+    textAlign: 'center',
     backgroundColor: '#fafafa',
   },
   chipsContainer: {

@@ -276,6 +276,8 @@ export default function Perfil() {
               image={item.fotos && item.fotos.length > 0 ? item.fotos[0] : 'https://via.placeholder.com/150'}
               name={item.titulo}
               price={item.precio}
+              priceTasa={item.precioTasa}
+              formCoin={item.formaMoneda}
               category={item.categoria}
               tipo={item.tipo}
               onPress={() => router.push({

@@ -7,7 +7,6 @@ const publicacionSchema = new mongoose.Schema({
   descripcion: {
     type: String,
   }, 
-
   tipo: {
     type: String,
   },
@@ -15,6 +14,10 @@ const publicacionSchema = new mongoose.Schema({
     type: String,
   },
   precio: {
+    type: Number,
+    min: [0, 'El precio no puede ser negativo'],
+  },
+  precioTasa:{
     type: Number,
     min: [0, 'El precio no puede ser negativo'],
   },
@@ -38,6 +41,9 @@ const publicacionSchema = new mongoose.Schema({
     type: String,
   },
   metodoPago: {
+    type: String,
+  },
+  formaMoneda:{
     type: String,
   },
   usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' },

@@ -19,6 +19,7 @@ import { Publicacion, Usuario } from '../interfaces/types';
 import { fetchPublicaciones } from '../services/publicacionService';
 import { fetchUsuarioById, agregarPublicacionAFavorito, eliminarPublicacionDeFavorito, fetchFavoritoUsuario } from '../services/usuarioService';
 import { useAuth } from '../context/userContext';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function ProductDetails() {
   const { productId } = useLocalSearchParams();
@@ -196,8 +197,8 @@ export default function ProductDetails() {
     </View>
 
 
-    {/* visualizacion imagen */}
-      // En la parte de visualización de imágenes, reemplaza el código actual con este:
+    {/* visualizacion imagen 
+    En la parte de visualización de imágenes, reemplaza el código actual con este:*/}
 <View style={styles.imageWrapper}>
   <ScrollView
     horizontal
@@ -243,16 +244,36 @@ export default function ProductDetails() {
         </View>
 
         {/* visualizacion precio */}
-        <Text style={styles.priceText}>
-          {product.tipo === 'Producto' ? 'US$' : 'US$/hora  '}
-          {product.precio}
-        </Text>
+        <View style={product.tipo === 'Samanes' ? { display: 'none' } : null}>
+          <Text style={styles.priceText}>
+            {product.tipo === 'Producto' ? 'US$' : 'US$/hora  '}
+            {product.precio}
+          </Text>
+        </View>
 
         {/* visualizacion descripcion */}
         <Text style={styles.sectionLabel}>Descripción</Text>
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
 
-        {/* visualizacion cantidad */}
+        {/* visualizacion de precio y precioTasa para Samanes */}
+        <View style={product.tipo !== 'Samanes' ? { display: 'none' } : null}>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:4}}>
+            <Text style={{ fontSize: 25, fontWeight: 'bold'}}>🌳</Text>
+            <Text style={styles.chip}>{product.precio}</Text>     
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom:25}}>
+            <Text style={styles.chip2}>{product.formaMoneda}</Text> 
+          </View>
+          <View style={{alignContent: 'center', justifyContent: 'center', alignItems: 'center'}}> 
+            <AntDesign name="retweet" size={50} color="#FF8C00"/>
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:25}}>
+            <Text style={styles.chip}>{product.precioTasa}</Text>
+            <Text style={{ fontSize: 25, fontWeight: 'bold'}}>Bs</Text>          
+          </View>
+        </View>
+
+        {/* visualizacion cantidad para producto*/}
         {product.tipo === 'Producto' && (
           <>
             <Text style={styles.sectionLabel}>
@@ -296,29 +317,34 @@ export default function ProductDetails() {
             </View>
           </>
         )}
-
-        {/* visualizacion Estado(para producto) || modalidad(para servicio) */}
-        {product.tipo == 'Producto' ? (
-          // visualizacion de Estado(para producto)
+        
+        {/* visualizacion cantidad para servicio */}
+        {product.tipo === 'Servicio' && (
           <View>
-            <Text style={styles.sectionLabel}>Estado</Text>
-            <Text style={styles.badge}>{product.estado}</Text>
+            <Text style={styles.sectionLabel}>Cupos disponibles</Text>
+            <Text style={styles.detailText}>{product.cantidad}</Text>
           </View>
-        ) : (
-          // visualizacion de modalidad(para servicio)
-          <View>
-            <Text style={styles.sectionLabel}>Modalidad del servicio</Text>
-            <Text style={styles.badge}>{product.modalidad}</Text>
-          </View>        
         )}
 
-        {/* visualizacion nada(para producto) || horario(para servicio) */}
-        {product.tipo == 'Producto' ? (
-          // visualizacion de Estado(para producto)
-          <View>
-            
-          </View>
-        ) : (
+        {/* visualizacion Estado(para producto) || modalidad(para servicio) */}
+        <View style={product.tipo === 'Samanes' ? { display: 'none' } : null}>
+          {product.tipo == 'Producto' ? (
+            // visualizacion de Estado(para producto)
+            <View>
+              <Text style={styles.sectionLabel}>Estado del producto</Text>
+              <Text style={styles.badge}>{product.estado}</Text>
+            </View>
+          ) : (
+            // visualizacion de modalidad(para servicio)
+            <View>
+              <Text style={styles.sectionLabel}>Modalidad del servicio</Text>
+              <Text style={styles.badge}>{product.modalidad}</Text>
+            </View>        
+          )}
+        </View>
+
+        {/* horario(para servicio) */}
+        {product.tipo == 'Servicio' && (
           // visualizacion de modalidad(para servicio)
           <View>
             <Text style={styles.sectionLabel}>Horario de disponibilidad</Text>
@@ -336,9 +362,17 @@ export default function ProductDetails() {
             </View>
           </View>        
         )}
-        
-        <Text style={styles.sectionLabel}>Método de pago</Text>
-        <Text style={styles.detailText}>{product.metodoPago}</Text>
+
+
+
+          {/* Metodo de pago para producto y servicio */}
+        {product.tipo !== 'Samanes' && (
+          <View>
+            <Text style={styles.sectionLabel}>Método de pago</Text>
+            <Text style={styles.detailText}>{product.metodoPago}</Text>
+          </View>
+        )}
+
 
         <Text style={styles.sectionLabel}>Vendedor</Text>
         <TouchableOpacity onPress={() => {
@@ -637,4 +671,27 @@ cantidadInput: {
   textAlign: 'center',
   fontSize: 16,
 },
+  chip: {
+    borderWidth: 1,
+    borderColor: '#FF8C00',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginTop: 4,
+    borderRadius: 100,
+    width: 150,
+    padding: 12,
+    fontSize: 19,
+    textAlign: 'center',
+  },  
+  chip2: {
+    backgroundColor: '#d5edfc',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 20,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#29a5f5',
+    textTransform: 'capitalize',
+  },
 });

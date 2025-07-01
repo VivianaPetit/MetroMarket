@@ -1,4 +1,4 @@
-import { Entypo, Fontisto, Ionicons } from '@expo/vector-icons';
+import { Entypo, Fontisto, FontAwesome5, Ionicons } from '@expo/vector-icons';
 import React, { useCallback } from 'react';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View, Alert, ScrollView, Image } from 'react-native';
@@ -81,6 +81,27 @@ export default function Formulario(){
                     <View style={styles.publicationsButtonContent}>
                             <Fontisto name="person" size={24} color="#FF8C00" />
                         <Text style={styles.publicationsButtonText}>Servicio</Text>
+                    </View>
+                </TouchableOpacity>
+                {/*este llevara al formulario de publicaciones de tipo samanesDiv */}
+                <TouchableOpacity
+                    style={styles.menuButton}
+                    // verifica si el usario esta logeado
+                    onPress={() => {
+                        if (!user){
+                            Alert.alert('Acceso denegado', 'Debes iniciar sesión o registrarte primero para realizar esta acción');
+                            return;
+                        }
+                        router.push({
+                            pathname: '../publicar',
+                            params: { tipoPublicacion: 'Samanes' } // Parámetro para samanes
+                        });
+                    }}
+                    activeOpacity={0.8}
+                    >
+                    <View style={styles.publicationsButtonContent}>
+                      <FontAwesome5 name="coins" size={24} color="#FF8C00" />
+                      <Text style={styles.publicationsButtonText}>Samanes</Text>
                     </View>
                 </TouchableOpacity>
             </View>) : (

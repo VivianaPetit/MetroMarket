@@ -93,6 +93,8 @@ export default function Publicaciones() {
               key={pub._id}
               name={pub.titulo}
               price={pub.precio}
+              priceTasa={pub.precioTasa}
+              formCoin={pub.formaMoneda}
               category={pub.categoria}
               image={
                 pub.fotos && pub.fotos.length > 0
