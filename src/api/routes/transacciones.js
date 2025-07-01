@@ -10,6 +10,60 @@ router.get('/', async (req, res) => {
   res.json(transacciones);
 });
 
+// Obtener todos los mensajes de una transacción específica
+router.get('/:transaccionId/mensajes', async (req, res) => {
+  try {
+    const { transaccionId } = req.params;
+    
+    // Primero encontramos la transacción y hacemos populate de los mensajes
+    const transaccion = await Transaccion.findById(transaccionId)
+      .populate({
+        path: 'mensajes',
+        populate: {
+          path: 'usuario',
+          select: 'nombre foto' // Selecciona los campos que quieres del usuario
+        }
+      });
+
+    if (!transaccion) {
+      return res.status(404).json({ mensaje: 'Transacción no encontrada' });
+    }
+
+    // Ordenamos los mensajes por fecha (más antiguo primero)
+    const mensajesOrdenados = transaccion.mensajes.sort((a, b) => a.fecha - b.fecha);
+
+    res.json({
+      transaccionId: transaccion._id,
+      cantidadMensajes: mensajesOrdenados.length,
+      mensajes: mensajesOrdenados
+    });
+  } catch (error) {
+    console.error('Error al obtener mensajes de la transacción:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
+});
+
+
+router.patch('/:id/agregar-mensaje', async (req, res) => {
+  const { id } = req.params;
+  const { mensajeId } = req.body;
+
+  try {
+    const transaccion = await Transaccion.findByIdAndUpdate(
+      id,
+      { $push: { mensajes: mensajeId } },
+      { new: true }
+    );
+
+    if (!transaccion) return res.status(404).json({ mensaje: 'Transacción no encontrada' });
+
+    res.json(transaccion);
+  } catch (error) {
+    console.error('Error al agregar mensaje a transacción:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
+});
+
 router.patch('/:id/confirmar-entrega', async (req, res) => {
   const { id } = req.params;
   const { esVendedor } = req.body;
