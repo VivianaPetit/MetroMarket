@@ -49,7 +49,7 @@ export interface Resena {
 
 export interface Mensaje {
   _id: string,
-  usuario: string;
+  usuario: string | { _id: string }; 
   tipo: string;
   mensaje: string;
   fecha: Date; 
