@@ -152,6 +152,7 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1 }}>
+        
         <View style={styles.searchContainer}>
           <FontAwesome name="search" size={18} color="#00318D" style={styles.searchIcon} />
           <TextInput
@@ -171,6 +172,12 @@ export default function Home() {
             }}
           />
         </View>
+        <View style={{top:20, left:30}}> /Arreglar esto, es solo mientras
+            <Ionicons name='trophy' size={20} color="#00318D"></Ionicons>
+        </View>
+        
+        
+
         
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {/* Sección de Patrocinios */}
