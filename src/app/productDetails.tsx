@@ -35,7 +35,7 @@ export default function ProductDetails() {
   const [isLiked, setIsLiked] = useState(false);
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(1);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const scrollViewRef = React.useRef<ScrollView>(null);
+  const esMiPublicacion = user?._id === product?.usuario;
   
 
   const incrementarCantidad = () => {
@@ -175,11 +175,18 @@ export default function ProductDetails() {
     }
   };
 
+  const handleEditProduct = (producto: Publicacion) => {
+  router.push({
+    pathname: '/editarPublicacion',
+    params: { producto: JSON.stringify(producto) },
+  });
+};
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <SafeAreaView>
         <TouchableOpacity 
-          onPress={() => router.push('/')}
+          onPress={() => router.back()}
           style={styles.backButton}
         >
         <Ionicons name="arrow-back" size={24} color="#00318D" />
@@ -376,11 +383,13 @@ export default function ProductDetails() {
 
         <Text style={styles.sectionLabel}>Vendedor</Text>
         <TouchableOpacity onPress={() => {
-          if (vendedor?._id) {
+          if (vendedor?._id && !esMiPublicacion) {
             router.push({
               pathname: '/perfilVendedor',
               params: { vendedorId: vendedor._id }
             });
+          } else if (esMiPublicacion) {
+            router.push('/perfil');
           }
         }}>
           <Text style={[styles.detailText, { textDecorationLine: 'underline', color: '#00318D' }]}>
@@ -389,11 +398,24 @@ export default function ProductDetails() {
         </TouchableOpacity>
 
 
-        <TouchableOpacity style={styles.buyButton} onPress={Verificacion_Usuario} >
-          <Text style={styles.buyButtonText}>
-            {product.tipo === 'Producto' ? 'Comprar' : 'Reservar'}
-          </Text>
-        </TouchableOpacity>
+      <TouchableOpacity 
+        style={[
+          styles.buyButton, 
+          esMiPublicacion && styles.editButton
+        ]} 
+        onPress={
+          esMiPublicacion 
+            ? () => handleEditProduct(product)
+            : Verificacion_Usuario
+        }
+      >
+        <Text style={styles.buyButtonText}>
+          {esMiPublicacion 
+            ? 'Editar' 
+            : product.tipo === 'Producto' ? 'Comprar' : 'Reservar'
+          }
+        </Text>
+      </TouchableOpacity>
 
         {recomendadasCat.length > 0 ? (
           <>
@@ -498,6 +520,10 @@ rightArrow: {
     resizeMode: 'contain',
     backgroundColor: 'white'
   },
+
+  editButton: {
+  backgroundColor: '#00318D', // color naranja para editar
+},
 
   backButton: {
     position: 'absolute',

@@ -14,6 +14,7 @@ export interface Usuario {
   publicaciones: string[];  
   favoritos: string[];
   transacciones: string[];
+  expoPushToken: string; // Token para notificaciones push
 }
 
 export interface Publicacion {

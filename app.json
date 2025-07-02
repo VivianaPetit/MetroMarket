@@ -7,6 +7,11 @@
     "icon": "./assets/images/LogoMetroMarket-completo.png",
     "scheme": "metromarket",
     "userInterfaceStyle": "automatic",
+    "extra": {
+      "eas": {
+        "projectId": "999a2699-0463-4392-ac5a-643a7972b8b2"  
+      }
+    },
     "permissions": [
       "CAMERA",
       "MEDIA_LIBRARY"
