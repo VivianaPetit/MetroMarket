@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter} from 'expo-router';
 import { fetchUsuarios } from '../services/usuarioService';
 import { fetchResena } from '../services/ResenaServices';
-import {Usuario, Resena, Promedio} from '../interfaces/types';
+import {Usuario, Resena, promedio} from '../interfaces/types';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { BounceIn } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
