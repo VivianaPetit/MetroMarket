@@ -12,6 +12,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+
 // Obtener un mensaje por ID
 router.get('/:mensajeId', async (req, res) => {
   const { mensajeId } = req.params;

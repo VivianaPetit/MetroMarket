@@ -86,3 +86,19 @@ export const fetchTransaccionesByUsuario = async (usuarioId: string): Promise<Tr
     throw error;
   }
 };
+
+export const tieneMensajesNoLeidos = async (
+  transaccionId: string,
+  userId: string
+): Promise<boolean> => {
+  try {
+    const response = await axios.get<{ tieneNoLeidos: boolean }>(
+      `${transaccionesURL}/${transaccionId}/tiene-no-leidos`,
+      { params: { userId } }
+    );
+    return response.data.tieneNoLeidos;
+  } catch (error) {
+    console.error(`Error verificando mensajes no leídos para transacción ${transaccionId}:`, error);
+    return false;
+  }
+};

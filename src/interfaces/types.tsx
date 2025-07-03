@@ -54,6 +54,7 @@ export interface Mensaje {
   tipo: string;
   mensaje: string;
   fecha: Date; 
+  leido: boolean;
 }
 
 export interface Transaccions {
@@ -69,4 +70,9 @@ export interface Transaccions {
   entregado: boolean[];
   mensajes: string[];
 
+}
+
+export interface Promedio {
+  _id: string,
+  promedio: number;
 }

@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/userContext';
-import { fetchTransaccionById, confirmarEntrega } from '../services/transaccionService';
+import { fetchTransaccionById, confirmarEntrega, tieneMensajesNoLeidos } from '../services/transaccionService';
 import { fetchPublicacionById } from '../services/publicacionService';
 import { fetchUsuarioById } from '../services/usuarioService';
 import { createResena } from '../services/ResenaServices';
@@ -45,6 +45,9 @@ const MisVentasScreen = () => {
   const [comentario, setComentario] = useState('');
   const fecha = new Date();
   const [tarjetaExpandida, setTarjetaExpandida] = useState<string | null>(null);
+  const [transaccionesConMensajesNoLeidos, setTransaccionesConMensajesNoLeidos] = useState<string[]>([]); // <-- cambio aquí
+
+
 
   useEffect(() => {
     if (!user?.transacciones?.length) {
@@ -75,6 +78,17 @@ const MisVentasScreen = () => {
         );
 
         setTransacciones(transaccionesConPublicacion);
+
+                const idsConNoLeidos = await Promise.all(
+          transaccionesConPublicacion.map(async (trans) => {
+            const hayNoLeidos = await tieneMensajesNoLeidos(trans._id, user._id);
+            return hayNoLeidos ? trans._id : null;
+          })
+        );
+
+        setTransaccionesConMensajesNoLeidos(idsConNoLeidos.filter(Boolean) as string[]);
+
+
       } catch (error) {
         console.error('Error al cargar transacciones o publicaciones:', error);
       } finally {
@@ -96,20 +110,6 @@ const MisVentasScreen = () => {
   });
 };
 
-  const abrirWhatsApp = (telefono: string) => {
-    const numeroConPrefijo = telefono.startsWith('+') ? telefono : `+58${telefono}`;
-    const url = `whatsapp://send?phone=${numeroConPrefijo}`;
-
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (!supported) {
-          alert('Parece que WhatsApp no está instalado');
-        } else {
-          return Linking.openURL(url);
-        }
-      })
-      .catch((err) => console.error('Error al abrir WhatsApp:', err));
-  };
 
   const handleCompletarCompra = (trans: TransaccionConPublicacion) => {
     setSelectedTransaccion(trans);
@@ -244,6 +244,10 @@ const MisVentasScreen = () => {
                       <Text style={styles.estadoTexto}>{trans.estado.toUpperCase()}</Text>
                     </View>
                   </View>
+
+                   {transaccionesConMensajesNoLeidos.includes(trans._id) && (
+                                      <View style={styles.redDot} />
+                                    )}
                   <Ionicons
                     name={estaExpandida ? 'chevron-up-outline' : 'chevron-down-outline'}
                     size={20}
@@ -322,6 +326,15 @@ const MisVentasScreen = () => {
 export default MisVentasScreen;
 
 const styles = StyleSheet.create({
+  redDot: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'red',
+  },
   container: {
     flexGrow: 1,
     padding: 20,

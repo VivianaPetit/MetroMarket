@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Transaccion = require('../models/transaccion');
+const Mensaje = require('../models/mensaje'); // Asegúrate de importar el modelo Mensaje
+const mongoose = require('mongoose');
+
 
 router.get('/', async (req, res) => {
   const transacciones = await Transaccion.find()
@@ -8,6 +11,71 @@ router.get('/', async (req, res) => {
     .populate('vendedor', 'nombre')
     .populate('publicacion', 'titulo');
   res.json(transacciones);
+});
+
+
+
+router.post('/:transaccionId/marcar-leidos', async (req, res) => {
+  const { transaccionId } = req.params;
+  const { userId } = req.body;
+
+  try {
+    const transaccion = await Transaccion.findById(transaccionId).populate('mensajes');
+
+    if (!transaccion) return res.status(404).json({ mensaje: 'Transacción no encontrada' });
+
+    // Actualizar mensajes: marcar como leídos solo los que NO son del usuario que marca
+    await Promise.all(
+      transaccion.mensajes.map(async (mensaje) => {
+        if (mensaje.usuario.toString() !== userId) {
+          await Mensaje.findByIdAndUpdate(mensaje._id, { leido: true });
+        }
+      })
+    );
+
+    res.json({ mensaje: 'Mensajes marcados como leídos' });
+  } catch (error) {
+    console.error('Error marcando mensajes como leídos:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
+});
+
+router.get('/:id/tiene-no-leidos', async (req, res) => {
+  const { id } = req.params;
+  const { userId } = req.query;
+
+  console.log('📥 Params recibidos:', { id, userId });
+
+  if (!userId) {
+    return res.status(400).json({ mensaje: 'userId es requerido' });
+  }
+
+  try {
+    const transaccion = await Transaccion.findById(id);
+    if (!transaccion) {
+      return res.status(404).json({ mensaje: 'Transacción no encontrada' });
+    }
+
+    console.log('📄 Transacción encontrada:', transaccion._id);
+    console.log('📨 Mensajes asociados:', transaccion.mensajes);
+
+    if (!transaccion.mensajes || transaccion.mensajes.length === 0) {
+      return res.json({ tieneNoLeidos: false });
+    }
+
+    const mensajeNoLeido = await Mensaje.exists({
+      _id: { $in: transaccion.mensajes },
+      usuario: { $ne: new mongoose.Types.ObjectId(userId) },
+      leido: false,
+    });
+
+    console.log('👀 ¿Hay mensajes no leídos?:', !!mensajeNoLeido);
+
+    res.json({ tieneNoLeidos: !!mensajeNoLeido });
+  } catch (error) {
+    console.error('❌ Error verificando mensajes no leídos:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
 });
 
 // Obtener todos los mensajes de una transacción específica
@@ -135,5 +203,7 @@ router.get('/usuario/:usuarioId', async (req, res) => {
     res.status(500).json({ message: 'Error en el servidor' });
   }
 });
+
+
 
 module.exports = router;

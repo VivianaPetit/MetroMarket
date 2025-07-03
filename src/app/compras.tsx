@@ -13,9 +13,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/userContext';
-import { fetchTransaccionById, confirmarEntrega } from '../services/transaccionService';
+import { fetchTransaccionById, confirmarEntrega, tieneMensajesNoLeidos } from '../services/transaccionService'; // <-- cambio aquí
 import { fetchPublicacionById } from '../services/publicacionService';
-import { fetchUsuarioById } from '../services/usuarioService';  // IMPORTANTE: para obtener datos del vendedor
+import { fetchUsuarioById } from '../services/usuarioService';
 import { Transaccions, Publicacion, Resena } from '../interfaces/types';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -42,6 +42,8 @@ const MisComprasScreen = () => {
   const [Rating, setRating] = useState(0);
   const fecha = new Date();
   const [tarjetaExpandida, setTarjetaExpandida] = useState<string | null>(null);
+  const [transaccionesConMensajesNoLeidos, setTransaccionesConMensajesNoLeidos] = useState<string[]>([]); // <-- cambio aquí
+
   useEffect(() => {
     if (!user?.transacciones?.length) {
       setLoading(false);
@@ -58,7 +60,6 @@ const MisComprasScreen = () => {
 
         const transaccionesConPublicacion = await Promise.all(
           soloCompras.map(async (trans) => {
-            
             const publicacionDetalle = await fetchPublicacionById(trans.publicacion);
             const vendedorUsuario = await fetchUsuarioById(trans.vendedor);
 
@@ -72,6 +73,16 @@ const MisComprasScreen = () => {
         );
 
         setTransacciones(transaccionesConPublicacion);
+
+        // 🔴 NUEVO: Verificar mensajes no leídos
+        const idsConNoLeidos = await Promise.all(
+          transaccionesConPublicacion.map(async (trans) => {
+            const hayNoLeidos = await tieneMensajesNoLeidos(trans._id, user._id);
+            return hayNoLeidos ? trans._id : null;
+          })
+        );
+        setTransaccionesConMensajesNoLeidos(idsConNoLeidos.filter(Boolean) as string[]);
+
       } catch (error) {
         console.error('Error al cargar transacciones o publicaciones:', error);
       } finally {
@@ -92,15 +103,15 @@ const MisComprasScreen = () => {
   };
 
   const handleContactarVendedor = (transaccionId: string) => {
-  if (!transaccionId) {
-    alert('Transacción no identificada');
-    return;
-  }
-  router.push({
-    pathname: '/chat',
-    params: { transaccionId },  // ahora sí pasa el id correcto
-  });
-};
+    if (!transaccionId) {
+      alert('Transacción no identificada');
+      return;
+    }
+    router.push({
+      pathname: '/chat',
+      params: { transaccionId },
+    });
+  };
 
   const enviarReseñaYConfirmar = async () => {
     if (!selectedTransaccion || !user) return;
@@ -165,9 +176,9 @@ const MisComprasScreen = () => {
       <Ionicons name="cart-outline" size={64} color="#F68628" style={styles.icon} />
 
       {transacciones
-  .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
-  .map((trans) => {
-    const estaExpandida = tarjetaExpandida === trans._id;
+        .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
+        .map((trans) => {
+          const estaExpandida = tarjetaExpandida === trans._id;
 
     return (
       <View key={trans._id} style={styles.card}>
@@ -221,6 +232,11 @@ const MisComprasScreen = () => {
                 <Text style={styles.estadoTexto}>{trans.estado.toUpperCase()}</Text>
               </View>
             </View>
+
+            {transaccionesConMensajesNoLeidos.includes(trans._id) && (
+              <View style={styles.redDot} />
+            )}
+
             <Ionicons
               name={estaExpandida ? 'chevron-up-outline' : 'chevron-down-outline'}
               size={20}
@@ -230,36 +246,35 @@ const MisComprasScreen = () => {
           </View>
         </TouchableOpacity>
 
-        {estaExpandida && (
-          <View style={styles.cardExpanded}>
-            <Text style={styles.descripcion}>👤 {trans.vendedorDetalle?.nombre}</Text>
-            <Text style={styles.descripcion}>📞 {trans.vendedorDetalle?.telefono}</Text>
+          {estaExpandida && (
+                <View style={styles.cardExpanded}>
+                  <Text style={styles.descripcion}>👤 {trans.vendedorDetalle?.nombre}</Text>
+                  <Text style={styles.descripcion}>📞 {trans.vendedorDetalle?.telefono}</Text>
 
-            {trans.entregado[0] ? (
-              <Text style={styles.entregadoText}>Producto entregado ✅</Text>
-            ) : (
-              <View style={styles.buttonsRow}>
-                <TouchableOpacity
-                  style={[styles.button, styles.buttonSecondary]}
-                  onPress={() => handleContactarVendedor(trans._id)}
-                >
-                  <Text style={styles.buttonText}>Contactar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => handleCompletarCompra(trans)}
-                >
-                  <Text style={styles.buttonText}>Completar</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
+                  {trans.entregado[0] ? (
+                    <Text style={styles.entregadoText}>Producto entregado ✅</Text>
+                  ) : (
+                    <View style={styles.buttonsRow}>
+                      <TouchableOpacity
+                        style={[styles.button, styles.buttonSecondary]}
+                        onPress={() => handleContactarVendedor(trans._id)}
+                      >
+                        <Text style={styles.buttonText}>Contactar</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => handleCompletarCompra(trans)}
+                      >
+                        <Text style={styles.buttonText}>Completar</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
         )}
       </View>
-    );
-  })}
+          );
+        })}
 
-  
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -300,6 +315,15 @@ const MisComprasScreen = () => {
 export default MisComprasScreen;
 
 const styles = StyleSheet.create({
+  redDot: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'red',
+  },
   container: {
     flexGrow: 1,
     padding: 20,
@@ -307,12 +331,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardExpanded: {
-  marginTop: 8,
-  borderTopWidth: 1,
-  borderTopColor: '#eee',
-  paddingTop: 8,
-  gap: 6,
-},
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 8,
+    gap: 6,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -345,8 +369,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  // Card
   card: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -360,21 +382,13 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderWidth: 1,
     borderColor: '#f0f0f0',
-  },
-  cardContent: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
+    position: 'relative',
   },
   image: {
     width: 80,
     height: 80,
     borderRadius: 8,
     backgroundColor: '#f5f5f5',
-  },
-  cardInfo: {
-    flex: 1,
-    gap: 4,
   },
   titulo: {
     fontSize: 16,
@@ -420,8 +434,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 14,
   },
-
-  // Botones
   buttonsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -445,8 +457,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
-
-  // Modal
   modalContainer: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -465,12 +475,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 5,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    color: '#333',
-  },
   textInput: {
     height: 90,
     borderColor: '#ddd',
@@ -487,8 +491,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-
-  // Rating
   ratingSection: {
     marginBottom: 20,
     alignItems: 'center',
@@ -499,15 +501,6 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 4,
   },
-  cardHeader: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 10,
-},
-cardText: {
-  flex: 1,
-  gap: 2,
-},
   ratingSubtitle: {
     fontSize: 14,
     color: '#666',
@@ -578,5 +571,14 @@ cardText: {
     marginTop: 4,
     marginBottom: 5,
     fontWeight: '600',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  cardText: {
+    flex: 1,
+    gap: 2,
   },
 });
