@@ -551,7 +551,7 @@ const pickImageAndStore = async () => {
             </View>
           )}
       </View> 
-
+      
       {/* Forma de la moneda (los samanes) / solo para productos tipo Samanes*/}
       <View style={tipoPublicacion !== 'Samanes' ? { display: 'none' } : null}>
         <Text style={styles.label}>Forma de los Samanes 🌳*</Text>

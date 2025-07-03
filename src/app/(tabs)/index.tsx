@@ -152,6 +152,7 @@ export default function Home() {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1 }}>
+        
         <View style={styles.searchContainer}>
           <FontAwesome name="search" size={18} color="#00318D" style={styles.searchIcon} />
           <TextInput
@@ -171,6 +172,18 @@ export default function Home() {
             }}
           />
         </View>
+
+        <TouchableOpacity onPress={() => router.push("../Ranking")} >
+
+        <View style={{top:20, left:30}}> 
+            <Ionicons name='trophy' size={20} color="#00318D"></Ionicons>
+        </View>
+
+        </TouchableOpacity>
+        
+        
+        
+
         
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {/* Sección de Patrocinios */}
@@ -219,7 +232,7 @@ export default function Home() {
               <Text style={styles.emptyText}>No hay productos disponibles</Text>
             </View>
           )}
-          <TouchableOpacity onPress={() => router.push("/Ranking")}>Ranking</TouchableOpacity>
+          
         </ScrollView>
       </SafeAreaView>
     </View>
