@@ -5,6 +5,7 @@ import { fetchResena } from '../services/ResenaServices';
 import {Usuario, Resena, Promedio} from '../interfaces/types';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { BounceIn } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Ranking() {
   const router = useRouter();
@@ -150,19 +151,6 @@ return (
   };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scrollContainer: { paddingBottom: 80 },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    borderRadius: 30,
-    marginHorizontal: 16,
-    paddingHorizontal: 15,
-    height: 45,
-    elevation: 4,
-    marginTop: 10,
-  },
   searchIcon: { marginRight: 8 },
   searchInput: { flex: 1, fontSize: 14, color: '#333' },
   categoriesWrapper: {
@@ -266,5 +254,70 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignSelf: 'flex-start',
   },
+   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+   container: {
+    flexGrow: 1,
+    padding: 30,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    
+  },title: {
+    fontSize:20, 
+    fontWeight: 'bold',
+    color: '#333',
+
+  },
+  avatarContainer: {
+    width: 150,
+    height: 150,
+    borderRadius: 100,
+    backgroundColor: '#00318D',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf:'center',
+    marginTop:30
+  },
+  avatarImage: { // <-- AÑADE ESTE ESTILO
+    width: '100%',
+    height: '100%',
+    borderRadius: 100, // Para que la imagen también sea redonda
+  },
+   name: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#333',
+    marginTop:25,
+    marginRight:10,
+    alignSelf:'center'
+  },
+  card: {
+    flexDirection:'column',
+    backgroundColor: 'gray',
+    
+
+  },
+  username: {
+    fontSize: 16,
+    color: '#666',
+    marginRight:10,
+    alignSelf:'center'
+  },
+  commentContainer: {
+    backgroundColor: '#F6F6F6',
+    padding: 8,
+    borderRadius: 5,
+    maxWidth: '90%',
+    marginTop:30
+  },
+
 });
-      
+
+

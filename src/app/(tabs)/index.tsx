@@ -172,9 +172,15 @@ export default function Home() {
             }}
           />
         </View>
+
+        <TouchableOpacity onPress={() => router.push("../Ranking")} >
+
         <View style={{top:20, left:30}}> 
             <Ionicons name='trophy' size={20} color="#00318D"></Ionicons>
         </View>
+
+        </TouchableOpacity>
+        
         
         
 
@@ -226,6 +232,7 @@ export default function Home() {
               <Text style={styles.emptyText}>No hay productos disponibles</Text>
             </View>
           )}
+          
         </ScrollView>
       </SafeAreaView>
     </View>
