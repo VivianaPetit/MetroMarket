@@ -425,7 +425,7 @@ const EditarProducto = () => {
             if (parsedProducto?.tipo === 'Producto') {
               return ['Producto'].includes(cat.tipo);
             }
-            //para servicio - Pd: por ahora solo se harcodea la categoria "Clase" para servicios, proximante mas
+            //para servicio 
             if (parsedProducto?.tipo === 'Servicio') {
               return ['Servicio'].includes(cat.tipo);
             }

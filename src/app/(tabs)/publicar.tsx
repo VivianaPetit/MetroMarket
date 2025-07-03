@@ -81,58 +81,69 @@ const validarFormulario = (): FormErrors => {
 
   if (titulo.trim().length < 3 || titulo.length > 100) {
     errores.titulo = 'El título debe tener entre 3 y 100 caracteres.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   if (descripcion.length > 500) {
     errores.descripcion = 'La descripción no debe superar los 500 caracteres.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   const precioNumerico = parseFloat(precio);
   if (isNaN(precioNumerico) || precioNumerico < 0) {
       errores.precio = 'El precio debe ser un número válido mayor o igual a 0.';
+      Alert.alert('Error', 'Por favor complete lo campos obligatorios');
     
   }
 
   const precioNumericoTasa = parseFloat(precioTasa);
   if (isNaN(precioNumericoTasa) && tipoPublicacion === 'Samanes'|| precioNumericoTasa < 0 && tipoPublicacion === 'Samanes') {
     errores.precioTasa = 'El precio de la tasa debe ser un número válido mayor o igual a 0.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   const cantidadNumerica = parseInt(cantidad);
   if (isNaN(cantidadNumerica) && tipoPublicacion === 'Producto'|| cantidadNumerica <= 0 && tipoPublicacion === 'Producto') {
     errores.cantidad = 'La cantidad debe ser un número válido mayor que 0.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   if (!categoria || categoria === '' || categoria === 'Selecciona una categoría') {
     errores.categoria = 'Debes seleccionar una categoría válida.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   const isHorarioInitial = JSON.stringify(horario) === JSON.stringify(HORARIO_INICIAL);
   if (isHorarioInitial &&  tipoPublicacion === 'Servicio') {
     errores.horarios = 'Debes seleccionar al menos un dia de disponibilidad.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   if (!metodoPago || metodoPago === '' || metodoPago === 'Selecciona un método de pago') {
     errores.metodoPago = 'Debes seleccionar un método de pago válido.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   if (!formaMoneda && tipoPublicacion === 'Samanes' || formaMoneda === '' && tipoPublicacion === 'Samanes' || formaMoneda === 'Selecciona la forma de los samanes 🌳' && tipoPublicacion === 'Samanes' ) {
     errores.formaMoneda = 'Debes seleccionar una forma de venta de los samanes válida.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   if (!estado && tipoPublicacion === 'Producto' || estado === '' && tipoPublicacion === 'Producto') {
     errores.estado = 'Debes seleccionar un estado para el producto.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   if (!modalidad && tipoPublicacion === 'Servicio'|| modalidad === '' && tipoPublicacion === 'Servicio') {
     errores.modalidad = 'Debes seleccionar un modalidad para el servicio.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
   if (images.length === 0 && tipoPublicacion !== 'Samanes') {
     errores.imagenes = 'Debes seleccionar al menos una imagen.';
+    Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   }
 
-  Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   return errores;
 };
 
@@ -613,14 +624,14 @@ const pickImageAndStore = async () => {
           .filter(cat => {
             //para producto
             if (tipoPublicacion === 'Producto') {
-              return !['Clases'].includes(cat.nombre);
+              return ['Producto'].includes(cat.tipo);
             }
-            //para servicio - Pd: por ahora solo se harcodea la categoria "Clase" para servicios, proximante mas
+            //para servicio 
             if (tipoPublicacion === 'Servicio') {
-              return ['Clases'].includes(cat.nombre);
+              return ['Servicio'].includes(cat.tipo);
             }
             if (tipoPublicacion === 'Samanes') {
-              return ['Samanes'].includes(cat.nombre);
+              return ['Samanes'].includes(cat.tipo);
             }
           })
           .map((cat) => (

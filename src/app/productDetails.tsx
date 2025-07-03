@@ -147,7 +147,7 @@ export default function ProductDetails() {
       <View style={styles.errorContainer}>
         <Ionicons name="alert-circle-outline" size={50} color="red" />
         <Text style={styles.errorText}>{error || 'Producto no encontrado.'}</Text>
-        <TouchableOpacity onPress={() => router.back()} style={styles.errorButton}>
+        <TouchableOpacity onPress={() => router.back} style={styles.errorButton}>
           <Text style={styles.errorButtonText}>Volver</Text>
         </TouchableOpacity>
       </View>
