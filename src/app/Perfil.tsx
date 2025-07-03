@@ -37,7 +37,7 @@ export default function Perfil() {
       try {
         const data = await fetchResena();
         setResenas(data);
-        setResenas2(data.filter(resena => resena.usuario && resena.resenado === user?._id && resena.transaccion));
+        setResenas2(data.filter(resena => resena.usuario && resena.resenado === user?._id));
       } catch (error) {
         console.error(error);
       }

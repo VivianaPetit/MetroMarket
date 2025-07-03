@@ -71,3 +71,8 @@ export interface Transaccions {
   mensajes: string[];
 
 }
+
+export interface Promedio {
+  _id: string,
+  promedio: number;
+}
