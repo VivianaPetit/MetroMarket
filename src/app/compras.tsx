@@ -20,6 +20,7 @@ import { Transaccions, Publicacion, Resena } from '../interfaces/types';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createResena } from '../services/ResenaServices';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 interface TransaccionConPublicacion extends Transaccions {
   monto: number,
@@ -172,10 +173,38 @@ const MisComprasScreen = () => {
       <View key={trans._id} style={styles.card}>
         <TouchableOpacity onPress={() => setTarjetaExpandida(estaExpandida ? null : trans._id)}>
           <View style={styles.cardHeader}>
+           
+            {trans.publicacionDetalle.tipo !== 'Samanes' ? (
             <Image
               source={{ uri: trans.publicacionDetalle.fotos?.[0] || 'https://via.placeholder.com/100' }}
               style={styles.image}
             />
+            ) : (
+            <View>
+              <View style={styles.currencySection}>
+                <View style={styles.currencyBadge}>
+                  <Text style={{fontSize:12}}>🌳 </Text>
+                  <Text style={styles.currencyAmount}>{trans.publicacionDetalle.precio}</Text>
+                  <Text style={styles.currencyType}>{trans.publicacionDetalle.formaMoneda}</Text>
+                </View>
+                <Text style={styles.currencyLabel}>Disponible</Text>
+              </View>
+            {/* Icono de conversión */}
+              <View style={{padding: 4, alignItems: 'center'}}>
+                <AntDesign name="arrowdown" size={20} color="#FF8C00" />
+              </View>
+            {/* Sección inferior - Bolívares */}
+              <View style={{alignItems: 'center', marginTop: 4}}>
+                <Text style={styles.currencyLabel}>Tasa</Text>
+                <View style={styles.bsBadge}>
+                  <Text style={styles.bsAmount}>{trans.publicacionDetalle.precioTasa.toLocaleString()}</Text>
+                  <Text style={{fontSize: 14,color: '#FF8C00',fontWeight: '600'}}>Bs</Text>
+                </View>
+              </View>
+            </View>
+            )}
+
+
             <View style={styles.cardText}>
               <Text style={styles.titulo}>{trans.publicacionDetalle.titulo}</Text>
               <Text style={styles.precio}>${trans.monto.toLocaleString()}</Text>
@@ -499,5 +528,55 @@ cardText: {
     color: '#444',
     marginBottom: 6,
     marginTop: 10,
+  },
+  currencySection: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  currencyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5FF',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginBottom: 4,
+  },  
+  currencyAmount: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginRight: 4,
+  },
+  currencyType: {
+    fontSize: 12,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  currencyLabel: {
+    fontSize: 10,
+    color: '#666',
+  },
+  bsBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF2E5',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 4,
+  },
+  bsAmount: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FF8C00',
+    marginRight: 4,
+  },
+  tasaText: {
+    fontSize: 12,
+    color: '#FF8C00',
+    marginTop: 4,
+    marginBottom: 5,
+    fontWeight: '600',
   },
 });

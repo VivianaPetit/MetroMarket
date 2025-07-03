@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { fetchPublicacionById, fetchPublicaciones } from '../services/publicacionService';
 
 const Review_PostShoping = () => {
   const router = useRouter();
@@ -11,6 +12,8 @@ const Review_PostShoping = () => {
     productId, 
     productName, 
     productPrice, 
+    productPriceTasa,
+    productType,
     sellerName, 
     sellerPhone, 
     purchaseDate,
@@ -20,6 +23,8 @@ const Review_PostShoping = () => {
     productId?: string; 
     productName?: string; 
     productPrice?: string; 
+    productPriceTasa?: string;
+    productType?: string;
     sellerName?: string; 
     sellerPhone?: string; 
     purchaseDate?: string;
@@ -33,9 +38,11 @@ const Review_PostShoping = () => {
     fecha: purchaseDate || new Date().toLocaleDateString(),
     producto: productName || 'Producto no especificado',
     precioUnitario: `$${parseFloat(productPrice || '0') / (parseInt(cantidad || '1') || 1)}`,
+    precioTasa: productPriceTasa,
+    productoTipo: productType,
     cantidad: cantidad || '1',
     precioTotal: `$${productPrice || '0.00'}`,
-    idTransaccion: transaccionId || 'N/A'
+    idTransaccion: transaccionId || 'N/A',
   };
 
   return (
@@ -68,9 +75,18 @@ const Review_PostShoping = () => {
           </View>
           
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Precio unitario:</Text>
+            <Text style={styles.detailLabel}>
+              {orderDetails.productoTipo === 'Samanes' ? 'Valor de venta:' : 'Precio unitario:'}
+            </Text>
             <Text style={styles.detailValue}>{orderDetails.precioUnitario}</Text>
           </View>
+          
+          {orderDetails.productoTipo === 'Samanes' && (
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Tasa vendedor:</Text>
+              <Text style={styles.detailValue}>{orderDetails.precioTasa}Bs</Text>
+          </View>
+          )}
           
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Cantidad:</Text>

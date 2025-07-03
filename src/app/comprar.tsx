@@ -18,6 +18,7 @@ import { createTransaccion } from '../services/transaccionService';
 import { useAuth } from '../context/userContext';
 import { Publicacion, Usuario } from '../interfaces/types';
 import * as Notifications from 'expo-notifications';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 // Configurar manejador de notificaciones
 Notifications.setNotificationHandler({
@@ -50,8 +51,10 @@ const Comprar: React.FC = () => {
   useEffect(() => {
     if (cantidadParam) {
       const cantidadNum = parseInt(cantidadParam, 10);
-      if (!isNaN(cantidadNum)) {
+      if (!isNaN(cantidadNum) && publicacion?.tipo == 'Producto') {
         setCantidad(cantidadNum);
+      }if (!isNaN(cantidadNum) && publicacion?.tipo !== 'Producto') {
+        setCantidad(1);
       }
     }
   }, [cantidadParam]);
@@ -109,7 +112,7 @@ const Comprar: React.FC = () => {
   };
 
   const handleConfirmarCompra = async () => {
-    if (!user || !publicacion || !vendedor || publicacion.cantidad <= 0) return;
+    if (!user || !publicacion || !vendedor || publicacion.cantidad <= 0 && publicacion.tipo === 'Producto') return;
     setProcessing(true);
     
     try {
@@ -138,8 +141,13 @@ const Comprar: React.FC = () => {
       // Enviar notificación al vendedor
       if (vendedor.expoPushToken) {
         await sendPushNotification(vendedor.expoPushToken, {
-          title: `Nueva ${publicacion.tipo === 'Producto' ? 'compra' : 'reserva'}`,
-          body: `El usuario ${user.nombre} ha realizado una ${publicacion.tipo === 'Producto' ? 'compra' : 'reserva'} de tu publicación "${publicacion.titulo}"`,
+          title: `Nueva ${publicacion.tipo === 'Producto' ? 'compra' :
+                          publicacion.tipo === 'Servicio' ? 'reserva' :
+                          'intercambio'
+                        }`,
+          body: `El usuario ${user.nombre} ha realizado una ${publicacion.tipo === 'Producto' ? 'compra' :
+                                                              publicacion.tipo === 'Servicio' ? 'reserva' :
+                                                              'intercambio'} de tu publicación "${publicacion.titulo}"`,
           data: { 
             publicacionId: publicacion._id,
             tipo: 'nueva-orden',
@@ -156,6 +164,8 @@ const Comprar: React.FC = () => {
           productId: publicacion._id,
           productName: publicacion.titulo,
           productPrice: montoTotal.toString(),
+          productPriceTasa: publicacion.precioTasa,
+          productType: publicacion.tipo,
           sellerName: vendedor.nombre,
           sellerPhone: vendedor.telefono,
           purchaseDate: new Date().toLocaleDateString(), 
@@ -219,19 +229,52 @@ const Comprar: React.FC = () => {
       </View>
 
       <View style={styles.card}>
-        <Image
-          source={{ uri: publicacion.fotos?.[0] || 'https://via.placeholder.com/150' }}
-          style={styles.image}
-        />
+        {/* revisar */}
+        <View style={publicacion.tipo === 'Samanes' ? { display: 'none' } : null}>
+          <Image
+            source={{ uri: publicacion.fotos?.[0] || 'https://via.placeholder.com/150' }}
+            style={styles.image}
+          />
+        </View>
+        {/* visualizacion de precio y precioTasa para Samanes */}
+
+        <View style={publicacion.tipo !== 'Samanes' ? { display: 'none' } : null}>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:4}}>
+            <Text style={{ fontSize: 25, fontWeight: 'bold'}}>🌳</Text>
+            <Text style={styles.chip}>{publicacion.precio}</Text>     
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom:25}}>
+            <Text style={styles.chip2}>{publicacion.formaMoneda}</Text> 
+          </View>
+          <View style={{alignContent: 'center', justifyContent: 'center', alignItems: 'center'}}> 
+            <AntDesign name="retweet" size={50} color="#FF8C00"/>
+          </View>
+          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:25}}>
+            <Text style={styles.chip}>{publicacion.precioTasa}</Text>
+            <Text style={{ fontSize: 25, fontWeight: 'bold'}}>Bs</Text>          
+          </View>
+        </View>
+        
+
         <View>
           <Text style={styles.productTitle}>{publicacion.titulo}</Text>
+          {publicacion.tipo === 'Samanes' && (
+            <Text style={styles.tasaText}>Tasa vendedor: {publicacion.precioTasa.toFixed(2)} Bs</Text>
+          )}
           <View style={styles.separador} />
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Precio unitario </Text>
+
+            <Text style={styles.detailLabel}> 
+              {publicacion.tipo === 'Samanes' ? 'Valor de venta' : 'Precio unitario'}
+            </Text>
             <Text style={styles.detailValue}>${publicacion.precio.toFixed(2)}</Text>
           </View>
+          
+
           <View style={styles.detailRow}>
-            <Text style={styles.detailLabel}>Cantidad seleccionada </Text>
+            <Text style={styles.detailLabel}>
+              {publicacion.tipo === 'Producto' ? 'Cantidad seleccionada' : 'Cantidad'}
+            </Text>
             <Text style={styles.detailValue}>{cantidad}</Text>
           </View>
 
@@ -249,15 +292,19 @@ const Comprar: React.FC = () => {
       <TouchableOpacity
         style={[
           styles.confirmButton,
-          publicacion.cantidad <= 0 || processing ? styles.confirmButtonDisabled : null,
+          publicacion.cantidad <= 0 && publicacion.tipo === 'Producto' || processing ? styles.confirmButtonDisabled : null,
         ]}
-        disabled={publicacion.cantidad <= 0 || processing}
+        disabled={publicacion.cantidad <= 0 && publicacion.tipo === 'Producto' || processing}
         onPress={handleConfirmarCompra}
       >
         {processing ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.confirmText}>{publicacion.tipo === 'Producto' ? 'Confirmar compra' : 'Confirmar reserva'}</Text>
+          <Text style={styles.confirmText}>
+            {publicacion.tipo === 'Producto' ? 'Confirmar compra' :
+             publicacion.tipo === 'Servicio' ? 'Confirmar reserva' :
+             'Confirmar intercambio'
+             }</Text>
         )}
       </TouchableOpacity>
     </ScrollView>
@@ -368,6 +415,35 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#ddd',
     marginVertical: 10,
+  },
+  chip: {
+    borderWidth: 1,
+    borderColor: '#FF8C00',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginTop: 4,
+    borderRadius: 100,
+    width: 150,
+    padding: 12,
+    fontSize: 19,
+    textAlign: 'center',
+  },  
+  chip2: {
+    backgroundColor: '#d5edfc',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 20,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#29a5f5',
+    textTransform: 'capitalize',
+  },
+  tasaText: {
+    fontSize: 12,
+    color: '#FF8C00',
+    marginTop: 4,
+    fontWeight: '600',
   },
 });
 

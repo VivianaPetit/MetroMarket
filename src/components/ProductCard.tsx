@@ -70,6 +70,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {/* Sección superior - Moneda extranjera */}
           <View style={styles.currencySection}>
             <View style={styles.currencyBadge}>
+              <Text>🌳 </Text>
               <Text style={styles.currencyAmount}>{price}</Text>
               <Text style={styles.currencyType}>{formCoin}</Text>
             </View>
@@ -83,12 +84,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
           
           {/* Sección inferior - Bolívares */}
           <View style={styles.bsSection}>
-            <Text style={styles.bsLabel}>Recibirás</Text>
+            <Text style={styles.bsLabel}>Tasa</Text>
             <View style={styles.bsBadge}>
               <Text style={styles.bsAmount}>{priceTasa.toLocaleString()}</Text>
               <Text style={styles.bsType}>Bs</Text>
             </View>
-            <Text style={styles.tasaText}>Tasa: {(priceTasa/price).toFixed(2)} Bs/{formCoin}</Text>
           </View>
         </View>
       )}
@@ -96,8 +96,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
       {/* Información común */}
       <View style={styles.infoContainer}>
         <Text style={styles.productName} numberOfLines={2}>{name}</Text>
-        
-        {tipo !== 'Samanes' && (
+        {tipo === 'Samanes' ? (
+          <Text style={styles.tasaText}>Monto: {(priceTasa*price).toFixed(2)} Bs</Text>
+        ) : (
           <Text style={styles.priceText}>${price.toFixed(2)}</Text>
         )}
         
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
   },
   samanesContainer: {
     padding: 16,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: '#fcfcfc',
     alignItems: 'center',
   },
   currencySection: {
@@ -217,6 +218,7 @@ const styles = StyleSheet.create({
     color: '#FF8C00',
     marginTop: 4,
     fontWeight: '600',
+    marginBottom: 8
   },
   conversionIcon: {
     padding: 8,

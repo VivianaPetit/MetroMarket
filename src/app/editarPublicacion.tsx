@@ -90,7 +90,7 @@ const EditarProducto = () => {
     return
   }
   const cantidadNumerica = parseInt(cantidad);
-  if (isNaN(cantidadNumerica) && parsedProducto?.tipo !== 'Samanes'|| cantidadNumerica <= 0 && parsedProducto?.tipo !== 'Samanes') {
+  if (isNaN(cantidadNumerica) && parsedProducto?.tipo === 'Producto'|| cantidadNumerica <= 0 && parsedProducto?.tipo === 'Producto') {
     Alert.alert('Error','La cantidad debe ser un número válido mayor que 0.');
     return    
   }
@@ -252,11 +252,10 @@ const EditarProducto = () => {
         </View>
       </View>
 
-      {/* De aqui hasta la forma de disponibilidad es solamente para publicaciones de tipo producto o servicio*/}
-      <View style={parsedProducto?.tipo === 'Samanes' ? { display: 'none' } : null}>
-        {/* Cantidad (no aplica para samanes) */}
+      {/* Cantidad (no aplica para samanes ni servicio) */}
+       <View style={parsedProducto?.tipo !== 'Producto' ? { display: 'none' } : null}> 
         <Text style={styles.label}>
-          {parsedProducto?.tipo === 'Producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
+          Cantidad de productos*
         </Text>
         <TextInput
           style={styles.input}
@@ -264,6 +263,10 @@ const EditarProducto = () => {
           value={cantidad}
           onChangeText={setCantidad}
         />
+      </View>  
+
+      {/* De aqui hasta la forma de disponibilidad es solamente para publicaciones de tipo producto o servicio*/}
+      <View style={parsedProducto?.tipo === 'Samanes' ? { display: 'none' } : null}>
 
       {/* Estado del producto (no aplica para servicios, ni samanes) || Modalidad del servicio (no aplica para producto, ni samanes) */}
       <Text style={styles.label}>

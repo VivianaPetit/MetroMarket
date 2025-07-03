@@ -10,7 +10,7 @@ export const fetchPublicacionById = async (pubId: string): Promise<Publicacion> 
     console.log(response)
     return response.data;
   } catch (error) {
-    console.error('Error fetching usuario by ID:', error);
+    console.error('Error fetching publicacion(s) by ID:', error);
     throw error;
   }
 };

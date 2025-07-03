@@ -189,9 +189,9 @@ export default function ProductDetails() {
           onPress={() => router.back()}
           style={styles.backButton}
         >
-        <Ionicons name="arrow-back" size={24} color="#00318D" />
-          </TouchableOpacity> 
-        </SafeAreaView>
+          <Ionicons name="arrow-back" size={24} color="#00318D" />
+        </TouchableOpacity> 
+      </SafeAreaView>
 
     <View style={{ marginTop: 20 }}>
       <Text style={styles.NolinkText}> Ver más productos de la categoría{' '}<Text style={styles.linkText} onPress={() => router.push({
@@ -262,6 +262,21 @@ export default function ProductDetails() {
         <Text style={styles.sectionLabel}>Descripción</Text>
         <Text style={styles.descriptionText}>{product.descripcion}</Text>
 
+        {/* Disponbilidad del servicio */}
+        {product.tipo !== 'Producto' && (
+          <View>
+            {product.disponible === true ? (
+              <Text style={styles.badge2}>
+                Disponible
+              </Text>
+            ) : (
+              <Text style={styles.badge3}>
+                No disponible
+              </Text>
+            )}
+          </View>
+        )} 
+
         {/* visualizacion de precio y precioTasa para Samanes */}
         <View style={product.tipo !== 'Samanes' ? { display: 'none' } : null}>
           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:4}}>
@@ -278,7 +293,9 @@ export default function ProductDetails() {
             <Text style={styles.chip}>{product.precioTasa}</Text>
             <Text style={{ fontSize: 25, fontWeight: 'bold'}}>Bs</Text>          
           </View>
+          <Text style={styles.tasaText}>Tasa: {(product.precioTasa*product.precio).toFixed(2)} Bs/{product.formaMoneda}</Text>
         </View>
+        
 
         {/* visualizacion cantidad para producto*/}
         {product.tipo === 'Producto' && (
@@ -323,14 +340,6 @@ export default function ProductDetails() {
               </TouchableOpacity>
             </View>
           </>
-        )}
-        
-        {/* visualizacion cantidad para servicio */}
-        {product.tipo === 'Servicio' && (
-          <View>
-            <Text style={styles.sectionLabel}>Cupos disponibles</Text>
-            <Text style={styles.detailText}>{product.cantidad}</Text>
-          </View>
         )}
 
         {/* visualizacion Estado(para producto) || modalidad(para servicio) */}
@@ -580,6 +589,30 @@ rightArrow: {
     marginRight: 5,
     marginBottom: 8
   },
+    badge2: {
+    backgroundColor: '#deffdf',
+    color: '#008d20',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontSize: 14,
+    fontWeight: '500',
+    alignSelf: 'flex-start',
+    marginRight: 5,
+    marginBottom: 8
+  },
+  badge3: {
+    backgroundColor: '#ffe0de',
+    color: '#8d0000',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontSize: 14,
+    fontWeight: '500',
+    alignSelf: 'flex-start',
+    marginRight: 5,
+    marginBottom: 8
+  },
   linkText: {
     color: '#F68628',
     fontWeight: '600',
@@ -721,5 +754,11 @@ cantidadInput: {
     fontWeight: '600',
     color: '#29a5f5',
     textTransform: 'capitalize',
+  },
+  tasaText: {
+    fontSize: 12,
+    color: '#FF8C00',
+    marginTop: 4,
+    fontWeight: '600',
   },
 });

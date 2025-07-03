@@ -135,7 +135,7 @@ export const buscarUsuarioPorCorreo = async (correo: string): Promise<Usuario> =
     const response = await axios.get<Usuario>(`${usuariosURL}/buscarPorCorreo/${encodeURIComponent(correo)}`);
     return response.data;
   } catch (error) {
-    console.error('No se encontró ese correo en la bdd:', error);
+    // console.error('No se encontró ese correo en la bdd:', error);
     throw error;
   }
 };

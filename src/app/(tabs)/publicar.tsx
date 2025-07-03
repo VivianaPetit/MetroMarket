@@ -36,7 +36,7 @@ const CreatePublication = () => {
   const [tipo, setTipo] = useState('');
   const [precio, setPrecio] = useState('');
   const [precioTasa, setPrecioTasa] = useState('');
-  const [cantidad, setCantidad] = useState('1');
+  const [cantidad, setCantidad] = useState('');
   const [estado, setEstado] = useState('');
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
@@ -99,7 +99,7 @@ const validarFormulario = (): FormErrors => {
   }
 
   const cantidadNumerica = parseInt(cantidad);
-  if (isNaN(cantidadNumerica) && tipoPublicacion !== 'Samanes'|| cantidadNumerica <= 0 && tipoPublicacion !== 'Samanes') {
+  if (isNaN(cantidadNumerica) && tipoPublicacion === 'Producto'|| cantidadNumerica <= 0 && tipoPublicacion === 'Producto') {
     errores.cantidad = 'La cantidad debe ser un número válido mayor que 0.';
   }
 
@@ -132,6 +132,7 @@ const validarFormulario = (): FormErrors => {
     errores.imagenes = 'Debes seleccionar al menos una imagen.';
   }
 
+  Alert.alert('Error', 'Por favor complete lo campos obligatorios');
   return errores;
 };
 
@@ -219,7 +220,7 @@ if (Object.keys(errores).length > 0) {
     setDescripcion('');
     setPrecio('');
     setPrecioTasa('');
-    setCantidad('1');
+    setCantidad('');
     setEstado('');
     setModalidad('');
     setLugarEntrega('');
@@ -437,14 +438,10 @@ const pickImageAndStore = async () => {
         {errors.precioTasa && <Text style={styles.errorText}>{errors.precioTasa}</Text>}
       </View>
       
-
-
-      {/* De aqui hasta la forma de metodo de pago es solamente para publicaciones de tipo producto o servicio*/}
-      <View style={tipoPublicacion === 'Samanes' ? { display: 'none' } : null}> 
-        
-        {/* Cantidad (no aplica para samanes)*/}
+      {/* Cantidad (no aplica para samanes ni servicios)*/}
+      <View style={tipoPublicacion !== 'Producto' ? { display: 'none' } : null}> 
         <Text style={styles.label}>
-          {tipoPublicacion === 'Producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
+          Cantidad de productos*
         </Text>
           <TextInput
             style={styles.input}
@@ -454,6 +451,10 @@ const pickImageAndStore = async () => {
             editable={!loading}
           />
         {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}  
+      </View>
+
+      {/* De aqui hasta la forma de metodo de pago es solamente para publicaciones de tipo producto o servicio*/}
+      <View style={tipoPublicacion === 'Samanes' ? { display: 'none' } : null}> 
 
         {/* Estado del producto (no aplica para servicios, ni samanes) || Modalidad del servicio (no aplica para producto, ni samanes) */}
         <Text style={styles.label}>
