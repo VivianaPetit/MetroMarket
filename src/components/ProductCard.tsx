@@ -54,33 +54,43 @@ const ProductCard: React.FC<ProductCardProps> = ({
           )}
         </View>
       ) : (
-      <View>
-        {onEdit && (
-          <TouchableOpacity 
-            style={styles.editButton} 
-            onPress={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-          >
-            <Ionicons name="pencil" size={16} color="white" />
-          </TouchableOpacity>
-        )}
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:16, marginBottom:4}}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold'}}>🌳</Text>
-          <Text style={styles.chip}>{price}</Text>     
+        <View style={styles.samanesContainer}>
+          {onEdit && (
+            <TouchableOpacity 
+              style={styles.editButton} 
+              onPress={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+            >
+              <Ionicons name="pencil" size={16} color="white" />
+            </TouchableOpacity>
+          )}
+          
+          {/* Sección superior - Moneda extranjera */}
+          <View style={styles.currencySection}>
+            <View style={styles.currencyBadge}>
+              <Text style={styles.currencyAmount}>{price}</Text>
+              <Text style={styles.currencyType}>{formCoin}</Text>
+            </View>
+            <Text style={styles.currencyLabel}>Disponible</Text>
+          </View>
+          
+          {/* Icono de conversión */}
+          <View style={styles.conversionIcon}>
+            <AntDesign name="arrowdown" size={24} color="#FF8C00" />
+          </View>
+          
+          {/* Sección inferior - Bolívares */}
+          <View style={styles.bsSection}>
+            <Text style={styles.bsLabel}>Recibirás</Text>
+            <View style={styles.bsBadge}>
+              <Text style={styles.bsAmount}>{priceTasa.toLocaleString()}</Text>
+              <Text style={styles.bsType}>Bs</Text>
+            </View>
+            <Text style={styles.tasaText}>Tasa: {(priceTasa/price).toFixed(2)} Bs/{formCoin}</Text>
+          </View>
         </View>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom:16}}>
-          <Text style={styles.chip2}>{formCoin}</Text> 
-        </View>
-        <View style={{alignContent: 'center', justifyContent: 'center', alignItems: 'center'}}> 
-          <AntDesign name="retweet" size={28} color="#FF8C00"/>
-        </View>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:16, marginBottom:6}}>
-          <Text style={styles.chip}>{priceTasa}</Text>
-          <Text style={{ fontSize: 18, fontWeight: 'bold'}}>Bs</Text>          
-        </View>
-      </View>
       )}
       
       {/* Información común */}
@@ -230,7 +240,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     color: '#333',
-    marginBottom: 6,
+    marginBottom: 8,
     height: 40,
     lineHeight: 20,
   },
@@ -296,30 +306,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginLeft: 4,
-  },
-  chip: {
-    borderWidth: 1,
-    borderColor: '#FF8C00',
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    marginRight: 8,
-    marginTop: 4,
-    borderRadius: 100,
-    maxWidth: '80%',
-    minWidth: '50%',
-    padding: 12,
-    fontSize: 14,
-    textAlign: 'center',
-  },  
-  chip2: {
-    backgroundColor: '#d5edfc',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 20,
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#29a5f5',
-    textTransform: 'capitalize',
   },
 });
 
