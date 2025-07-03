@@ -29,7 +29,7 @@ router.get('/:userId', async (req, res) => {
 
 router.patch('/:userId', async (req, res) => {
   const { userId } = req.params;
-  const { nombre, telefono, foto, expoPushToken } = req.body;
+  const { nombre, telefono, foto } = req.body;
 
   try {
     const usuario = await Usuario.findById(userId);
@@ -40,7 +40,6 @@ router.patch('/:userId', async (req, res) => {
     if (nombre !== undefined) usuario.nombre = nombre;
     if (telefono !== undefined) usuario.telefono = telefono;
     if (foto !== undefined) usuario.foto = foto;
-    if (expoPushToken) usuario.expoPushToken = expoPushToken;
 
     await usuario.save();
     res.json(usuario);

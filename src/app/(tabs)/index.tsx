@@ -226,7 +226,6 @@ export default function Home() {
               <Text style={styles.emptyText}>No hay productos disponibles</Text>
             </View>
           )}
-          <TouchableOpacity onPress={() => router.push("/Ranking")}>Ranking</TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     </View>

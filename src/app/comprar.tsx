@@ -136,8 +136,8 @@ const Comprar: React.FC = () => {
       await refrescarUsuario();
 
       // Enviar notificación al vendedor
-      if (vendedor.expoPushToken) {
-        await sendPushNotification(vendedor.expoPushToken, {
+      if (user.expoPushToken) {
+        await sendPushNotification(user.expoPushToken, {
           title: `Nueva ${publicacion.tipo === 'Producto' ? 'compra' : 'reserva'}`,
           body: `El usuario ${user.nombre} ha realizado una ${publicacion.tipo === 'Producto' ? 'compra' : 'reserva'} de tu publicación "${publicacion.titulo}"`,
           data: { 
@@ -263,6 +263,36 @@ const Comprar: React.FC = () => {
     </ScrollView>
   );
 };
+
+// Función para registrar el dispositivo para notificaciones (debe usarse al iniciar sesión)
+async function registerForPushNotificationsAsync() {
+  let token;
+  
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+  
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+  
+  if (finalStatus !== 'granted') {
+    alert('Failed to get push token for push notification!');
+    return;
+  }
+  
+  token = (await Notifications.getExpoPushTokenAsync()).data;
+  return token;
+}
 
 const styles = StyleSheet.create({
   container: {
