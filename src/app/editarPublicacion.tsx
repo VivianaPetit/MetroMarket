@@ -423,14 +423,14 @@ const EditarProducto = () => {
           .filter(cat => {
             //para producto
             if (parsedProducto?.tipo === 'Producto') {
-              return !['Clases'].includes(cat.nombre);
+              return ['Producto'].includes(cat.tipo);
             }
             //para servicio - Pd: por ahora solo se harcodea la categoria "Clase" para servicios, proximante mas
             if (parsedProducto?.tipo === 'Servicio') {
-              return ['Clases'].includes(cat.nombre);
+              return ['Servicio'].includes(cat.tipo);
             }
             if (parsedProducto?.tipo === 'Samanes') {
-              return ['Samanes'].includes(cat.nombre);
+              return ['Samanes'].includes(cat.tipo);
             }
           })
           .map((cat) => (
