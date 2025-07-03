@@ -22,8 +22,12 @@ export default function CategoryPage() {
     const loadProducts = async () => {
       try {
         const allProducts = await fetchPublicaciones();
-        const filtered = allProducts.filter(p => p.categoria === categoryName);
-        setProducts(filtered);
+        if(categoryName === 'Todo'){
+          setProducts(allProducts);
+        }else{
+          const filtered = allProducts.filter(p => p.categoria === categoryName);
+          setProducts(filtered);
+        }
       } catch (error) {
         console.error("Error loading products:", error);
       } finally {

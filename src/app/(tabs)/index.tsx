@@ -205,6 +205,12 @@ export default function Home() {
           </View>
           
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesWrapper}>
+            <CategoryBadge
+                label={'Todo'}
+                imageSource={'https://cdn-icons-png.flaticon.com/512/262/262045.png'}
+                isSelected={false}
+                onPress={() => handleCategoryPress('Todo')}
+              />
             {(showAllCategories ? categorias : categorias.slice(0, 8)).map((cat) => (
               <CategoryBadge
                 key={cat._id}
@@ -252,6 +258,7 @@ const styles = StyleSheet.create({
   categoriesWrapper: {
     marginTop: 12,
     paddingLeft: 16,
+    paddingRight: 160,
   },
   emptyContainer: {
     alignItems: 'center',
