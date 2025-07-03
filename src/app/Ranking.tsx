@@ -5,7 +5,7 @@ import { fetchResena } from '../services/ResenaServices';
 import {Usuario, Resena, Promedio} from '../interfaces/types';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { BounceIn } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Octicons } from '@expo/vector-icons';
 
 export default function Ranking() {
   const router = useRouter();
@@ -84,7 +84,7 @@ export default function Ranking() {
     promedio(bup)
    });
     var a = 0
-   console.log(promedios)
+   //console.log(promedios)
    const agregar = promedios.slice(1).map((bup) => {
      if (bup.promedio > promedios[a].promedio && a <= promedios.length-1){
        const encontrar3 = elegidos.filter(pub => pub._id === bup._id) 
@@ -106,7 +106,7 @@ export default function Ranking() {
    setPermiso(false)
     setElegidos([])
    setPromedios([])
-   console.log(best_sellers)
+   //console.log(best_sellers)
   }
  }
 
@@ -131,36 +131,40 @@ export default function Ranking() {
 
 return (
 <View style={styles.container}>
-     <ScrollView/>
-    <View style={{flexDirection:'row',gap:15,alignItems:'center'}}>
-      <TouchableOpacity onPress={() => router.push('/menu')} >
-          <Ionicons name="arrow-back" size={24} color="#00318D" />
-    ` </TouchableOpacity>
-    <View ><Text style={styles.title}>RANKING BEST SELLER</Text></View>
-    </View>
-
-    <View>
-      <View style={styles.avatarContainer}>
-        <Image source={{ uri: best_sellers[0]?.foto }} style={styles.avatarImage} /> 
-        <Ionicons name='ribbon' size={60} style={{bottom:10}} ></Ionicons>
-      </View>
-      <Text style={styles.name}>{best_sellers[0]?.nombre}</Text> 
-      <Text style={styles.username}>{best_sellers[0]?.correo}</Text>
-      <Text style={styles.username}>{best_sellers[0]?.telefono}</Text> 
-
-      
-        {best_sellers.slice(1,best_sellers.length-1).map((pub) => (
-            <View style={styles.commentContainer}>
-                <Text>
-                  {pub.nombre}
-                </Text>
-             <Text>{pub.telefono}</Text>
-             <Text>{pub.correo}</Text>
-            </View>
-              ))}
-             <TouchableOpacity onPress={clasificacion} style={styles.backButton}>Ver vendedores del mes</TouchableOpacity>
-            </View>
+    <ScrollView>
+      <View style={{flexDirection:'row',gap:15,alignItems:'center'}}>
+        <TouchableOpacity onPress={() => router.back()} >
+            <Ionicons name="arrow-back" size={24} color="#00318D" />
+        </TouchableOpacity>
+        <View>
+          <Text style={styles.title}>RANKING BEST SELLER</Text>
         </View>
+      </View>
+
+      <View>
+        <View style={styles.avatarContainer}>
+          <Octicons name="person" size={100} style={{top:120, color:'#F6F6F6'}}/>
+          <Image source={{ uri: best_sellers[0]?.foto }} style={styles.avatarImage} /> 
+          <Ionicons name='ribbon' size={60} style={{bottom:60, color:'#FF8C00'}}/>
+        </View>
+        <Text style={styles.name}>{best_sellers[0]?.nombre}</Text> 
+        <Text style={styles.username}>{best_sellers[0]?.correo}</Text>
+        <Text style={styles.username}>{best_sellers[0]?.telefono}</Text> 
+
+        {best_sellers.slice(1,best_sellers.length-1).map((pub) => (
+          <View style={styles.commentContainer}>
+            <Text>{pub.nombre}</Text>
+            <Text>{pub.telefono}</Text>
+            <Text>{pub.correo}</Text>
+          </View>
+        ))}
+        <TouchableOpacity onPress={clasificacion} style={styles.backButton}>
+          <Text style={{color: '#fff'}}>Ver vendedores del mes</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  </View>
+    
     );
   };
 
@@ -267,6 +271,12 @@ const styles = StyleSheet.create({
   backButton: {
     marginBottom: 10,
     alignSelf: 'flex-start',
+    backgroundColor: '#00318D',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+    width: '100%',
   },
    header: {
     flexDirection: 'row',
@@ -297,11 +307,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf:'center',
-    marginTop:30
+    marginTop:30,
+    marginBottom: 15,
   },
   avatarImage: { // <-- AÑADE ESTE ESTILO
-    width: '100%',
-    height: '100%',
+    width: '90%',
+    height: '90%',
+    marginBottom: 40,
     borderRadius: 100, // Para que la imagen también sea redonda
   },
    name: {

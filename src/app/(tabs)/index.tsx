@@ -171,16 +171,15 @@ export default function Home() {
             }}
           />
         </View>
-        
-        <TouchableOpacity onPress={() => router.push("../Ranking")} >
-
-        <View style={{top:20, left:30}}> 
-            <Ionicons name='trophy' size={20} color="#00318D"></Ionicons>
-        </View>
-
-        </TouchableOpacity>
 
         <ScrollView contentContainerStyle={styles.scrollContainer}>
+          {/* Ranking */}
+        <TouchableOpacity onPress={() => router.push("../Ranking")} >
+          <View style={{top:20, left:20, flexDirection: 'row', alignItems:'center', width: '90%', padding: 10}}> 
+              <Ionicons name='trophy' size={25} color="#00318D"/>
+              <Text style={styles.seeAllText}>Ranking</Text>
+          </View>
+        </TouchableOpacity>
           {/* Sección de Patrocinios */}
           {sponsoredPosts.length > 0 && (
             <View style={styles.sponsoredSection}>
