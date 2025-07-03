@@ -132,7 +132,7 @@ const Review_PostShoping = () => {
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.button} 
+          style={styles.button2} 
           onPress={() => handleContactarVendedor(orderDetails.idTransaccion)}
         >
           <Text style={styles.buttonText}>Ir al chat</Text>
@@ -264,7 +264,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
-    marginTop: 8,
+    marginTop: 12,
   },
   buttonText: {
     color: '#fff',
