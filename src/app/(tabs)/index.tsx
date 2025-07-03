@@ -172,7 +172,7 @@ export default function Home() {
             }}
           />
         </View>
-        <View style={{top:20, left:30}}> /Arreglar esto, es solo mientras
+        <View style={{top:20, left:30}}> 
             <Ionicons name='trophy' size={20} color="#00318D"></Ionicons>
         </View>
         
