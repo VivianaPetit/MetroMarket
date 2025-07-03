@@ -17,8 +17,8 @@ export default function Ranking() {
   const [promedios, setPromedios] = useState<Promedio[]>([]);
   const [listados, setlistados] = useState<string[]>([]);
   const [best_sellers, setBest_sellers] = useState<Usuario[]>([]);
-  const  [valor, setValor] = useState(0);
-  const  [valor2, setValor2] = useState(0);
+  const  [valor, setValor] = useState<number>(0);
+  var  valor2  = 0;
     const [permiso, setPermiso] = useState(true);
 
      useEffect(() => {
@@ -43,13 +43,13 @@ export default function Ranking() {
    const usuario_resenas = resenas.filter(pub => pub.resenado === id)
    if (usuario_resenas.length >= 1){ 
    const calculo = usuario_resenas.map((pub) => {
-      setValor2(valor2+ pub.calificacion)
+      valor2 = valor2+ pub.calificacion
    });
    if (valor2 >= valor){
     setValor(valor2)
     listados.push(id)
    } 
-   setValor2(0)
+   valor2 = 0
    }
  }
   
@@ -83,14 +83,26 @@ export default function Ranking() {
    const quitar_primero = categorias.map((bup) => {
     promedio(bup)
    });
+   var a = 1
    const agregar = promedios.map((bup) => {
-     console.log("a")
-     const encontrar = categorias.filter(pub => pub._id === bup._id)
+     if (bup.promedio < promedios[a].promedio && a <= promedios.length-1){ 
+     const encontrar = categorias.filter(pub => pub._id ===  promedios[a]._id)
+     console.log(encontrar)
      elegidos.push(encontrar[0])
+     const encontrar2 = categorias.filter(pub => pub._id === bup._id)
+     elegidos.push(encontrar2[0])
+     }else{ 
+       const encontrar = elegidos.filter(pub => pub._id === bup._id)
+       if (encontrar.length <= 0){
+             const encontrar = categorias.filter(pub => pub._id === bup._id)
+             elegidos.push(encontrar[0])
+       }
+     }
    });
+   
    setBest_sellers(elegidos)
    setPermiso(false)
-   console.log(best_sellers)
+   console.log(promedios)
   }
  }
 
@@ -98,62 +110,22 @@ export default function Ranking() {
    const usuario_resenas = resenas.filter(pub => pub.resenado === ususario._id)
    if (usuario_resenas.length >= 1){ 
    const calculo = usuario_resenas.map((pub) => {
-     let a = valor2 + pub.calificacion
-      setValor2(a)
+     valor2 = valor2 + pub.calificacion
+      //console.log(valor2)
    });
-   setValor2(valor2/usuario_resenas.length)
-   if (valor2 >= valor){
+   valor2 = valor2/usuario_resenas.length
+   console.log(valor2)
     setValor(valor2)
    const  promeidito = {
     _id: ususario._id,
-    promedio: valor2
-    }
+    promedio: valor2 }
     promedios.push(promeidito)
    } 
    }
- }
+
 
 return (
-  
-  <View style={styles.container}>
-  <ScrollView >
-    <View style={{flexDirection:'row',gap:15,alignItems:'center'}}>
-      <TouchableOpacity onPress={() => router.push('/menu')} >
-          <Ionicons name="arrow-back" size={24} color="#00318D" />
-    ` </TouchableOpacity>
-    <View ><Text style={styles.title}>RANKING BEST SELLER</Text></View>
-    </View>
-
-    <View>
-      <View style={styles.avatarContainer}>
-        <Image source={{ uri: vendedor?.foto }} style={styles.avatarImage} /> //*Aqui va la foto de solo el primer lugar
-        <Ionicons name='ribbon' size={60} style={{bottom:10}} ></Ionicons>
-      </View>
-      <Text style={styles.name}>PEPITA LUISA</Text> //*AQUI VA NOMBRE DEL PRIMER LUGAR
-      <Text style={styles.username}>samantha.rojas@correo.unimet.edu.ve</Text>//*AQUI VA correo
-      <Text style={styles.username}>04125678903</Text> //*AQUI VA telefono
-
-      
-        {best_sellers.map((pub) => (
-            <View style={styles.commentContainer}>
-                <Text>
-                  {pub.nombre}
-                </Text>
-             <Text>{pub.telefono}</Text>
-             <Text>{pub.correo}</Text>
-            </View>
-              ))}
-      
-      
-
-
-    </View>
-
-  </ScrollView>
-  </View>
-)
-
-      /*<ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.horizontalScroll}>
             <View style={styles.productCardWrapper}>
              <Text>Vendedor del mes</Text>
@@ -179,19 +151,6 @@ return (
   };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scrollContainer: { paddingBottom: 80 },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8f9fa',
-    borderRadius: 30,
-    marginHorizontal: 16,
-    paddingHorizontal: 15,
-    height: 45,
-    elevation: 4,
-    marginTop: 10,
-  },
   searchIcon: { marginRight: 8 },
   searchInput: { flex: 1, fontSize: 14, color: '#333' },
   categoriesWrapper: {

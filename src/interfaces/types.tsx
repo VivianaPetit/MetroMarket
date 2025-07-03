@@ -68,5 +68,9 @@ export interface Transaccions {
   metodoPago: string;
   entregado: boolean[];
   mensajes: string[];
+}
 
+export interface Promedio {
+  _id: string,
+  promedio: number;
 }
