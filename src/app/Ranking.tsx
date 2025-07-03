@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+/*import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter} from 'expo-router';
 import { fetchUsuarios } from '../services/usuarioService';
 import { fetchResena } from '../services/ResenaServices';
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
 });
 
-*/}
+
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
@@ -363,4 +363,4 @@ const styles = StyleSheet.create({
     marginTop:30
   },
 
-}) 
+}) */
