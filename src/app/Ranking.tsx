@@ -5,6 +5,7 @@ import { fetchResena } from '../services/ResenaServices';
 import {Usuario, Resena, Promedio} from '../interfaces/types';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { BounceIn } from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function Ranking() {
   const router = useRouter();
@@ -113,7 +114,46 @@ export default function Ranking() {
  }
 
 return (
-      <ScrollView contentContainerStyle={styles.container}>
+  
+  <View style={styles.container}>
+  <ScrollView >
+    <View style={{flexDirection:'row',gap:15,alignItems:'center'}}>
+      <TouchableOpacity onPress={() => router.push('/menu')} >
+          <Ionicons name="arrow-back" size={24} color="#00318D" />
+    ` </TouchableOpacity>
+    <View ><Text style={styles.title}>RANKING BEST SELLER</Text></View>
+    </View>
+
+    <View>
+      <View style={styles.avatarContainer}>
+        <Image source={{ uri: vendedor?.foto }} style={styles.avatarImage} /> //*Aqui va la foto de solo el primer lugar
+        <Ionicons name='ribbon' size={60} style={{bottom:10}} ></Ionicons>
+      </View>
+      <Text style={styles.name}>PEPITA LUISA</Text> //*AQUI VA NOMBRE DEL PRIMER LUGAR
+      <Text style={styles.username}>samantha.rojas@correo.unimet.edu.ve</Text>//*AQUI VA correo
+      <Text style={styles.username}>04125678903</Text> //*AQUI VA telefono
+
+      
+        {best_sellers.map((pub) => (
+            <View style={styles.commentContainer}>
+                <Text>
+                  {pub.nombre}
+                </Text>
+             <Text>{pub.telefono}</Text>
+             <Text>{pub.correo}</Text>
+            </View>
+              ))}
+      
+      
+
+
+    </View>
+
+  </ScrollView>
+  </View>
+)
+
+      /*<ScrollView contentContainerStyle={styles.container}>
         <View style={styles.horizontalScroll}>
             <View style={styles.productCardWrapper}>
              <Text>Vendedor del mes</Text>
@@ -256,4 +296,71 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
 });
-      
+
+*/}
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+   container: {
+    flexGrow: 1,
+    padding: 30,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    
+  },title: {
+    fontSize:20, 
+    fontWeight: 'bold',
+    color: '#333',
+
+  },
+  avatarContainer: {
+    width: 150,
+    height: 150,
+    borderRadius: 100,
+    backgroundColor: '#00318D',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf:'center',
+    marginTop:30
+  },
+  avatarImage: { // <-- AÑADE ESTE ESTILO
+    width: '100%',
+    height: '100%',
+    borderRadius: 100, // Para que la imagen también sea redonda
+  },
+   name: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#333',
+    marginTop:25,
+    marginRight:10,
+    alignSelf:'center'
+  },
+  card: {
+    flexDirection:'column',
+    backgroundColor: 'gray',
+    
+
+  },
+  username: {
+    fontSize: 16,
+    color: '#666',
+    marginRight:10,
+    alignSelf:'center'
+  },
+  commentContainer: {
+    backgroundColor: '#F6F6F6',
+    padding: 8,
+    borderRadius: 5,
+    maxWidth: '90%',
+    marginTop:30
+  },
+
+}) 
