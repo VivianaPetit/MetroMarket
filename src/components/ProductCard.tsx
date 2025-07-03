@@ -69,19 +69,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <Ionicons name="pencil" size={16} color="white" />
           </TouchableOpacity>
         )}
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:4}}>
-          <Text style={{ fontSize: 25, fontWeight: 'bold'}}>🌳</Text>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:16, marginBottom:4}}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold'}}>🌳</Text>
           <Text style={styles.chip}>{price}</Text>     
         </View>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom:25}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom:16}}>
           <Text style={styles.chip2}>{formCoin}</Text> 
         </View>
         <View style={{alignContent: 'center', justifyContent: 'center', alignItems: 'center'}}> 
-          <AntDesign name="retweet" size={50} color="#FF8C00"/>
+          <AntDesign name="retweet" size={28} color="#FF8C00"/>
         </View>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:25}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:16, marginBottom:6}}>
           <Text style={styles.chip}>{priceTasa}</Text>
-          <Text style={{ fontSize: 25, fontWeight: 'bold'}}>Bs</Text>          
+          <Text style={{ fontSize: 18, fontWeight: 'bold'}}>Bs</Text>          
         </View>
       </View>
       )}
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     fontSize: 17, // Aumentado de 14 a 15
     fontWeight: '600',
     color: '#333',
-    marginBottom: 8,
+    marginBottom: 6,
     height: 40,
     lineHeight: 20, // Mejor espaciado entre líneas
   },
@@ -236,14 +236,15 @@ const styles = StyleSheet.create({
   chip: {
     borderWidth: 1,
     borderColor: '#FF8C00',
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     paddingVertical: 6,
     marginRight: 8,
     marginTop: 4,
     borderRadius: 100,
-    width: 150,
+    maxWidth: '80%',
+    minWidth: '50%',
     padding: 12,
-    fontSize: 19,
+    fontSize: 14,
     textAlign: 'center',
   },  
   chip2: {
@@ -251,7 +252,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 20,
-    fontSize: 15,
+    fontSize: 10,
     fontWeight: '600',
     color: '#29a5f5',
     textTransform: 'capitalize',

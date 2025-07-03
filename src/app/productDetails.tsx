@@ -391,7 +391,11 @@ export default function ProductDetails() {
 
         <TouchableOpacity style={styles.buyButton} onPress={Verificacion_Usuario} >
           <Text style={styles.buyButtonText}>
-            {product.tipo === 'Producto' ? 'Comprar' : 'Reservar'}
+            {
+              product.tipo === 'Producto' ? 'Comprar' :
+              product.tipo === 'Servicio' ? 'Reservar':
+              'Organizar intercambio'
+            }
           </Text>
         </TouchableOpacity>
 
