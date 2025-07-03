@@ -5,7 +5,6 @@ import { fetchResena } from '../services/ResenaServices';
 import {Usuario, Resena, Promedio} from '../interfaces/types';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { BounceIn } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
 
 export default function Ranking() {
   const router = useRouter();
@@ -17,8 +16,8 @@ export default function Ranking() {
   const [promedios, setPromedios] = useState<Promedio[]>([]);
   const [listados, setlistados] = useState<string[]>([]);
   const [best_sellers, setBest_sellers] = useState<Usuario[]>([]);
-  const  [valor, setValor] = useState<number>(0);
-  var  valor2  = 0;
+  const  [valor, setValor] = useState(0);
+  const  [valor2, setValor2] = useState(0);
     const [permiso, setPermiso] = useState(true);
 
      useEffect(() => {
@@ -36,29 +35,28 @@ export default function Ranking() {
 
       
  useEffect(() => {
-    escoger
+    clasificacion
   },  []);
-
 
  const promediar = (id: string) => {
    const usuario_resenas = resenas.filter(pub => pub.resenado === id)
    if (usuario_resenas.length >= 1){ 
    const calculo = usuario_resenas.map((pub) => {
-      valor2 = valor2+ pub.calificacion
+      setValor2(valor2+ pub.calificacion)
    });
    if (valor2 >= valor){
     setValor(valor2)
     listados.push(id)
    } 
-   valor2 = 0
+   setValor2(0)
    }
  }
   
- const escoger = async() => {  
+ const escoger = () => {  
   const promedio = categorias.map((pub) => {
     promediar(pub._id)
    });
-   if (listados.length > 1){
+   if (listados.length > 1){ 
     const agregar_listados = listados.map((bup) => {
     const Vendedores_elegidos = categorias.filter(pub => pub._id === bup)
     elegidos.push(Vendedores_elegidos[0])
@@ -66,17 +64,17 @@ export default function Ranking() {
     const comparacion = elegidos.map((pub) => {
      if(pub.publicaciones.length > valor){
       setValor(pub.publicaciones.length)
-      setVendedor(pub)
+      //setVendedor(pub)
      }
    });
    }else{
     const Vendedor_elegido = categorias.filter(pub => pub._id === listados[0])
-    setVendedor(Vendedor_elegido[0])
+    //setVendedor(Vendedor_elegido[0])
     }
     setlistados([])
     setElegidos([])
     setValor(0)
-    clasificacion
+    console.log(vendedor) 
  }
 
  const clasificacion = async() => {
@@ -84,33 +82,13 @@ export default function Ranking() {
    const quitar_primero = categorias.map((bup) => {
     promedio(bup)
    });
-   var a = 0
-   console.log(promedios)
-   const agregar = promedios.slice(1).map((bup) => {
-     if (bup.promedio > promedios[a].promedio && a <= promedios.length-1){
-       const encontrar3 = elegidos.filter(pub => pub._id === bup._id) 
-       if (encontrar3.length <= 0){
-     const encontrar = categorias.filter(pub => pub._id ===  bup._id)
-     //console.log(encontrar)
-     elegidos.unshift(encontrar[0])
-     }
-     const encontrar2 = categorias.filter(pub => pub._id === promedios[a]._id)
-     elegidos.push(encontrar2[0])
-     }else{ 
-       const encontrar = elegidos.filter(pub => pub._id === bup._id)
-       if (encontrar.length <= 0){
-             const encontrar = categorias.filter(pub => pub._id === bup._id)
-             elegidos.push(encontrar[0])
-       }
-     }
-     a = a+1
-     //console.log(a)
+   const agregar = promedios.map((bup) => {
+     console.log("a")
+     const encontrar = categorias.filter(pub => pub._id === bup._id)
+     elegidos.push(encontrar[0])
    });
-   console.log(elegidos)
    setBest_sellers(elegidos)
    setPermiso(false)
-   setElegidos([])
-   setPromedios([])
    console.log(best_sellers)
   }
  }
@@ -119,55 +97,61 @@ export default function Ranking() {
    const usuario_resenas = resenas.filter(pub => pub.resenado === ususario._id)
    if (usuario_resenas.length >= 1){ 
    const calculo = usuario_resenas.map((pub) => {
-     valor2 = valor2 + pub.calificacion
-      //console.log(valor2)
+     let a = valor2 + pub.calificacion
+      setValor2(a)
    });
-   valor2 = valor2/usuario_resenas.length
-   console.log(valor2)
+   setValor2(valor2/usuario_resenas.length)
+   if (valor2 >= valor){
     setValor(valor2)
    const  promeidito = {
     _id: ususario._id,
-    promedio: valor2 }
+    promedio: valor2
+    }
     promedios.push(promeidito)
    } 
    }
-
+ }
 
 return (
-      <View style={styles.container}>
-     <ScrollView/>
-    <View style={{flexDirection:'row',gap:15,alignItems:'center'}}>
-      <TouchableOpacity onPress={() => router.push('/menu')} >
-          <Ionicons name="arrow-back" size={24} color="#00318D" />
-    ` </TouchableOpacity>
-    <View ><Text style={styles.title}>RANKING BEST SELLER</Text></View>
-    </View>
-
-    <View>
-      <View style={styles.avatarContainer}>
-        <Image source={{ uri: best_sellers[0]?.foto }} style={styles.avatarImage} /> 
-        <Ionicons name='ribbon' size={60} style={{bottom:10}} ></Ionicons>
-      </View>
-      <Text style={styles.name}>{best_sellers[0]?.nombre}</Text> 
-      <Text style={styles.username}>{best_sellers[0]?.correo}</Text>
-      <Text style={styles.username}>{best_sellers[0]?.telefono}</Text> 
-
-      
-        {best_sellers.slice(1,best_sellers.length-1).map((pub) => (
-            <View style={styles.commentContainer}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.horizontalScroll}>
+            <View style={styles.productCardWrapper}>
+             <Text>Vendedor del mes</Text>
+              <Text>
+                  {vendedor?.nombre}
+                </Text>
+             <Text>{vendedor?.telefono}</Text>
+             <Text>{vendedor?.correo}</Text>
+             {best_sellers.map((pub) => (
+            <View style={styles.productCardWrapper}>
                 <Text>
                   {pub.nombre}
                 </Text>
+             <Text>{pub.telefono}</Text>
              <Text>{pub.correo}</Text>
             </View>
               ))}
              <TouchableOpacity onPress={clasificacion} style={styles.backButton}>Ver vendedores del mes</TouchableOpacity>
             </View>
         </View>
+        </ScrollView>
     );
   };
 
 const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scrollContainer: { paddingBottom: 80 },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 30,
+    marginHorizontal: 16,
+    paddingHorizontal: 15,
+    height: 45,
+    elevation: 4,
+    marginTop: 10,
+  },
   searchIcon: { marginRight: 8 },
   searchInput: { flex: 1, fontSize: 14, color: '#333' },
   categoriesWrapper: {
@@ -271,69 +255,5 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     alignSelf: 'flex-start',
   },
-   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-   container: {
-    flexGrow: 1,
-    padding: 30,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    
-  },title: {
-    fontSize:20, 
-    fontWeight: 'bold',
-    color: '#333',
-
-  },
-  avatarContainer: {
-    width: 150,
-    height: 150,
-    borderRadius: 100,
-    backgroundColor: '#00318D',
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignSelf:'center',
-    marginTop:30
-  },
-  avatarImage: { // <-- AÑADE ESTE ESTILO
-    width: '100%',
-    height: '100%',
-    borderRadius: 100, // Para que la imagen también sea redonda
-  },
-   name: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#333',
-    marginTop:25,
-    marginRight:10,
-    alignSelf:'center'
-  },
-  card: {
-    flexDirection:'column',
-    backgroundColor: 'gray',
-    
-
-  },
-  username: {
-    fontSize: 16,
-    color: '#666',
-    marginRight:10,
-    alignSelf:'center'
-  },
-  commentContainer: {
-    backgroundColor: '#F6F6F6',
-    padding: 8,
-    borderRadius: 5,
-    maxWidth: '90%',
-    marginTop:30
-  },
 });
-
-
+      

@@ -1,7 +1,16 @@
 // archivo: MisVentasScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, ActivityIndicator, Image, Button, Modal, TextInput, TouchableOpacity,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  Image,
+  Button,
+  Modal,
+  TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/userContext';
@@ -17,7 +26,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 
 interface TransaccionConPublicacion extends Transaccions {
-  monto: number; // Asegúrate de que monto esté presente y sea un número
+  monto: number;
   publicacionDetalle?: Publicacion;
   compradorDetalle?: {
     nombre: string;
@@ -140,6 +149,7 @@ const MisVentasScreen = () => {
     } finally {
       setModalVisible(false);
       setComentario('');
+      setRating(0);
     }
   };
 
@@ -171,14 +181,14 @@ const MisVentasScreen = () => {
 
       <Ionicons name="cash-outline" size={64} color="#28A745" style={styles.icon} />
 
-      {transacciones.length === 0 ? (
-        <Text style={styles.emptyMessage}>No tienes ventas aún.</Text>
-      ) : (
-        transacciones
-          .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
-          .map((trans) => (
+      {transacciones
+        .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
+        .map((trans) => {
+          const estaExpandida = tarjetaExpandida === trans._id;
+
+          return (
             <View key={trans._id} style={styles.card}>
-              <TouchableOpacity onPress={() => setTarjetaExpandida(estaExpandida?  null : trans._id)}>
+              <TouchableOpacity onPress={() => setTarjetaExpandida(estaExpandida ? null : trans._id)}>
                 <View style={styles.cardHeader}>
                   {/* revisar */}
                   {trans.publicacionDetalle.tipo !== 'Samanes' ? (
@@ -255,15 +265,26 @@ const MisVentasScreen = () => {
                   {trans.entregado[1] ? (
                     <Text style={styles.entregadoText}>Producto entregado ✅</Text>
                   ) : (
-                    <TouchableOpacity style={styles.button} onPress={() => handleCompletarCompra(trans)}>
-                      <Text style={styles.buttonText}>Marcar como completada</Text>
-                    </TouchableOpacity>
+                    <View style={styles.buttonsRow}>
+                      <TouchableOpacity
+                        style={[styles.button, styles.buttonSecondary]}
+                        onPress={() => handleContactarVendedor(trans._id)}
+                      >
+                        <Text style={styles.buttonText}>Contactar</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => handleCompletarCompra(trans)}
+                      >
+                        <Text style={styles.buttonText}>Completar</Text>
+                      </TouchableOpacity>
+                    </View>
                   )}
                 </View>
-              </View>
+              )}
             </View>
-          ))
-      )}
+          );
+        })}
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
@@ -304,7 +325,6 @@ const MisVentasScreen = () => {
 
 export default MisVentasScreen;
 
-
 const styles = StyleSheet.create({
   redDot: {
     position: 'absolute',
@@ -321,79 +341,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
   },
-  icon: {
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-  },
-  emptyMessage: {
-    fontSize: 16,
-    color: '#aaa',
-    marginTop: 20,
-  },
-  ratingSection: {
-  marginBottom: 20,
-  alignItems: 'center',
-},
-ratingTitle: {
-  fontSize: 18,
-  fontWeight: 'bold',
-  color: '#333',
-  marginBottom: 4,
-},
-ratingSubtitle: {
-  fontSize: 14,
-  color: '#666',
-  marginBottom: 12,
-  textAlign: 'center',
-},
-starsRow: {
-  flexDirection: 'row',
-  justifyContent: 'center',
-  gap: 4,
-},
-starButton: {
-  paddingHorizontal: 4,
-},
-commentLabel: {
-  fontSize: 15,
-  fontWeight: '500',
-  color: '#444',
-  marginBottom: 6,
-  marginTop: 10,
-},
-  entregadoText: {
-  marginTop: 6,
-  color: 'green',
-  fontWeight: 'bold',
-  fontSize: 14,
-},
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  // Card horizontal
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    width: '100%',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  cardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  cardExpanded: {
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 8,
+    gap: 6,
   },
   header: {
     flexDirection: 'row',
@@ -408,57 +361,127 @@ commentLabel: {
     marginRight: 10,
     paddingBottom: 20,
   },
-    image: {
-    width: 110,
-    height: 110,
-    borderRadius: 10,
-    marginRight: 12,
-    backgroundColor: '#eee',
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
   },
-  cardInfo: {
+  icon: {
+    marginBottom: 10,
+  },
+  emptyMessage: {
+    fontSize: 16,
+    color: '#aaa',
+    marginTop: 20,
+  },
+  centered: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // Card
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  cardText: {
+    flex: 1,
+    gap: 2,
+  },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#f5f5f5',
   },
   titulo: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    fontWeight: '700',
+    color: '#222',
+    marginBottom: 2,
   },
   descripcion: {
     color: '#666',
-    fontSize: 14,
-    marginBottom: 2,
+    fontSize: 13,
+    marginBottom: 1,
   },
   precio: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#F68628',
-    marginBottom: 2,
+    marginBottom: 4,
   },
-  estado: {
-    fontSize: 13,
-    color: '#007B7F',
-    marginBottom: 2,
-  },
-  fecha: {
-    fontSize: 12,
-    color: '#999',
+  estadoTag: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
     marginBottom: 6,
+  },
+  estadoTexto: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  estadoCompletado: {
+    backgroundColor: '#28a745',
+  },
+  estadoPendiente: {
+    backgroundColor: '#ffc107',
+  },
+  estadoEnProceso: {
+    backgroundColor: '#17a2b8',
+  },
+  entregadoText: {
+    marginTop: 6,
+    color: 'green',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+
+  // Botones
+  buttonsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 6,
   },
   button: {
     backgroundColor: '#F68628',
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
     borderRadius: 6,
     alignSelf: 'flex-start',
+    minWidth: '48%',
+  },
+  buttonSecondary: {
+    backgroundColor: '#00318D',
   },
   buttonText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 12,
+    textAlign: 'center',
   },
-  // Modal de reseña
+
+  // Modal
   modalContainer: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
