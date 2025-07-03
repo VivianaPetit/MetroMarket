@@ -12,7 +12,8 @@ const usuarioSchema = new mongoose.Schema({
     transacciones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaccion' }],
     fechaRegistro: { type: Date, default: Date.now },
     favoritos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Publicacion' }],
-    transacciones : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaccion' }] 
+    transacciones : [{ type: mongoose.Schema.Types.ObjectId, ref: 'Transaccion' }],
+    expoPushToken: { type: String, default: null },
 });
 
 usuarioSchema.pre('save', function(next) {

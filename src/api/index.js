@@ -30,6 +30,10 @@ const categoriasRoutes = require('./routes/categorias');
 const os = require('os');
 app.use('/api/categorias', categoriasRoutes);
 
+
+const usuarioRoutes = require('./routes/usuarios');
+app.use('/api/usuarios', usuarioRoutes); // La ruta quedará: /api/usuarios/:userId/salesCount
+
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,

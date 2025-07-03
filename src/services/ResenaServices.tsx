@@ -28,8 +28,10 @@ export const createResena = async (
 export const fetchResena = async (): Promise<Resena[]> => {
   try {
     const response = await axios.get<Resena[]>(ResenaURL);
-    return response.data;
-  } catch (error) {
+    const resenas = response.data;
+
+    return resenas;
+    } catch (error) {
     console.error('Error fetching transacciones:', error);
     throw error;
   }

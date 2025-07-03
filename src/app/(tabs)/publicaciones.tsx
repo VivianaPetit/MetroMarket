@@ -18,7 +18,6 @@ export default function Publicaciones() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [message, setMessage] = useState("");
-  const [isUploading, setIsUploading] = useState(false);
   const img = require('../../../assets/images/LogoMetroMarketBN.png');
 
 
@@ -67,11 +66,13 @@ export default function Publicaciones() {
     });
   };
 
+  
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.header}>
         <TouchableOpacity 
-            onPress={() => router.push('/menu')}
+            onPress={() => router.back()}
             style={styles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color="#00318D" />
@@ -103,6 +104,10 @@ export default function Publicaciones() {
               }
               tipo={pub.tipo}
               onEdit={() => handleEditProduct(pub)}
+              onPress={() => router.push({
+                pathname: "/productDetails",
+                params: { productId: pub._id }
+              })}
             />
             </View>
           ))

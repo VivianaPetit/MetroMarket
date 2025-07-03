@@ -74,7 +74,7 @@ export default function Home() {
 
   const handleCategoryPress = (categoryName: string) => {
     router.push({
-      pathname: "/categoria",
+      pathname: "../categoria",
       params: { category: categoryName }
     });
   };
@@ -164,7 +164,7 @@ export default function Home() {
             onSubmitEditing={() => {
               if (search.trim()) {
                 router.push({
-                  pathname: "/search",
+                  pathname: "../search",
                   params: { query: search }
                 });
               }

@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -16,6 +17,18 @@ import { fetchUsuarioById, agregarTransaccionAUsuario } from '../services/usuari
 import { createTransaccion } from '../services/transaccionService';
 import { useAuth } from '../context/userContext';
 import { Publicacion, Usuario } from '../interfaces/types';
+import * as Notifications from 'expo-notifications';
+
+// Configurar manejador de notificaciones
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 const Comprar: React.FC = () => {
   const { user, refrescarUsuario } = useAuth();
@@ -26,16 +39,15 @@ const Comprar: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [cantidad, setCantidad] = useState(1); // Estado local para la cantidad
+  const [cantidad, setCantidad] = useState(1);
 
-  // Parsear parámetros correctamente
+  // Parsear parámetros
   const { productId, cantidad: cantidadParam } = params as {
     productId?: string;
     cantidad?: string;
   };
 
   useEffect(() => {
-    // Inicializar cantidad desde los parámetros si existe
     if (cantidadParam) {
       const cantidadNum = parseInt(cantidadParam, 10);
       if (!isNaN(cantidadNum)) {
@@ -63,6 +75,39 @@ const Comprar: React.FC = () => {
     cargarDatos();
   }, [productId]);
 
+  // Función para enviar notificaciones push
+  const sendPushNotification = async (
+    expoPushToken: string,
+    { title, body, data }: { title: string; body: string; data?: any }
+  ) => {
+    if (!expoPushToken) {
+      console.warn('No hay token de notificación para el vendedor');
+      return;
+    }
+
+    const message = {
+      to: expoPushToken,
+      sound: 'default',
+      title,
+      body,
+      data,
+    };
+
+    try {
+      await fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Accept-encoding': 'gzip, deflate',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(message),
+      });
+    } catch (error) {
+      console.error('Error al enviar notificación:', error);
+    }
+  };
+
   const handleConfirmarCompra = async () => {
     if (!user || !publicacion || !vendedor || publicacion.cantidad <= 0) return;
     setProcessing(true);
@@ -80,7 +125,7 @@ const Comprar: React.FC = () => {
         estado: 'Pendiente',
         fecha: new Date(),
         entregado: [false, false],
-        mensajes : []
+        mensajes: []
       });
 
       await Promise.all([
@@ -90,17 +135,32 @@ const Comprar: React.FC = () => {
 
       await refrescarUsuario();
 
+      // Enviar notificación al vendedor
+      if (vendedor.expoPushToken) {
+        await sendPushNotification(vendedor.expoPushToken, {
+          title: `Nueva ${publicacion.tipo === 'Producto' ? 'compra' : 'reserva'}`,
+          body: `El usuario ${user.nombre} ha realizado una ${publicacion.tipo === 'Producto' ? 'compra' : 'reserva'} de tu publicación "${publicacion.titulo}"`,
+          data: { 
+            publicacionId: publicacion._id,
+            tipo: 'nueva-orden',
+            transaccionId: nuevaTransaccion._id
+          }
+        });
+      } else {
+        console.warn('El vendedor no tiene token de notificación registrado');
+      }
+
       router.push({
         pathname: '/Review_PostShoping',
         params: {
           productId: publicacion._id,
           productName: publicacion.titulo,
-          productPrice: montoTotal.toString(), // Enviamos el precio total
+          productPrice: montoTotal.toString(),
           sellerName: vendedor.nombre,
           sellerPhone: vendedor.telefono,
           purchaseDate: new Date().toLocaleDateString(), 
           transaccionId: nuevaTransaccion._id,
-          cantidad: cantidad.toString(), // Enviamos la cantidad
+          cantidad: cantidad.toString(),
         },
       });
       

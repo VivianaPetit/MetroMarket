@@ -5,6 +5,7 @@ import { API_BASE_URL } from '../../config';
 
 const usuariosURL = `${API_BASE_URL}/usuarios`;
 
+
 export const fetchUsuarios = async (): Promise<Usuario[]> => {
   try {
     const response = await axios.get<Usuario[]>(usuariosURL);
@@ -32,7 +33,7 @@ export const agregarTransaccionAUsuario = async (
 
 export const editarUsuario = async (
   userId: string,
-  datos: Partial<Pick<Usuario, 'nombre' | 'telefono' | 'foto' >>
+  datos: Partial<Pick<Usuario, 'nombre' | 'telefono' | 'foto' | 'expoPushToken' >>
 ): Promise<Usuario> => {
   try {
     const response = await axios.patch<Usuario>(`${usuariosURL}/${userId}`, datos);
@@ -140,7 +141,16 @@ export const buscarUsuarioPorCorreo = async (correo: string): Promise<Usuario> =
 };
 
 
-
+export const checkUserVerificationStatus = async (userId: string): Promise<boolean> => {
+  try {
+    // Llama al endpoint que verifica el número de ventas
+    const response = await axios.get(`${usuariosURL}/${userId}/salesCount`);
+    return response.data > 50; // Verifica si tiene más de 50 ventas
+  } catch (error) {
+    console.error('Error al verificar ventas del usuario:', error);
+    throw error;
+  }
+};
 
 
 

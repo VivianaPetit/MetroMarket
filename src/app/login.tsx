@@ -7,26 +7,57 @@ import {
   StyleSheet,
   SafeAreaView,
   Alert,
+  Platform
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Crypto from 'expo-crypto';
-import { buscarUsuarioPorCorreo } from '../services/usuarioService';
+import { buscarUsuarioPorCorreo, editarUsuario } from '../services/usuarioService';
 import { useAuth } from '../context/userContext';
+import * as Notifications from 'expo-notifications';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [showPassword, setShowPassword] = useState(false);
-  
-
   const router = useRouter();
   const { setUser } = useAuth();
 
   const validarEmail = (correo: string): boolean => {
     return /^[a-zA-Z0-9._%+-]+@(correo\.)?unimet\.edu\.ve$/.test(correo);
   };
+
+  // Función para registrar el dispositivo para notificaciones (debe usarse al iniciar sesión)
+async function registerForPushNotificationsAsync() {
+  let token;
+  
+  if (Platform.OS === 'android') {
+    await Notifications.setNotificationChannelAsync('default', {
+      name: 'default',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
+  }
+
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+  
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+  
+  if (finalStatus !== 'granted') {
+    alert('Failed to get push token for push notification!');
+    return;
+  }
+  
+  token = (await Notifications.getExpoPushTokenAsync()).data;
+  return token;
+}
+
 
   const handleLogin = async () => {
     const newErrors: typeof errors = {};
@@ -66,7 +97,20 @@ const LoginScreen = () => {
           return;
         }
 
-        setUser(user);
+        const pushToken = await registerForPushNotificationsAsync();
+        if (pushToken) {
+          console.log('Token de notificaciones push:', pushToken);
+          // Guarda el token en el usuario
+            const updatedUser = await editarUsuario(user._id, { expoPushToken: pushToken });
+            if (updatedUser) {
+            setUser(updatedUser);
+            } else {
+            console.warn('No se pudo actualizar el usuario con el token de notificaciones.');
+            }
+        } else {
+          console.warn('No se pudo obtener el token de notificaciones push.');
+        }
+        console.log('Usuario autenticado:', user.expoPushToken);
         router.push('/perfil');
 
       } catch (error) {

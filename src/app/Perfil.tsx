@@ -13,6 +13,7 @@ import * as FileSystem from 'expo-file-system';
 import { supabase } from '../../supabase';
 import { fetchPublicaciones } from '../services/publicacionService';
 import ProductCard from '../components/ProductCard';
+import { checkUserVerificationStatus } from '../services/usuarioService';
 
 export default function Perfil() {
   const [publicaciones, setPublicaciones] = useState<Publicacion[]>([]);
@@ -29,13 +30,14 @@ export default function Perfil() {
   const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState('publicaciones'); // 'publicaciones' o 'reseñas'
   const img = require('../../assets/images/LogoMetroMarketBN.png');
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await fetchResena();
         setResenas(data);
-        setResenas2(data.filter(pub => pub.usuario && pub.resenado === user?._id));
+        setResenas2(data.filter(resena => resena.usuario && resena.resenado === user?._id));
       } catch (error) {
         console.error(error);
       }
@@ -43,6 +45,22 @@ export default function Perfil() {
 
     fetchData();
   }, [user?._id]);
+
+  useEffect(() => {
+    const fetchVerificationStatus = async () => {
+      if (user?._id) {
+        try {
+          const verified = await checkUserVerificationStatus(user._id);
+          setIsVerified(verified);
+        } catch (error) {
+          console.error("Error fetching verification status:", error);
+        }
+      }
+    };
+
+    fetchVerificationStatus();
+  }, [user]);
+
 
   useFocusEffect(
   useCallback(() => {
@@ -212,6 +230,7 @@ export default function Perfil() {
         onTelefonoChange={setTelefono}
         onFotoChange={pickImage}
         isUploading={isUploading}
+        isVerified={isVerified}
       />
 
       {mensaje !== '' && (

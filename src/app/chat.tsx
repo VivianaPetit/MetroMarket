@@ -8,58 +8,64 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  SafeAreaView,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { Mensaje } from '../interfaces/types';
-import {
-  getMensajesByTransaccion,
-  crearMensaje,
-} from '../services/mensajeService';
-import { agregarMensajeATransaccion } from '../services/transaccionService';
-import { useAuth } from '../context/userContext'; // Ajusta ruta según tu estructura
+import { Image } from 'react-native'; // No olvides importar Image
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useAuth } from '../context/userContext';
+import { getMensajesByTransaccion, crearMensaje } from '../services/mensajeService';
+import { fetchTransaccionById } from '../services/transaccionService';
+import { fetchUsuarioById } from '../services/usuarioService';
+import { fetchPublicacionById } from '../services/publicacionService';
+import { Mensaje, Transaccions, Usuario, Publicacion } from '../interfaces/types';
 
 const ChatScreen: React.FC = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const params = useLocalSearchParams();
   const transaccionId = params.transaccionId as string;
 
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [nuevoMensaje, setNuevoMensaje] = useState('');
+  const [transaccion, setTransaccion] = useState<Transaccions | null>(null);
+  const [vendedor, setVendedor] = useState<Usuario | null>(null);
+  const [publicacion, setPublicacion] = useState<Publicacion | null>(null);
 
   const flatListRef = useRef<FlatList<Mensaje>>(null);
 
   useEffect(() => {
-    if (!transaccionId) return;
-
-    const cargarMensajes = async () => {
+    const cargarDatos = async () => {
       try {
-        // Usamos el endpoint que ya devuelve mensajes completos
-        const data = await getMensajesByTransaccion(transaccionId);
-        setMensajes(data);
-        // Scroll al final al cargar mensajes
+        const transaccionData = await fetchTransaccionById(transaccionId);
+        const mensajesData = await getMensajesByTransaccion(transaccionId);
+        const vendedorData = await fetchUsuarioById(transaccionData.vendedor);
+        const publicacionData = await fetchPublicacionById(transaccionData.publicacion);
+
+        setTransaccion(transaccionData);
+        setMensajes(mensajesData);
+        setVendedor(vendedorData);
+        setPublicacion(publicacionData);
+
         setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
       } catch (error) {
-        console.error('Error al cargar mensajes:', error);
+        console.error('Error cargando datos:', error);
       }
     };
-
-    cargarMensajes();
+    if (transaccionId) cargarDatos();
   }, [transaccionId]);
 
   const enviarMensaje = async () => {
-    if (!nuevoMensaje.trim() || !user) return;
+    if (!nuevoMensaje.trim() || !user || !transaccion) return;
 
     const mensaje: Partial<Mensaje> = {
       usuario: user._id,
-      tipo: 'Comprador', // o 'Vendedor' según tu lógica
+      tipo: transaccion.comprador === user._id ? 'Comprador' : 'Vendedor',
       mensaje: nuevoMensaje,
       fecha: new Date(),
     };
 
     try {
-      // Crear mensaje
       const nuevo = await crearMensaje(mensaje, transaccionId);
-      // Actualizar transacción agregando el mensaje
       setMensajes((prev) => [...prev, nuevo]);
       setNuevoMensaje('');
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
@@ -69,50 +75,51 @@ const ChatScreen: React.FC = () => {
   };
 
   const renderItem = ({ item }: { item: Mensaje }) => {
-    // Comparar con _id del usuario (item.usuario es objeto)
-    const esPropio = item?.usuario === user?._id;
-
+    const esPropio =
+  typeof item.usuario === 'string'
+    ? item.usuario === user?._id
+    : item.usuario?._id === user?._id;
     return (
-      <View
-        style={[
-          styles.burbuja,
-          esPropio ? styles.burbujaPropia : styles.burbujaAjena,
-        ]}
-      >
-        <Text
-          style={[
-            styles.mensajeTexto,
-            esPropio ? { color: '#fff' } : { color: '#000' },
-          ]}
-        >
-          {item.mensaje}
-        </Text>
+      <View style={[styles.burbuja, esPropio ? styles.burbujaPropia : styles.burbujaAjena]}>
+        <Text style={[styles.mensajeTexto, { color: esPropio ? '#fff' : '#000' }]}>{item.mensaje}</Text>
         <Text style={styles.hora}>
-          {new Date(item.fecha).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
+          {new Date(item.fecha).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </Text>
       </View>
     );
   };
 
-  if (!user) {
+  if (!user || !transaccion || !publicacion || !vendedor) {
     return (
-      <View
-        style={[styles.contenedor, { justifyContent: 'center', alignItems: 'center' }]}
-      >
-        <Text>Debes iniciar sesión para chatear</Text>
+      <View style={[styles.contenedor, { justifyContent: 'center', alignItems: 'center' }]}>
+        <Text>Cargando chat...</Text>
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.contenedor}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-    >
+    <SafeAreaView style={styles.contenedor}>
+      {/* HEADER estilo MercadoLibre */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.volver}>←</Text>
+        </TouchableOpacity>
+
+        <View style={styles.headerInfo}>
+          <Text style={styles.nombre}>{vendedor.nombre}</Text>
+          <Text style={styles.producto}>{publicacion.titulo}</Text>
+        </View>
+
+        {publicacion.fotos[0] && (
+          <Image
+            source={{ uri: publicacion.fotos[0] }}
+            style={styles.imagenProducto}
+            resizeMode="contain"
+          />
+        )}
+      </View>
+
+      {/* MENSAJES */}
       <FlatList
         data={mensajes}
         keyExtractor={(item) => item._id}
@@ -123,33 +130,67 @@ const ChatScreen: React.FC = () => {
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Escribe un mensaje..."
-          value={nuevoMensaje}
-          onChangeText={setNuevoMensaje}
-          onSubmitEditing={enviarMensaje}
-          multiline
-          returnKeyType="send"
-        />
-        <TouchableOpacity onPress={enviarMensaje} style={styles.botonEnviar}>
-          <Text style={styles.textoBoton}>Enviar</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+      {/* INPUT */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+      >
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Escribí un mensaje..."
+            value={nuevoMensaje}
+            onChangeText={setNuevoMensaje}
+            onSubmitEditing={enviarMensaje}
+            multiline
+          />
+          <TouchableOpacity onPress={enviarMensaje} style={styles.botonEnviar}>
+            <Text style={styles.textoBoton}>Enviar</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
-
-export default ChatScreen;
 
 const styles = StyleSheet.create({
   contenedor: {
     flex: 1,
     backgroundColor: '#F9FAFB',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#F68628',
+    padding: 12,
+    paddingTop: 16,
+  },
+  volver: {
+    fontSize: 24,
+    color: '#FFF',
+    marginRight: 8,
+    paddingHorizontal: 8,
+  },
+  headerInfo: {
+    flex: 1,
+  },
+  nombre: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#FFF',
+  },
+  producto: {
+    fontSize: 14,
+    color: '#FFF',
+  },
+  link: {
+    fontSize: 13,
+    color: '#0066CC',
+    marginTop: 2,
+  },
   listaMensajes: {
     padding: 10,
+    paddingBottom: 60,
   },
   burbuja: {
     maxWidth: '75%',
@@ -158,21 +199,28 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   burbujaPropia: {
-    backgroundColor: '#4F46E5',
+    backgroundColor: '#F68628',
     alignSelf: 'flex-end',
   },
+  imagenProducto: {
+  width: 60,
+  height: 60,
+  borderRadius: 8,
+  marginLeft: 8,
+  alignSelf: 'center',
+},
   burbujaAjena: {
     backgroundColor: '#E5E7EB',
     alignSelf: 'flex-start',
   },
   mensajeTexto: {
-    // color asignado dinámicamente en renderItem
+    fontSize: 14,
   },
   hora: {
-    color: '#D1D5DB',
     fontSize: 10,
     marginTop: 4,
     textAlign: 'right',
+    color: '#FFFF',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -180,6 +228,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: '#E5E7EB',
     backgroundColor: '#FFF',
+    alignItems: 'flex-end',
   },
   input: {
     flex: 1,
@@ -190,6 +239,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     fontSize: 14,
     backgroundColor: '#fff',
+    maxHeight: 100,
   },
   botonEnviar: {
     marginLeft: 8,
@@ -203,3 +253,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default ChatScreen;

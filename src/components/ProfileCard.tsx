@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { green } from 'react-native-reanimated/lib/typescript/Colors';
 
 type ProfileCardProps = {
   UserName?: string;
@@ -12,6 +13,7 @@ type ProfileCardProps = {
   onTelefonoChange?: (text: string) => void;
   onFotoChange?: () => void; // Nueva prop para manejar el cambio de foto
   isUploading?: boolean; // Para mostrar estado de carga
+  isVerified?: boolean; // si es verificado o no
 };
 
 const ProfileCard = ({
@@ -24,6 +26,7 @@ const ProfileCard = ({
   onTelefonoChange,
   onFotoChange,
   isUploading = false,
+  isVerified = false,
 }: ProfileCardProps) => {
   return (
     <View style={styles.container}>
@@ -56,8 +59,18 @@ const ProfileCard = ({
         </TouchableOpacity>
 
         <View style={styles.profileInfo}>
+
+          <View style={{flexDirection:"row", gap: 8, alignItems:'center'}}>
           <Text style={styles.name}>{nombreyA}</Text>
+          {isVerified && (
+          <><Ionicons name='checkmark-circle' size={22} color="green" />
+          <Text style={{ color: 'green', fontStyle:"italic"}}>Verificado</Text></>
+          )}
+          
+          </View>
+          
           <Text style={styles.username}>{UserName}</Text>
+          
         </View>
       </View>
 

@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, Image, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width } = Dimensions.get('window');
-const [color, setColor] = useState('');
 
 type ProductCardProps = {
   name: string;
@@ -14,7 +13,6 @@ type ProductCardProps = {
   category: string;
   image: string;
   tipo: string;
-  
   onEdit?: () => void;
   onPress?: () => void;
 };
@@ -36,26 +34,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
       onPress={onPress}
       activeOpacity={0.9}
     >
-      {/* Contenedor de imagen con botón de edición */}
       {tipo !== 'Samanes' ? (
         <View style={styles.imageContainer}>
-        <Image 
+          <Image 
             source={{ uri: image }} 
             style={styles.productImage}
             resizeMode="cover"
           />  
-        {onEdit && (
-          <TouchableOpacity 
-            style={styles.editButton} 
-            onPress={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-          >
-            <Ionicons name="pencil" size={16} color="white" />
-          </TouchableOpacity>
-        )}
-      </View>
+          {onEdit && (
+            <TouchableOpacity 
+              style={styles.editButton} 
+              onPress={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+            >
+              <Ionicons name="pencil" size={16} color="white" />
+            </TouchableOpacity>
+          )}
+        </View>
       ) : (
       <View>
         {onEdit && (
@@ -86,35 +83,33 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </View>
       )}
       
-      {/* Contenedor de información */}
+      {/* Información común */}
       <View style={styles.infoContainer}>
         <Text style={styles.productName} numberOfLines={2}>{name}</Text>
         
-        {/* Precio destacado solo valido para servicio y producto */}
-        <View style={tipo === 'Samanes' ? { display: 'none' } : null}>
+        {tipo !== 'Samanes' && (
           <Text style={styles.priceText}>${price.toFixed(2)}</Text>
-        </View>
-        {/* Fila de categoría y tipo */}
+        )}
+        
         <View style={styles.metaContainer}>
           <View style={styles.categoryBadge}>
             <Ionicons name="pricetag" size={12} color="#00318D" />
             <Text style={styles.categoryText}>{category}</Text>
           </View>
           
-          
-            {tipo == 'Producto' ? (
+          {tipo === 'Producto' ? (
             <View style={styles.typeBadgeProduct}>
-              <Text style={styles.typeProductText}>{tipo} </Text> 
+              <Text style={styles.typeProductText}>{tipo}</Text> 
             </View>
-            ) : tipo == 'Servicio' ? ( 
+          ) : tipo === 'Servicio' ? ( 
             <View style={styles.typeBadgeService}>
-              <Text style={styles.typeServiceText}>{tipo} </Text> 
+              <Text style={styles.typeServiceText}>{tipo}</Text> 
             </View>
-            ) : (
+          ) : (
             <View style={styles.typeBadgeSamanes}>
-              <Text style={styles.typeSamanesText}>{tipo} </Text> 
+              <Text style={styles.typeSamanesText}>{tipo}</Text> 
             </View>
-            )}     
+          )}     
         </View>
       </View>
     </TouchableOpacity>
@@ -146,6 +141,76 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  samanesContainer: {
+    padding: 16,
+    backgroundColor: '#F9F9F9',
+    alignItems: 'center',
+  },
+  currencySection: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  bsSection: {
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  currencyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F5FF',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  bsBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF2E5',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    marginTop: 4,
+  },
+  currencyAmount: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#007AFF',
+    marginRight: 4,
+  },
+  bsAmount: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FF8C00',
+    marginRight: 4,
+  },
+  currencyType: {
+    fontSize: 16,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  bsType: {
+    fontSize: 16,
+    color: '#FF8C00',
+    fontWeight: '600',
+  },
+  currencyLabel: {
+    fontSize: 12,
+    color: '#666',
+  },
+  bsLabel: {
+    fontSize: 12,
+    color: '#666',
+  },
+  tasaText: {
+    fontSize: 12,
+    color: '#FF8C00',
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  conversionIcon: {
+    padding: 8,
+  },
   editButton: {
     position: 'absolute',
     top: 8,
@@ -156,17 +221,18 @@ const styles = StyleSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1,
   },
   infoContainer: {
     padding: 12,
   },
   productName: {
-    fontSize: 17, // Aumentado de 14 a 15
+    fontSize: 17,
     fontWeight: '600',
     color: '#333',
     marginBottom: 6,
     height: 40,
-    lineHeight: 20, // Mejor espaciado entre líneas
+    lineHeight: 20,
   },
   priceText: {
     fontSize: 17,
@@ -185,33 +251,31 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 4,
   },
-    typeBadgeService: {
+  typeBadgeService: {
     backgroundColor: '#FEF2E8',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
   },
-
-    typeBadgeSamanes: {
+  typeBadgeSamanes: {
     backgroundColor: '#f0fff5',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
   },
-  
   typeProductText: {
     fontSize: 12,
     fontWeight: '600',
     color: '#00318D',
     textTransform: 'capitalize',
   },
-    typeServiceText: {
+  typeServiceText: {
     fontSize: 12,
     fontWeight: '600',
     color: '#F68628',
     textTransform: 'capitalize',
   },
-    typeSamanesText: {
+  typeSamanesText: {
     fontSize: 12,
     fontWeight: '600',
     color: '#29f56d',
@@ -226,7 +290,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#EEE',
-    flex: 1, // Ocupa espacio disponible
+    flex: 1,
   },
   categoryText: {
     fontSize: 12,
@@ -260,4 +324,3 @@ const styles = StyleSheet.create({
 });
 
 export default ProductCard;
-

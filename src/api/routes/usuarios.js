@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Usuario = require('../models/usuario');
+const Transaccion = require('../models/transaccion'); 
 
 // Obtener todos los usuarios
 router.get('/', async (req, res) => {
@@ -28,7 +29,7 @@ router.get('/:userId', async (req, res) => {
 
 router.patch('/:userId', async (req, res) => {
   const { userId } = req.params;
-  const { nombre, telefono, foto } = req.body;
+  const { nombre, telefono, foto, expoPushToken } = req.body;
 
   try {
     const usuario = await Usuario.findById(userId);
@@ -39,6 +40,7 @@ router.patch('/:userId', async (req, res) => {
     if (nombre !== undefined) usuario.nombre = nombre;
     if (telefono !== undefined) usuario.telefono = telefono;
     if (foto !== undefined) usuario.foto = foto;
+    if (expoPushToken) usuario.expoPushToken = expoPushToken;
 
     await usuario.save();
     res.json(usuario);
@@ -205,6 +207,28 @@ router.get('/buscarPorCorreo/:correo', async (req, res) => {  // Usa `:correo` c
     res.status(500).json({ mensaje: 'Error interno del servidor' });
   }
 });
+
+
+
+
+// Nueva ruta para contar ventas completadas
+router.get('/:userId/salesCount', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    // Contar transacciones completadas donde el usuario es VENDEDOR
+    const salesCount = await Transaccion.countDocuments({ vendedor: userId, estado: 'Completada' });
+res.status(200).json(salesCount);
+
+    res.json({ salesCount });
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Error al contar ventas',
+      details: error.message
+    });
+  }
+});
+
 
 
 module.exports = router;
