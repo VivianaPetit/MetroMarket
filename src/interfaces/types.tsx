@@ -14,6 +14,7 @@ export interface Usuario {
   publicaciones: string[];  
   favoritos: string[];
   transacciones: string[];
+  expoPushToken: string; // Token para notificaciones push
 }
 
 export interface Publicacion {
@@ -49,7 +50,7 @@ export interface Resena {
 
 export interface Mensaje {
   _id: string,
-  usuario: string;
+  usuario: string | { _id: string }; 
   tipo: string;
   mensaje: string;
   fecha: Date; 

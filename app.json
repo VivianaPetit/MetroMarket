@@ -7,7 +7,15 @@
     "icon": "./assets/images/LogoMetroMarket-completo.png",
     "scheme": "metromarket",
     "userInterfaceStyle": "automatic",
-    "permissions": ["CAMERA", "MEDIA_LIBRARY"],
+    "extra": {
+      "eas": {
+        "projectId": "999a2699-0463-4392-ac5a-643a7972b8b2"  
+      }
+    },
+    "permissions": [
+      "CAMERA",
+      "MEDIA_LIBRARY"
+    ],
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
@@ -34,7 +42,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

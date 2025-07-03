@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert,} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Usuario } from '../interfaces/types';
@@ -7,6 +7,7 @@ import { createUsuario } from '../services/usuarioService';
 import { useAuth } from '../context/userContext';
 import * as Crypto from 'expo-crypto';
 import { buscarUsuarioPorCorreo } from '../services/usuarioService';
+import * as Notifications from 'expo-notifications';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -32,6 +33,35 @@ const SignUp = () => {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
+  };
+
+  const registerForPushNotifications = async () => {
+    let token;
+    
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    
+    if (finalStatus !== 'granted') {
+      alert('Permisos de notificación no otorgados!');
+      return null;
+    }
+    
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    return token;
   };
 
   const handleRegister = async () => {
@@ -82,6 +112,8 @@ const SignUp = () => {
         }
       }
 
+      const expoPushToken = await registerForPushNotifications();
+
       // Hashear la contraseña
       const hashedPassword = await Crypto.digestStringAsync(
         Crypto.CryptoDigestAlgorithm.SHA256,
@@ -98,11 +130,21 @@ const SignUp = () => {
         publicaciones: [],
         favoritos: [],
         transacciones: [],
+        expoPushToken: expoPushToken || ''
       };
 
       const createdUser = await createUsuario(newUser);
 
       setUser(createdUser);
+
+            
+      if (!expoPushToken) {
+        Alert.alert(
+          'Aviso', 
+          'No se pudieron configurar las notificaciones. Por favor habilita los permisos en configuración.'
+        );
+      }
+
       router.push('/perfil');
     } catch (error) {
       console.error('Error en el registro:', error);
