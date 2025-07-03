@@ -412,7 +412,9 @@ export default function ProductDetails() {
         <Text style={styles.buyButtonText}>
           {esMiPublicacion 
             ? 'Editar' 
-            : product.tipo === 'Producto' ? 'Comprar' : 'Reservar'
+            : product.tipo === 'Producto' ? 'Comprar' :
+              product.tipo === 'Servicio' ? 'Reservar':
+              'Organizar intercambio'
           }
         </Text>
       </TouchableOpacity>

@@ -36,7 +36,7 @@ const CreatePublication = () => {
   const [tipo, setTipo] = useState('');
   const [precio, setPrecio] = useState('');
   const [precioTasa, setPrecioTasa] = useState('');
-  const [cantidad, setCantidad] = useState('');
+  const [cantidad, setCantidad] = useState('1');
   const [estado, setEstado] = useState('');
   const [lugarEntrega, setLugarEntrega] = useState('');
   const [metodoPago, setMetodoPago] = useState('');
@@ -219,7 +219,7 @@ if (Object.keys(errores).length > 0) {
     setDescripcion('');
     setPrecio('');
     setPrecioTasa('');
-    setCantidad('');
+    setCantidad('1');
     setEstado('');
     setModalidad('');
     setLugarEntrega('');
@@ -436,9 +436,12 @@ const pickImageAndStore = async () => {
         </View>
         {errors.precioTasa && <Text style={styles.errorText}>{errors.precioTasa}</Text>}
       </View>
+      
+
 
       {/* De aqui hasta la forma de metodo de pago es solamente para publicaciones de tipo producto o servicio*/}
       <View style={tipoPublicacion === 'Samanes' ? { display: 'none' } : null}> 
+        
         {/* Cantidad (no aplica para samanes)*/}
         <Text style={styles.label}>
           {tipoPublicacion === 'Producto' ? 'Cantidad de productos*' : 'Cantidad de cupos*'}
@@ -450,7 +453,7 @@ const pickImageAndStore = async () => {
             onChangeText={setCantidad}
             editable={!loading}
           />
-        {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}
+        {errors.cantidad && <Text style={styles.errorText}>{errors.cantidad}</Text>}  
 
         {/* Estado del producto (no aplica para servicios, ni samanes) || Modalidad del servicio (no aplica para producto, ni samanes) */}
         <Text style={styles.label}>
@@ -547,7 +550,7 @@ const pickImageAndStore = async () => {
             </View>
           )}
       </View> 
-      
+
       {/* Forma de la moneda (los samanes) / solo para productos tipo Samanes*/}
       <View style={tipoPublicacion !== 'Samanes' ? { display: 'none' } : null}>
         <Text style={styles.label}>Forma de los Samanes 🌳*</Text>
