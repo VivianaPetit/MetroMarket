@@ -54,6 +54,7 @@ export interface Mensaje {
   tipo: string;
   mensaje: string;
   fecha: Date; 
+  leido: boolean;
 }
 
 export interface Transaccions {

@@ -5,6 +5,10 @@ const mensajeSchema = new mongoose.Schema({
   tipo: { type: String, enum: ['Comprador', 'Vendedor'] },
   mensaje: { type: String, trim: true, },
   fecha: { type: Date, default: Date.now, },
+  leido: {
+    type: Boolean,
+    default: false,
+  },
 
 });
 

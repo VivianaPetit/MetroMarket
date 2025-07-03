@@ -9,11 +9,11 @@ import {
   Platform,
   StyleSheet,
   SafeAreaView,
+  Image,
 } from 'react-native';
-import { Image } from 'react-native'; // No olvides importar Image
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../context/userContext';
-import { getMensajesByTransaccion, crearMensaje } from '../services/mensajeService';
+import { getMensajesByTransaccion, crearMensaje, marcarMensajesComoLeidos } from '../services/mensajeService'; 
 import { fetchTransaccionById } from '../services/transaccionService';
 import { fetchUsuarioById } from '../services/usuarioService';
 import { fetchPublicacionById } from '../services/publicacionService';
@@ -30,9 +30,11 @@ const ChatScreen: React.FC = () => {
   const [transaccion, setTransaccion] = useState<Transaccions | null>(null);
   const [vendedor, setVendedor] = useState<Usuario | null>(null);
   const [publicacion, setPublicacion] = useState<Publicacion | null>(null);
+  const [hayMensajesNoLeidos, setHayMensajesNoLeidos] = useState(false);
 
   const flatListRef = useRef<FlatList<Mensaje>>(null);
 
+  // Carga inicial de datos
   useEffect(() => {
     const cargarDatos = async () => {
       try {
@@ -45,14 +47,55 @@ const ChatScreen: React.FC = () => {
         setMensajes(mensajesData);
         setVendedor(vendedorData);
         setPublicacion(publicacionData);
-
-        setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
       } catch (error) {
-        console.error('Error cargando datos:', error);
+        console.error('Error cargando datos:', error, transaccionId);
       }
     };
+
     if (transaccionId) cargarDatos();
   }, [transaccionId]);
+
+  // Detectar mensajes no leídos para mostrar el punto rojo
+  useEffect(() => {
+    if (!user) return;
+
+    console.log('Mensajes actuales:', mensajes);
+
+    const mensajesNoLeidos = mensajes.some(
+      (msg) => !msg.leido && msg.usuario !== user._id
+    );
+
+    console.log('Mensajes no leidos supuestamente es:', mensajesNoLeidos)
+
+    setHayMensajesNoLeidos(mensajesNoLeidos);
+
+    console.log('Mensajes no leídos:', mensajesNoLeidos);
+  }, [mensajes, user]);
+
+  // Función para marcar mensajes leídos (llamada cuando abres el chat)
+  useEffect(() => {
+    const marcarLeidos = async () => {
+      if (!user || !transaccionId) return;
+
+      try {
+        await marcarMensajesComoLeidos(transaccionId, user._id); // función que debes implementar en tu servicio
+        // Actualizamos localmente para evitar tener que recargar todo
+        setMensajes((prev) =>
+          prev.map((msg) =>
+            msg.usuario !== user._id ? { ...msg, leido: true } : msg
+          )
+        );
+      } catch (error) {
+        console.error('Error marcando mensajes leídos:', error);
+      }
+    };
+
+    marcarLeidos();
+  }, [user, transaccionId]);
+
+  useEffect(() => {
+    flatListRef.current?.scrollToEnd({ animated: true });
+  }, [mensajes]);
 
   const enviarMensaje = async () => {
     if (!nuevoMensaje.trim() || !user || !transaccion) return;
@@ -62,23 +105,26 @@ const ChatScreen: React.FC = () => {
       tipo: transaccion.comprador === user._id ? 'Comprador' : 'Vendedor',
       mensaje: nuevoMensaje,
       fecha: new Date(),
+      leido: false, // nuevo mensaje no está leído inicialmente
     };
 
     try {
       const nuevo = await crearMensaje(mensaje, transaccionId);
       setMensajes((prev) => [...prev, nuevo]);
       setNuevoMensaje('');
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
     } catch (error) {
-      console.error('Error enviando mensaje:', error);
+      console.error('Error enviando mensaje:', error, mensaje);
     }
   };
 
   const renderItem = ({ item }: { item: Mensaje }) => {
-    const esPropio =
-  typeof item.usuario === 'string'
-    ? item.usuario === user?._id
-    : item.usuario?._id === user?._id;
+    const esPropio = (() => {
+      if (!item.usuario || !user?._id) return false;
+      return typeof item.usuario === 'string'
+        ? item.usuario === user._id
+        : item.usuario._id === user._id;
+    })();
+
     return (
       <View style={[styles.burbuja, esPropio ? styles.burbujaPropia : styles.burbujaAjena]}>
         <Text style={[styles.mensajeTexto, { color: esPropio ? '#fff' : '#000' }]}>{item.mensaje}</Text>
@@ -99,7 +145,6 @@ const ChatScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.contenedor}>
-      {/* HEADER estilo MercadoLibre */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.volver}>←</Text>
@@ -110,6 +155,10 @@ const ChatScreen: React.FC = () => {
           <Text style={styles.producto}>{publicacion.titulo}</Text>
         </View>
 
+        {hayMensajesNoLeidos && (
+          <View style={styles.puntoNotificacion} />
+        )}
+
         {publicacion.fotos[0] && (
           <Image
             source={{ uri: publicacion.fotos[0] }}
@@ -119,10 +168,9 @@ const ChatScreen: React.FC = () => {
         )}
       </View>
 
-      {/* MENSAJES */}
       <FlatList
         data={mensajes}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item, index) => item._id || index.toString()}
         renderItem={renderItem}
         ref={flatListRef}
         contentContainerStyle={styles.listaMensajes}
@@ -130,7 +178,6 @@ const ChatScreen: React.FC = () => {
         onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
       />
 
-      {/* INPUT */}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
@@ -140,7 +187,7 @@ const ChatScreen: React.FC = () => {
             style={styles.input}
             placeholder="Escribí un mensaje..."
             value={nuevoMensaje}
-            onChangeText={setNuevoMensaje}
+            onChangeText={(text) => setNuevoMensaje(text)}
             onSubmitEditing={enviarMensaje}
             multiline
           />
@@ -183,11 +230,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#FFF',
   },
-  link: {
-    fontSize: 13,
-    color: '#0066CC',
-    marginTop: 2,
-  },
   listaMensajes: {
     padding: 10,
     paddingBottom: 60,
@@ -202,13 +244,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F68628',
     alignSelf: 'flex-end',
   },
-  imagenProducto: {
-  width: 60,
-  height: 60,
-  borderRadius: 8,
-  marginLeft: 8,
-  alignSelf: 'center',
-},
   burbujaAjena: {
     backgroundColor: '#E5E7EB',
     alignSelf: 'flex-start',
@@ -220,7 +255,14 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 4,
     textAlign: 'right',
-    color: '#FFFF',
+    color: '#FFFFFF',
+  },
+  imagenProducto: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginLeft: 8,
+    alignSelf: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -251,6 +293,14 @@ const styles = StyleSheet.create({
   textoBoton: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  puntoNotificacion: {
+    width: 12,
+    height: 12,
+    backgroundColor: 'red',
+    borderRadius: 6,
+    alignSelf: 'center',
+    marginLeft: 8,
   },
 });
 
