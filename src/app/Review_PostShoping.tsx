@@ -45,6 +45,17 @@ const Review_PostShoping = () => {
     idTransaccion: transaccionId || 'N/A',
   };
 
+  const handleContactarVendedor = (transaccionId: string) => {
+    if (!transaccionId) {
+      alert('Transacción no identificada');
+      return;
+    }
+    router.push({
+      pathname: '/chat',
+      params: { transaccionId },
+    });
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.content}>
@@ -118,6 +129,13 @@ const Review_PostShoping = () => {
           onPress={() => router.replace('/')}
         >
           <Text style={styles.buttonText}>Ir a Inicio</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={() => handleContactarVendedor(orderDetails.idTransaccion)}
+        >
+          <Text style={styles.buttonText}>Ir al chat</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -233,6 +251,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 5,
+  },
+  button2: {
+    backgroundColor: '#00318D',
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    borderRadius: 30,
+    width: '80%',
+    alignItems: 'center',
+    shadowColor: '#F68628',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+    marginTop: 8,
   },
   buttonText: {
     color: '#fff',
