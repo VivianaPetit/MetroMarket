@@ -299,12 +299,31 @@ const pickImageAndStore = async () => {
   );
 }
 
+  const resetForm = () => {
+  // Resetear todos los estados para asegurar que si hace cambio de formulario o se traiga los datos del formulario anterior
+  setTitulo('');
+  setDescripcion('');
+  setPrecio('');
+  setPrecioTasa('');
+  setCantidad('');
+  setEstado('');
+  setModalidad('');
+  setLugarEntrega('');
+  setMetodoPago('');
+  setFormaMoneda('');
+  setCategoria('');
+  setImages([]);
+  setHorario(HORARIO_INICIAL);
+  
+  // Navegar al formulario
+  router.push('/formularioPublicar');
+};
   
   return (
 
     <ScrollView contentContainerStyle={styles.container}>
       {/* parte para salir del formulario */}
-      <TouchableOpacity onPress={() => router.push('/formularioPublicar')} style={styles.backButton} disabled={loading}>
+      <TouchableOpacity onPress={resetForm} style={styles.backButton} disabled={loading}>
         <Ionicons name="arrow-back" size={24} color="#00318D" />
       </TouchableOpacity>
       {/* titulo de la pagina */}

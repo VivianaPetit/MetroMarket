@@ -18,6 +18,7 @@ import { fetchTransaccionById } from '../services/transaccionService';
 import { fetchUsuarioById } from '../services/usuarioService';
 import { fetchPublicacionById } from '../services/publicacionService';
 import { Mensaje, Transaccions, Usuario, Publicacion } from '../interfaces/types';
+import { Ionicons } from '@expo/vector-icons';
 
 const ChatScreen: React.FC = () => {
   const { user } = useAuth();
@@ -191,8 +192,8 @@ const ChatScreen: React.FC = () => {
             onSubmitEditing={enviarMensaje}
             multiline
           />
-          <TouchableOpacity onPress={enviarMensaje} style={styles.botonEnviar}>
-            <Text style={styles.textoBoton}>Enviar</Text>
+          <TouchableOpacity onPress={enviarMensaje}>
+            <Ionicons name="send" size={20} color="#4F46E5" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
