@@ -173,7 +173,7 @@ const MisVentasScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SafeAreaView style={styles.header}>
-        <TouchableOpacity onPress={() => router.push('/menu')} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#00318D" />
         </TouchableOpacity>
         <Text style={styles.title}>Mis Ventas</Text>

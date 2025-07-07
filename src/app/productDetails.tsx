@@ -204,36 +204,38 @@ export default function ProductDetails() {
     </View>
 
 
-    {/* visualizacion imagen 
-    En la parte de visualización de imágenes, reemplaza el código actual con este:*/}
-<View style={styles.imageWrapper}>
-  <ScrollView
-    horizontal
-    pagingEnabled
-    showsHorizontalScrollIndicator={false}
-    onScroll={(event) => {
-      // Actualizar el índice actual basado en el scroll
-      const contentOffset = event.nativeEvent.contentOffset.x;
-      const viewSize = Dimensions.get('window').width;
-      const currentIndex = Math.round(contentOffset / viewSize);
-      setCurrentImageIndex(currentIndex);
-    }}
-    scrollEventThrottle={200}
-  >
-    {(product.fotos?.length ? product.fotos : ['https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'])
-      .map((foto, index) => (
-        <View key={index} style={styles.imageContainer}>
-          <Image
-            source={{ uri: foto }}
-            style={styles.productImage}
-          />
-        </View>
-      ))
-    }
-  </ScrollView>
+    {/* visualizacion imagen */}
+<View style={[
+  styles.imageWrapper, 
+  product.tipo === 'Samanes' && styles.noImageWrapper
+]}>
+  {product.tipo !== 'Samanes' && (
+    <ScrollView
+      horizontal
+      pagingEnabled
+      showsHorizontalScrollIndicator={false}
+      onScroll={(event) => {
+        const contentOffset = event.nativeEvent.contentOffset.x;
+        const viewSize = Dimensions.get('window').width;
+        const currentIndex = Math.round(contentOffset / viewSize);
+        setCurrentImageIndex(currentIndex);
+      }}
+      scrollEventThrottle={200}
+    >
+      {(product.fotos?.length ? product.fotos : ['https://wallpapers.com/images/featured/naranja-y-azul-j3fug7is7nwa7487.jpg'])
+        .map((foto, index) => (
+          <View key={index} style={styles.imageContainer}>
+            <Image
+              source={{ uri: foto }}
+              style={styles.productImage}
+            />
+          </View>
+        ))
+      }
+    </ScrollView>
+  )}
   
-  {/* Indicador de múltiples imágenes */}
-  {(product.fotos?.length || 0) > 1 && (
+  {product.tipo !== 'Samanes' && (product.fotos?.length || 0) > 1 && (
     <View style={styles.imageCounter}>
       <Text style={styles.imageCounterText}>
         {currentImageIndex + 1}/{product.fotos?.length || 1}
@@ -278,22 +280,36 @@ export default function ProductDetails() {
         )} 
 
         {/* visualizacion de precio y precioTasa para Samanes */}
-        <View style={product.tipo !== 'Samanes' ? { display: 'none' } : null}>
-          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:4}}>
-            <Text style={{ fontSize: 25, fontWeight: 'bold'}}>🌳</Text>
-            <Text style={styles.chip}>{product.precio}</Text>     
+        <View style={product.tipo !== 'Samanes' ? { display: 'none' } : styles.samanesContainer}>
+          <View style={styles.samanesHeader}>
+            <Text style={styles.samanesTitle}>Intercambio de Samanes</Text>
           </View>
-          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom:25}}>
-            <Text style={styles.chip2}>{product.formaMoneda}</Text> 
+          
+          <View style={styles.samanesContent}>
+            <View style={styles.samanesRow}>
+              <Text style={styles.samanesLabel}>Ofrezco:</Text>
+              <View style={styles.samanesValueContainer}>
+                <Text style={styles.samanesValue}>{product.precio}</Text>
+                <Text style={styles.samanesCurrency}>Samanes</Text>
+              </View>
+            </View>
+            
+            <View style={styles.samanesArrow}>
+              <AntDesign name="retweet" size={40} color="#FF8C00"/>
+            </View>
+            
+            <View style={styles.samanesRow}>
+              <Text style={styles.samanesLabel}>Deseo recibir:</Text>
+              <View style={styles.samanesValueContainer}>
+                <Text style={styles.samanesValue}>{(product.precioTasa*product.precio).toFixed(2)}</Text>
+                <Text style={styles.samanesCurrency}>Bs</Text>
+              </View>
+            </View>
           </View>
-          <View style={{alignContent: 'center', justifyContent: 'center', alignItems: 'center'}}> 
-            <AntDesign name="retweet" size={50} color="#FF8C00"/>
-          </View>
-          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop:25, marginBottom:25}}>
-            <Text style={styles.chip}>{product.precioTasa}</Text>
-            <Text style={{ fontSize: 25, fontWeight: 'bold'}}>Bs</Text>          
-          </View>
-          <Text style={styles.tasaText}>Tasa: {(product.precioTasa*product.precio).toFixed(2)} Bs/{product.formaMoneda}</Text>
+          
+          <Text style={styles.samanesRate}>
+            Tasa de intercambio: {product.precioTasa} Bs
+          </Text>
         </View>
         
 
@@ -514,10 +530,6 @@ rightArrow: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  imageWrapper: {
-    width: '100%',
-    height: 450, // o el alto que desees para las imágenes
   },
     header: {
     flexDirection: 'row',
@@ -760,5 +772,84 @@ cantidadInput: {
     color: '#FF8C00',
     marginTop: 4,
     fontWeight: '600',
+  },
+    samanesContainer: {
+    backgroundColor: '#FFF9F0',
+    borderRadius: 12,
+    padding: 20,
+    marginVertical: 15,
+    borderWidth: 1,
+    borderColor: '#FFE8CC',
+  },
+  samanesHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#FFE8CC',
+    paddingBottom: 10,
+    marginBottom: 15,
+  },
+  samanesTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FF8C00',
+    textAlign: 'center',
+  },
+  samanesContent: {
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  samanesRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginVertical: 8,
+  },
+  samanesLabel: {
+    fontSize: 16,
+    color: '#666',
+    flex: 1,
+  },
+  samanesValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF2E0',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: '#FFD8B1',
+  },
+  samanesValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FF8C00',
+    marginRight: 5,
+  },
+  samanesCurrency: {
+    fontSize: 16,
+    color: '#E67300',
+  },
+  samanesArrow: {
+    marginVertical: 10,
+    padding: 8,
+    backgroundColor: '#FFF2E0',
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#FFD8B1',
+  },
+  samanesRate: {
+    fontSize: 14,
+    color: '#FF8C00',
+    textAlign: 'center',
+    marginTop: 15,
+    fontStyle: 'italic',
+  },
+  
+  imageWrapper: {
+    width: '100%',
+    height: 450, // Altura por defecto
+  },
+  noImageWrapper: {
+    height: 0, // Para cuando no queremos mostrar imágenes
   },
 });
