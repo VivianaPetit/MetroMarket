@@ -28,6 +28,8 @@ const SignUp = () => {
   };
 
 
+
+
   const handleChange = (field: keyof typeof formData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -79,13 +81,20 @@ const SignUp = () => {
 
     // Validar teléfono
     const trimmedPhone = formData.phone.trim();
+    if (!trimmedPhone) {
+      newErrors.phone = 'El teléfono es obligatorio';
+    } else if (trimmedPhone.length !== 11) {
+      newErrors.phone = 'El telefono debe ser de 11 caracteres';
+    } else if(!/^[\d\s()+.-]+$/.test(trimmedPhone)) {
+      newErrors.phone = 'Solo números, +, (), - o espacios';
+    }
 
     // Validar email
     if (!formData.email.trim()) {
       newErrors.email = 'El correo es obligatorio.';
     } else if (!validarEmail(formData.email)) {
       newErrors.email = 'Debes usar un correo UNIMET.';
-    }
+    } 
 
     // Validar contraseña
     if (!formData.password.trim()) {
@@ -103,7 +112,7 @@ const SignUp = () => {
       // Verificar si el correo ya existe
       try {
         await buscarUsuarioPorCorreo(formData.email.trim());
-        Alert.alert('Error', 'Este correo ya está registrado');
+          Alert.alert('Error', 'Este correo ya está registrado');
         return;
       } catch (error: any) {
         if (error.response?.status !== 404) {

@@ -23,9 +23,9 @@ export default function CategoryPage() {
       try {
         const allProducts = await fetchPublicaciones();
         if(categoryName === 'Todo'){
-          setProducts(allProducts);
+          setProducts(allProducts.filter(p => p.eliminado === false));
         }else{
-          const filtered = allProducts.filter(p => p.categoria === categoryName);
+          const filtered = allProducts.filter(p => p.categoria === categoryName && p.eliminado === false);
           setProducts(filtered);
         }
       } catch (error) {

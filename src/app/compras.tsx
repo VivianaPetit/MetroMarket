@@ -71,7 +71,7 @@ const MisComprasScreen = () => {
             return { ...trans, publicacionDetalle, vendedorDetalle };
           })
         );
-
+        
         setTransacciones(transaccionesConPublicacion);
 
         // 🔴 NUEVO: Verificar mensajes no leídos
@@ -134,7 +134,7 @@ const MisComprasScreen = () => {
       }
 
       const nuevaLista = transacciones.map(t =>
-        t._id === actualizada._id ? { ...actualizada, publicacionDetalle: selectedTransaccion.publicacionDetalle } : t
+        t._id === actualizada._id ? { ...actualizada, publicacionDetalle: selectedTransaccion.publicacionDetalle} : t
       );
 
       setTransacciones(nuevaLista);
@@ -176,7 +176,7 @@ const MisComprasScreen = () => {
       <Ionicons name="cart-outline" size={64} color="#F68628" style={styles.icon} />
 
       {transacciones
-        .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
+        .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle && trans.publicacionDetalle.eliminado === false)
         .map((trans) => {
           const estaExpandida = tarjetaExpandida === trans._id;
 

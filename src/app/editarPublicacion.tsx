@@ -37,6 +37,7 @@ const EditarProducto = () => {
   const [cantidad, setCantidad] = useState(parsedProducto?.cantidad?.toString() || '');
   const [estado, setEstado] = useState(parsedProducto?.estado || '');
   const [disponible, setDisponible] = useState(parsedProducto?.disponible ?? true);
+  const [eliminado, setEliminado] = useState(parsedProducto?.eliminado ?? false);
   const [lugarEntrega, setLugarEntrega] = useState(parsedProducto?.lugarEntrega || '');
   const [metodoPago, setMetodoPago] = useState(parsedProducto?.metodoPago || '');
   const [formaMoneda, setFormaMoneda] = useState(parsedProducto?.formaMoneda || '');
@@ -112,6 +113,7 @@ const EditarProducto = () => {
       cantidad,
       estado,
       disponible,
+      eliminado,
       lugarEntrega,
       metodoPago,
       formaMoneda,
@@ -141,7 +143,11 @@ const EditarProducto = () => {
             style: 'destructive',
             onPress: async () => {
               try {
-                await deletePublicacion(parsedProducto._id);
+                
+                await updatePublicacion(parsedProducto._id, {
+                  eliminado: true,
+                });
+                // await deletePublicacion(parsedProducto._id);
                 Alert.alert('Éxito', 'Publicación eliminada correctamente');
                 router.back();
               } catch (error) {

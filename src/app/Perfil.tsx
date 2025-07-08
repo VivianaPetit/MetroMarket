@@ -75,7 +75,7 @@ export default function Perfil() {
         setPublicaciones(data);
         // Filtra las publicaciones del usuario actual
         const publicacionesDelUsuario = data.filter(pub => 
-          user.publicaciones?.includes(pub._id)
+          user.publicaciones?.includes(pub._id) && pub.eliminado === false
         );
         setPublicacionesUsuario(publicacionesDelUsuario);
       })

@@ -43,7 +43,7 @@ export default function Publicaciones() {
 
   // 🔹 Filtra por usuario autenticado
   const publicacionesDelUsuario = publicaciones.filter(pub =>
-    user?.publicaciones?.includes(pub._id)
+    user?.publicaciones?.includes(pub._id) && pub.eliminado === false
   );
 
   // 🔹 Aplica búsqueda sobre las publicaciones del usuario

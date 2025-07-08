@@ -76,13 +76,13 @@ async function registerForPushNotificationsAsync() {
 
     if (Object.keys(newErrors).length === 0) {
       try {
-        const user = await buscarUsuarioPorCorreo(email);
-        console.log(email);
+          const user = await buscarUsuarioPorCorreo(email);
+          console.log(email);
 
-        if (!user) {
-          Alert.alert('Error', 'Usuario no encontrado.');
-          return;
-        }
+          if (!user) {
+            Alert.alert('Error', 'Usuario no encontrado.');
+            return;
+          }
 
         const hashedPassword = await Crypto.digestStringAsync(
           Crypto.CryptoDigestAlgorithm.SHA256,
@@ -114,8 +114,8 @@ async function registerForPushNotificationsAsync() {
         router.push('/perfil');
 
       } catch (error) {
-        console.error('Error al iniciar sesión:', error);
-        Alert.alert('Error', 'Hubo un problema al iniciar sesión.');
+        console.log('Error al iniciar sesión:', error);
+        Alert.alert('Error', 'Hubo un problema al iniciar sesión, verifique el gmail');
       }
     }
   };

@@ -27,6 +27,7 @@ export interface Publicacion {
   cantidad: number;
   estado: string;
   disponible: boolean;
+  eliminado: boolean;
   lugarEntrega: string;
   titulo: string;
   precio: number;

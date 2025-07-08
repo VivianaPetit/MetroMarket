@@ -16,6 +16,16 @@ export const updatePublicacion = async (id: string, data: Partial<Publicacion>):
 
 export const deletePublicacion = async (id: string): Promise<void> => {
   try {
+    // En lugar de DELETE, hacemos un PATCH para actualizar solo el campo 'eliminado'
+    await axios.patch(`${publicacionesURL}/${id}`, { eliminado: true });
+  } catch (error) {
+    console.error(`Error eliminando publicación con id ${id}:`, error);
+    throw error;
+  }
+};
+
+export const deletePublicacionCompleto = async (id: string): Promise<void> => {
+  try {
     await axios.delete(`${publicacionesURL}/${id}`);
   } catch (error) {
     console.error(`Error eliminando publicación con id ${id}:`, error);

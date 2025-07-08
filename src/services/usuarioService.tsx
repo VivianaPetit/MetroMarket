@@ -135,7 +135,7 @@ export const buscarUsuarioPorCorreo = async (correo: string): Promise<Usuario> =
     const response = await axios.get<Usuario>(`${usuariosURL}/buscarPorCorreo/${encodeURIComponent(correo)}`);
     return response.data;
   } catch (error) {
-    // console.error('No se encontró ese correo en la bdd:', error);
+      console.error('No se encontró ese correo en la bdd:', error);
     throw error;
   }
 };
@@ -147,7 +147,7 @@ export const checkUserVerificationStatus = async (userId: string): Promise<boole
     const response = await axios.get(`${usuariosURL}/${userId}/salesCount`);
     return response.data > 50; // Verifica si tiene más de 50 ventas
   } catch (error) {
-    console.error('Error al verificar ventas del usuario:', error);
+      console.error('Error al verificar ventas del usuario:', error);
     throw error;
   }
 };

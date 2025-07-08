@@ -182,7 +182,7 @@ const MisVentasScreen = () => {
       <Ionicons name="cash-outline" size={64} color="#28A745" style={styles.icon} />
 
       {transacciones
-        .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle)
+        .filter((trans): trans is TransaccionConPublicacion & { publicacionDetalle: Publicacion } => !!trans.publicacionDetalle && trans.publicacionDetalle.eliminado === false)
         .map((trans) => {
           const estaExpandida = tarjetaExpandida === trans._id;
 

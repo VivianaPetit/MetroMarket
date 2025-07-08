@@ -54,7 +54,7 @@ export default function Home() {
       .then(data => {
         setPublicaciones(data);
         // Filtrar publicaciones patrocinadas 
-        const sponsored = data.filter(pub => pub.esPatrocinada);
+        const sponsored = data.filter(pub => pub.esPatrocinada && pub.eliminado === false);
         setSponsoredPosts(sponsored);
       })
       .catch(console.error);
@@ -65,7 +65,7 @@ export default function Home() {
       fetchPublicaciones()
         .then(data => {
           setPublicaciones(data);
-          const sponsored = data.filter(pub => pub.esPatrocinada);
+          const sponsored = data.filter(pub => pub.esPatrocinada && pub.eliminado === false);
           setSponsoredPosts(sponsored);
         })
         .catch(console.error);
@@ -81,7 +81,7 @@ export default function Home() {
 
   const getProductsByCategory = (category: string, limit = 4) => {
     return publicaciones
-      .filter(pub => pub.categoria === category)
+      .filter(pub => pub.categoria === category && pub.eliminado === false)
       .slice(0, limit);
   };
 
@@ -232,7 +232,6 @@ export default function Home() {
               <Text style={styles.emptyText}>No hay productos disponibles</Text>
             </View>
           )}
-          <TouchableOpacity onPress={() => router.push("/Ranking")}>Ranking</TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
     </View>

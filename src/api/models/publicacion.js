@@ -37,6 +37,10 @@ const publicacionSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  eliminado: {
+    type: Boolean,
+    default: false,
+  },
   lugarEntrega: {
     type: String,
   },

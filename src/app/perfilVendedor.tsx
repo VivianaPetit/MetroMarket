@@ -32,7 +32,7 @@ export default function PerfilVendedor() {
         ]);
 
         setVendedor(usuarioData);
-        setPublicaciones(publicacionesData.filter(p => p.usuario === vendedorId));
+        setPublicaciones(publicacionesData.filter(p => p.usuario === vendedorId && p.eliminado === false));
         setResenas(resenasData.filter(r => r.resenado === vendedorId));
       } catch (error) {
         console.error('Error cargando perfil del vendedor:', error);

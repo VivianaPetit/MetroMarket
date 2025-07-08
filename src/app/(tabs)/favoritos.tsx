@@ -40,7 +40,7 @@ export default function Home() {
     );
 
     const favoritosDelUsuario = publicaciones.filter(pub =>
-    user?.favoritos?.includes(pub._id)
+    user?.favoritos?.includes(pub._id) && pub.eliminado === false
     );
 
     const filteredPublications = favoritosDelUsuario.filter((pub) => {
