@@ -19,6 +19,7 @@ import { useAuth } from '../context/userContext';
 import { Publicacion, Usuario } from '../interfaces/types';
 import * as Notifications from 'expo-notifications';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { updatePublicacion } from '../services/actualizarService'; // Asegúrate de importar deletePublicacion
 
 // Configurar manejador de notificaciones
 Notifications.setNotificationHandler({
@@ -51,9 +52,9 @@ const Comprar: React.FC = () => {
   useEffect(() => {
     if (cantidadParam) {
       const cantidadNum = parseInt(cantidadParam, 10);
-      if (!isNaN(cantidadNum) && publicacion?.tipo == 'Producto') {
+      if (!isNaN(cantidadNum) && publicacion?.tipo !== 'Producto') {
         setCantidad(cantidadNum);
-      }if (!isNaN(cantidadNum) && publicacion?.tipo !== 'Producto') {
+      }if (!isNaN(cantidadNum) && publicacion?.tipo === 'Producto') {
         setCantidad(1);
       }
     }
@@ -130,6 +131,12 @@ const Comprar: React.FC = () => {
         entregado: [false, false],
         mensajes: []
       });
+      
+      if(publicacion.tipo === 'Producto'){
+        await updatePublicacion(publicacion._id, {
+          cantidad: publicacion.cantidad - cantidad ,
+        });
+      }
 
       await Promise.all([
         agregarTransaccionAUsuario(user._id, nuevaTransaccion._id),
