@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "metromarket",
-    "slug": "metromarket",
+    "slug": "pruebaa2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/LogoMetroMarket-completo.png",
@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "extra": {
       "eas": {
-        "projectId": "999a2699-0463-4392-ac5a-643a7972b8b2"  
+        "projectId": "999a2699-0463-4392-ac5a-643a7972b8b2"
       }
     },
     "permissions": [
@@ -25,7 +25,8 @@
         "foregroundImage": "./assets/images/LogoMetroMarket-completo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.viviiig.pruebaa2"
     },
     "web": {
       "bundler": "metro",

@@ -16,17 +16,15 @@ import Carousel from 'react-native-reanimated-carousel';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-// Función para obtener categorías destacadas del día
-const getFeaturedCategories = (categorias: Categoria[], count = 3): Categoria[] => {
-  if (categorias.length <= count) return categorias;
+// Función simplificada para obtener categorías destacadas
+const getFeaturedCategories = (categorias: Categoria[]): Categoria[] => {
+  // Filtramos las categorías predeterminadas
+  const featured = categorias.filter(cat => 
+    cat.nombre === 'Alimentos' || cat.nombre === 'Electrónica'
+  );
   
-  // Usamos el día del año como semilla para cambiar diariamente
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-  const seed = dayOfYear % categorias.length;
-  
-  // Rotamos las categorías basadas en el día del año
-  const rotatedCategories = [...categorias.slice(seed), ...categorias.slice(0, seed)];
-  return rotatedCategories.slice(0, count);
+  // Si no encontramos ambas, devolvemos las primeras 2 categorías disponibles
+  return featured.length >= 2 ? featured : categorias.slice(0, 2);
 };
 
 export default function Home() {
