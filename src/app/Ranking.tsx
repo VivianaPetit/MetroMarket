@@ -17,27 +17,26 @@ export default function Ranking() {
   const [promedios, setPromedios] = useState<Promedio[]>([]);
   const [listados, setlistados] = useState<string[]>([]);
   const [best_sellers, setBest_sellers] = useState<Usuario[]>([]);
-   const  [valor, setValor] = useState<number>(0);
-  var  valor2  = 0;
-    const [permiso, setPermiso] = useState(true);
+  const [valor, setValor] = useState<number>(0);
+  var valor2 = 0;
+  const [permiso, setPermiso] = useState(true);
 
-     useEffect(() => {
-        fetchUsuarios()
-          .then(data => {
-            setCategorias(data);
-          })
-          .catch(console.error);
-         fetchResena()
-          .then(data => {
-            setResenas(data);
-          })
-          .catch(console.error);     
-      }, []);
+  useEffect(() => {
+    fetchUsuarios()
+      .then(data => {
+        setCategorias(data);
+      })
+      .catch(console.error);
+    fetchResena()
+      .then(data => {
+        setResenas(data);
+      })
+      .catch(console.error);     
+  }, []);
 
-      
- useEffect(() => {
-    escoger
-  },  []);
+  useEffect(() => {
+    escoger();
+  }, []);
 
  const promediar = (id: string) => {
    const usuario_resenas = resenas.filter(pub => pub.resenado === id)
@@ -129,175 +128,107 @@ export default function Ranking() {
    }
  }
 
-return (
-<View style={styles.container}>
-    <ScrollView>
-      <View style={{flexDirection:'row',gap:15,alignItems:'center'}}>
-        <TouchableOpacity onPress={() => router.back()} >
+ return (
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={{flexDirection:'row', gap:15, alignItems:'center', marginBottom: 20, marginHorizontal: 50}}>
+          <TouchableOpacity onPress={() => router.back()} >
             <Ionicons name="arrow-back" size={24} color="#00318D" />
-        </TouchableOpacity>
-        <View>
-          <Text style={styles.title}>RANKING BEST SELLER</Text>
-        </View>
-      </View>
-
-      <View>
-        <View style={styles.avatarContainer}>
-          <Octicons name="person" size={100} style={{top:120, color:'#F6F6F6'}}/>
-          <Image source={{ uri: best_sellers[0]?.foto }} style={styles.avatarImage} /> 
-          <Ionicons name='ribbon' size={60} style={{bottom:60, color:'#FF8C00'}}/>
-        </View>
-        <Text style={styles.name}>{best_sellers[0]?.nombre}</Text> 
-        <Text style={styles.username}>{best_sellers[0]?.correo}</Text>
-        <Text style={styles.username}>{best_sellers[0]?.telefono}</Text> 
-
-        {best_sellers.slice(1,best_sellers.length-1).map((pub) => (
-          <View style={styles.commentContainer}>
-            <Text>{pub.nombre}</Text>
-            <Text>{pub.telefono}</Text>
-            <Text>{pub.correo}</Text>
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.title}>RANKING BEST SELLER</Text>
           </View>
-        ))}
-        <TouchableOpacity onPress={clasificacion} style={styles.backButton}>
-          <Text style={{color: '#fff'}}>Ver vendedores del mes</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
-  </View>
-    
-    );
-  };
+        </View>
+
+        {/* Primer puesto */}
+        <View style={styles.championContainer}>
+            <View style={styles.avatarContainer}>
+            <Octicons name="person" size={100} style={{top:100, color:'#F6F6F6'}}/>
+            <Image source={{ uri: best_sellers[0]?.foto }} style={styles.avatarImage} /> 
+            <Ionicons name='ribbon' size={60} style={{bottom:50, color:'#FFD700'}}/>
+            </View>
+          <Text style={styles.championTitle}>CAMPEÓN DEL MES</Text>
+          <Text style={styles.name}>{best_sellers[0]?.nombre}</Text> 
+          <Text style={styles.username}>{best_sellers[0]?.correo}</Text>
+          <Text style={styles.username}>{best_sellers[0]?.telefono}</Text>
+        </View>
+
+        {!permiso &&
+        <View style={styles.podiumContainer}>
+     
+          {best_sellers[1] && (
+            <View style={[styles.podiumItem, styles.secondPlace]}>
+              <View style={styles.podiumAvatarContainer}>
+                <Image source={{ uri: best_sellers[1]?.foto }} style={styles.podiumAvatar} />
+                <Ionicons name='ribbon' size={40} style={styles.silverMedal}/>
+              </View>
+              <Text style={styles.podiumPosition}>2°</Text>
+              <Text style={styles.podiumName}>{best_sellers[1]?.nombre}</Text>
+              <Text style={styles.podiumDetail}>{best_sellers[1]?.correo}</Text>
+              <Text style={styles.podiumDetail}>{best_sellers[1]?.telefono}</Text>
+            </View>
+          )}
+
+     
+          {best_sellers[2] && (
+            <View style={[styles.podiumItem, styles.thirdPlace]}>
+              <View style={styles.podiumAvatarContainer}>
+                <Image source={{ uri: best_sellers[2]?.foto }} style={styles.podiumAvatar} />
+                <Ionicons name='ribbon' size={40} style={styles.bronzeMedal}/>
+              </View>
+              <Text style={styles.podiumPosition}>3°</Text>
+              <Text style={styles.podiumName}>{best_sellers[2]?.nombre}</Text>
+              <Text style={styles.podiumDetail}>{best_sellers[2]?.correo}</Text>
+              <Text style={styles.podiumDetail}>{best_sellers[2]?.telefono}</Text>
+            </View>
+          )}
+        </View>}
+
+   
+       {/* {!permiso && <View style={styles.otherParticipants}>
+          <Text style={styles.otherParticipantsTitle}>Otros participantes destacados</Text>
+          {best_sellers.slice(3).map((pub, index) => (
+            <View key={index} style={styles.participantItem}>
+              <Text style={styles.participantPosition}>{index + 4}°</Text>
+              <Image source={{ uri: pub?.foto }} style={styles.participantAvatar} />
+              <View style={styles.participantInfo}>
+                <Text style={styles.participantName}>{pub.nombre}</Text>
+                <Text style={styles.participantDetail}>{pub.correo}</Text>
+              </View>
+            </View>
+          ))}
+        </View>} */}
+
+         {permiso && <TouchableOpacity onPress={clasificacion} style={styles.backButton}>
+          <Text style={{color: '#fff', fontWeight: 'bold'}}>Ver vendedores del mes</Text>
+        </TouchableOpacity>}
+      </ScrollView>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, fontSize: 14, color: '#333' },
-  categoriesWrapper: {
-    marginTop: 12,
-    paddingLeft: 16,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    marginTop: 50,
-    width: '100%',
-  },
-  emptyText: {
-    fontSize: 18,
-    color: '#888',
-    marginTop: 16,
-    textAlign: 'center',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 14,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    paddingHorizontal: 16,
-  },
-  seeAllText: {
-    color: '#00318D',
-    fontWeight: '500',
-  },
-  sponsoredSection: {
-    marginTop: 20,
-  },
-  sponsoredCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    overflow: 'hidden',
-    elevation: 3,
-    marginRight: 10,
-    height: 200,
-  },
-  sponsoredBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#FF8C00',
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-    zIndex: 2,
-  },
-  sponsoredBadgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  sponsoredImageContainer: {
-    width: '100%',
-    height: '70%',
-  },
-  sponsoredImage: {
-    width: '100%',
-    height: '100%',
-  },
-  sponsoredContent: {
-    padding: 10,
-  },
-  sponsoredTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  sponsoredPrice: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#00318D',
-    marginTop: 5,
-  },
-  categorySection: {
-    marginTop: 20,
-  },
-  horizontalScroll: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  horizontalProductCard: {
-    width: 160,
-    marginRight: 12,
-  },
-  productCardWrapper: {
-    width: '48%', // Ocupa casi la mitad del ancho (deja espacio para el margen)
-    marginBottom: 16, // Espacio vertical entre cards
-  },  
-  backButton: {
-    marginBottom: 10,
-    alignSelf: 'flex-start',
-    backgroundColor: '#00318D',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-    width: '100%',
-  },
-   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-   container: {
+  container: {
     flexGrow: 1,
     padding: 30,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    
-  },title: {
-    fontSize:20, 
+  },
+  title: {
+    fontSize: 20, 
     fontWeight: 'bold',
     color: '#333',
-
+    textAlign: 'center',
+    
+  },
+  championContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  championTitle: {
+    fontSize: 18,
+    color: '#B8860B', 
+    marginBottom: 10,
   },
   avatarContainer: {
     width: 150,
@@ -306,42 +237,135 @@ const styles = StyleSheet.create({
     backgroundColor: '#00318D',
     justifyContent: 'center',
     alignItems: 'center',
-    alignSelf:'center',
-    marginTop:30,
-    marginBottom: 15,
+    marginBottom: 32,
   },
-  avatarImage: { // <-- AÑADE ESTE ESTILO
+  avatarImage: {
     width: '90%',
     height: '90%',
-    marginBottom: 40,
-    borderRadius: 100, // Para que la imagen también sea redonda
+    borderRadius: 100,
+    bottom: 20,
   },
-   name: {
+  name: {
     fontSize: 22,
     fontWeight: '600',
     color: '#333',
-    marginTop:25,
-    marginRight:10,
-    alignSelf:'center'
-  },
-  card: {
-    flexDirection:'column',
-    backgroundColor: 'gray',
-    
-
   },
   username: {
     fontSize: 16,
     color: '#666',
-    marginRight:10,
-    alignSelf:'center'
   },
-  commentContainer: {
+  podiumContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 30,
+  },
+  podiumItem: {
+    alignItems: 'center',
+    width: '45%',
+    padding: 15,
+    borderRadius: 10,
+  },
+  secondPlace: {
+    backgroundColor: '#F2F2F2',
+    borderColor: '#C0C0C0',
+    borderWidth: 2,
+  },
+  thirdPlace: {
+    backgroundColor: '#F8F8F8',
+    borderColor: '#CD7F32',
+    borderWidth: 2,
+  },
+  podiumAvatarContainer: {
+    position: 'relative',
+    marginBottom: 10,
+  },
+  podiumAvatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: '#FFF',
+  },
+  silverMedal: {
+    position: 'absolute',
+    bottom: -10,
+    right: -10,
+    color: '#C0C0C0',
+  },
+  bronzeMedal: {
+    position: 'absolute',
+    bottom: -10,
+    right: -10,
+    color: '#CD7F32',
+  },
+  podiumPosition: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  podiumName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 5,
+    textAlign: 'center',
+  },
+  podiumDetail: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+  },
+  otherParticipants: {
+    marginTop: 20,
+  },
+  otherParticipantsTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  participantItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#F6F6F6',
-    padding: 8,
-    borderRadius: 5,
-    maxWidth: '90%',
-    marginTop:30
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  participantPosition: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#00318D',
+    width: 30,
+    textAlign: 'center',
+  },
+  participantAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginHorizontal: 15,
+  },
+  participantInfo: {
+    flex: 1,
+  },
+  participantName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  participantDetail: {
+    fontSize: 14,
+    color: '#666',
+  },
+  backButton: {
+    marginBottom: 10,
+    alignSelf: 'center',
+    backgroundColor: '#00318D',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+    width: '100%',
   },
 });
       

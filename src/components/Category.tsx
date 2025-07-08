@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  GestureResponderEvent,
   Image,
   StyleSheet,
   Text,
@@ -13,7 +12,7 @@ import {
 type CategoryBadgeProps = {
   label: string;
   imageSource: string; // URL o path local
-  onPress?: (event: GestureResponderEvent) => void;
+  onPress?: () => void;
   style?: ViewStyle;
   textStyle?: TextStyle;
   isSelected?: boolean;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { fetchPublicacionById, fetchPublicaciones } from '../services/publicacionService';
+
 
 const Review_PostShoping = () => {
   const router = useRouter();
@@ -9,7 +9,6 @@ const Review_PostShoping = () => {
   const params = useLocalSearchParams();
   
   const { 
-    productId, 
     productName, 
     productPrice, 
     productPriceTasa,

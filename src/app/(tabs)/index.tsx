@@ -73,10 +73,7 @@ export default function Home() {
   );
 
   const handleCategoryPress = (categoryName: string) => {
-    router.push({
-      pathname: "../categoria",
-      params: { category: categoryName }
-    });
+    
   };
 
   const getProductsByCategory = (category: string, limit = 4) => {
@@ -94,7 +91,10 @@ export default function Home() {
       <View key={category._id} style={styles.categorySection}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>{category.nombre}</Text>
-          <TouchableOpacity onPress={() => handleCategoryPress(category.nombre)}>
+          <TouchableOpacity onPress={() => router.push({
+                  pathname: "./categoria",
+                  params: { category: category.nombre }
+                })}>
             <Text style={styles.seeAllText}>Ver todo</Text>
           </TouchableOpacity>
         </View>
@@ -209,7 +209,10 @@ export default function Home() {
                 label={'Todo'}
                 imageSource={'https://cdn-icons-png.flaticon.com/512/262/262045.png'}
                 isSelected={false}
-                onPress={() => handleCategoryPress('Todo')}
+                onPress={() => router.push({
+                  pathname: "./categoria",
+                  params: { category: "Todo" }
+                })}
               />
             {(showAllCategories ? categorias : categorias.slice(0, 8)).map((cat) => (
               <CategoryBadge
@@ -217,7 +220,10 @@ export default function Home() {
                 label={cat.nombre}
                 imageSource={cat.foto}
                 isSelected={false}
-                onPress={() => handleCategoryPress(cat.nombre)}
+                onPress={() => router.push({
+                  pathname: "./categoria",
+                  params: { category: cat.nombre }
+                })}
               />
             ))}
           </ScrollView>

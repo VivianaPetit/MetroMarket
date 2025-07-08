@@ -16,15 +16,5 @@ const usuarioSchema = new mongoose.Schema({
     expoPushToken: { type: String, default: null },
 });
 
-usuarioSchema.pre('save', function(next) {
-    if (!this.transacciones || this.transacciones.length === 0) {
-        this.calificacion = null; 
-    } else {
-        // Calcula el promedio de las calificaciones
-        const total = this.transacciones.reduce((sum, t) => sum + (t.calificacion || 0), 0);
-        this.calificacion = total / this.transacciones.length; 
-    }
-    next(); 
-});
 
 module.exports = mongoose.model('Usuario', usuarioSchema);

@@ -147,7 +147,7 @@ const ChatScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.contenedor}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.push('/compras')}>
+        <TouchableOpacity onPress={() => router.back()}>
           <Text style={styles.volver}>←</Text>
         </TouchableOpacity>
 
